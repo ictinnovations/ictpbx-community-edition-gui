@@ -1,0 +1,45 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Music on Hold' : 'Add Music on Hold' }}</nb-card-header>
+  <nb-card-body>
+    <div class="alert alert-danger" *ngIf="isError"><ul><li *ngFor="let e of errorText">{{ e }}</li></ul></div>
+    <div class="alert alert-success" *ngIf="isSuccess">Saved successfully.</div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Name *</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.music_on_hold_name" placeholder="default"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Path</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.music_on_hold_path" placeholder="/usr/share/freeswitch/sounds/music/default"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Shuffle</label>
+      <div class="col-sm-9">
+        <select nbSelect fullWidth [(ngModel)]="item.music_on_hold_shuffle">
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Rate (Hz)</label>
+      <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="item.music_on_hold_rate"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Channels</label>
+      <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="item.music_on_hold_channels"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Interval (ms)</label>
+      <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="item.music_on_hold_interval"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Timer Name</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.music_on_hold_timer_name" placeholder="soft"></div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/music_on_hold/music_on_hold']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

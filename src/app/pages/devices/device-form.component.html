@@ -1,0 +1,91 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Device' : 'Add Device' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Device saved successfully.</div>
+
+    <nb-card>
+      <nb-card-header>Device Information</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">MAC Address *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_address" placeholder="00:0B:82:01:FC:42" required>
+            <small class="text-muted">Format: XX:XX:XX:XX:XX:XX</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Label</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_label" placeholder="John's Desk Phone">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Vendor</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="device.device_vendor">
+              <option value="">-- Select Vendor --</option>
+              <option *ngFor="let v of vendors" [value]="v">{{ v }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Model</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_model" placeholder="T46U">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Template</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_template" placeholder="yealink/T46U.xml">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Firmware Version</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_firmware_version" placeholder="2.13.0.150">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Location</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_location" placeholder="Office 2A">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Username</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_username">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Password</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="password" [(ngModel)]="device.device_password">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="device.device_enabled">Active</nb-checkbox>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/devices/devices']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

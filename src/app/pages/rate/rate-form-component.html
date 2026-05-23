@@ -1,0 +1,181 @@
+<h3>Add::Rate</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        Rate Information
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="name">Rate Name: <span class="text-danger">*</span></label>
+              <input [(ngModel)]="rate.name" [ngModelOptions]="{standalone: true}" #rateName="ngModel"
+                     type="text" class="form-control" id="name" required minlength="2"/>
+              <div [hidden]="rateName.valid || rateName.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!rateName.hasError('required')">Rate name is required.</div>
+                <div [hidden]="!rateName.hasError('minlength')">Rate name must be at least 2 characters.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+              <label for="plan_id">Rate Plan:</label>
+              <br>
+              <select class="form-control" name="plan_id" [(ngModel)]="rate.plan_id" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let plan of plans" [value]="plan.plan_id">
+                  {{plan.name}}
+                </option>
+              </select>
+          </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <div>
+              <br>
+              <label for="service_flag">Service:</label>
+              <select class="form-control" name="service_flag" [(ngModel)]="rate.service_flag" [ngModelOptions]="{standalone: true}">
+                <option value="2" selected>Fax</option>
+                <option value="0" disabled>SMS</option>
+                <option value="0" disabled>Email</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        Billing
+      </nb-card-header>
+      <nb-card-body>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="unit_billing_block">Billing Block:</label>
+            <select class="form-control" name="unit_billing_block" [(ngModel)]="rate.unit_billing_block" [ngModelOptions]="{standalone: true}">
+              <option value="60" >60 seconds</option>
+              <option value="54" >54 seconds</option>
+              <option value="50" >50 seconds</option>
+              <option value="48" >48 seconds</option>
+              <option value="45" >45 seconds</option>
+              <option value="42" >42 seconds</option>
+              <option value="40" >40 seconds</option>
+              <option value="36" >36 seconds</option>
+              <option value="35" >35 seconds</option>
+              <option value="30" >30 seconds</option>
+              <option value="25" >25 seconds</option>
+              <option value="24" >24 seconds</option>
+              <option value="20" >20 seconds</option>
+              <option value="18" >18 seconds</option>
+              <option value="15" >15 seconds</option>
+              <option value="12" >12 seconds</option>
+              <option value="10" >10 seconds</option>
+              <option value="6" >6 seconds</option>
+              <option value="5" >5 seconds</option>
+              <option value="1" >1 second</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="unit_block_rate">Rate: <span class="text-danger">*</span></label>
+            <input [(ngModel)]="rate.unit_block_rate" [ngModelOptions]="{standalone: true}" #unitBlockRate="ngModel"
+                   type="text" class="form-control" id="unit_block_rate"
+                   required pattern="^[0-9]+(\.[0-9]+)?$"
+                   placeholder="e.g. 0.01"/>
+            <div [hidden]="unitBlockRate.valid || unitBlockRate.pristine" class="alert alert-danger mt-1 p-1">
+              <div [hidden]="!unitBlockRate.hasError('required')">Rate is required.</div>
+              <div [hidden]="!unitBlockRate.hasError('pattern')">Enter numbers only (e.g. 0.01). Do not include currency signs ($, £, €).</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="unit_first_block">First Interval:</label>
+            <select class="form-control" name="unit_first_block" [(ngModel)]="rate.unit_first_block" [ngModelOptions]="{standalone: true}">
+              <option value="60" >60 seconds</option>
+              <option value="54" >54 seconds</option>
+              <option value="50" >50 seconds</option>
+              <option value="48" >48 seconds</option>
+              <option value="45" >45 seconds</option>
+              <option value="42" >42 seconds</option>
+              <option value="40" >40 seconds</option>
+              <option value="36" >36 seconds</option>
+              <option value="35" >35 seconds</option>
+              <option value="30" >30 seconds</option>
+              <option value="25" >25 seconds</option>
+              <option value="24" >24 seconds</option>
+              <option value="20" >20 seconds</option>
+              <option value="18" >18 seconds</option>
+              <option value="15" >15 seconds</option>
+              <option value="12" >12 seconds</option>
+              <option value="10" >10 seconds</option>
+              <option value="6" >6 seconds</option>
+              <option value="5" >5 seconds</option>
+              <option value="1" >1 second</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="unit_increment">Increment Interval:</label>
+            <select class="form-control" name="unit_increment" [(ngModel)]="rate.unit_increment" [ngModelOptions]="{standalone: true}">
+              <option value="60" >60 seconds</option>
+              <option value="54" >54 seconds</option>
+              <option value="50" >50 seconds</option>
+              <option value="48" >48 seconds</option>
+              <option value="45" >45 seconds</option>
+              <option value="42" >42 seconds</option>
+              <option value="40" >40 seconds</option>
+              <option value="36" >36 seconds</option>
+              <option value="35" >35 seconds</option>
+              <option value="30" >30 seconds</option>
+              <option value="25" >25 seconds</option>
+              <option value="24" >24 seconds</option>
+              <option value="20" >20 seconds</option>
+              <option value="18" >18 seconds</option>
+              <option value="15" >15 seconds</option>
+              <option value="12" >12 seconds</option>
+              <option value="10" >10 seconds</option>
+              <option value="6" >6 seconds</option>
+              <option value="5" >5 seconds</option>
+              <option value="1" >1 second</option>
+            </select>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        Destination (Add comma separated Prefix with country code)
+        <p>example: 1415, 1315, 92300</p>
+        <p>999 for all</p>
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="destination_id">Destination: <span class="text-danger">*</span></label>
+              <input [(ngModel)]="rate.destination_id" [ngModelOptions]="{standalone: true}" #destinationId="ngModel"
+                     type="text" class="form-control" id="destination_id"
+                     required pattern="^[0-9]+(,\s*[0-9]+)*$"
+                     placeholder="e.g. 1415, 1315, 92300 or 999 for all"/>
+              <div [hidden]="destinationId.valid || destinationId.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!destinationId.hasError('required')">Destination is required.</div>
+                <div [hidden]="!destinationId.hasError('pattern')">Enter comma-separated numbers only (e.g. 1415, 92300). No letters or special characters.</div>
+              </div>
+            </div>
+          </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div *ngIf="(rate_id>0)">
+      <button type="button" class="btn btn-primary"
+              [disabled]="rateName.invalid || unitBlockRate.invalid || destinationId.invalid"
+              (click)="updateRate()">Update</button>
+    </div>
+    <div *ngIf="(!rate_id)">
+      <button type="button" class="btn btn-success"
+              [disabled]="rateName.invalid || unitBlockRate.invalid || destinationId.invalid"
+              (click)="addRate()">Submit</button>
+    </div>
+  </form>
+</div>

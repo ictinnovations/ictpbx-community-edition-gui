@@ -1,0 +1,168 @@
+<div *ngIf="loading" class="loader-overlay">
+  <div class="loader-content d-flex align-items-center">
+    <nb-spinner status="primary" size="giant" [message]="'Uploading... ' + total_progress + '%'"></nb-spinner>
+  </div>
+</div>
+<nb-card *ngIf="uploaded_result && failedCount > 0">
+  <nb-card-body>
+    <div>
+      <table style="width:100%;text-align:center;">
+        <thead>
+          <tr>
+            <th>
+              Success Records
+            </th>
+            <th>
+              Failed Records
+            </th>
+            <th>
+              Total Entries
+            </th>
+            <th *ngIf="failedCount > 0">
+              Download CSV
+            </th>
+          </tr>
+          <tr>
+            <td>
+              {{successCount}}
+            </td>
+            <td>
+              {{failedCount}}
+            </td>
+            <td>
+              {{totalCount}}
+            </td>
+            <td *ngIf="failedCount > 0" colspan="100%">
+              <button class="btn btn-sm btn-success" (click)="downloadFailedCSV()">
+                Download CSV(Failed)
+              </button>
+            </td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+  </nb-card-body>
+
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Upload CSV File
+  </nb-card-header>
+  <nb-card-body>
+    <div class="container">
+      <div class="navbar navbar-default">
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <input type="file" accept=".csv" (change)="onFileSelected($event)" multiple /><br />
+        </div>
+      </div>
+    </div>
+    <div *ngIf="unsupportedErr">
+      <br>
+      <label style="color:red" text-center>{{ 'document.unsupported_file' | translate}}</label>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Set Columns for Database
+  </nb-card-header>
+  <nb-card-body>
+    <div style="overflow-x: auto; white-space: nowrap;">
+      <table class="table table-bordered" style="min-width: max-content;">
+        <thead>
+          <tr>
+            <th *ngFor="let header of headers">
+              {{ header }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td *ngFor="let header of headers">
+              <select class="form-control" (change)="setMapping(header,$event)" [(ngModel)]="selectedValues[header]">
+                <option value="">Please Choose</option>
+                <option value="phone">Number</option>
+                <option value="">Ignore</option>
+              </select>
+            </td>
+          </tr>
+          <tr *ngFor="let row of rows | slice:0:3">
+            <td *ngFor="let header of headers">
+              {{ row[header] }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </nb-card-body>
+
+
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Set Tenant
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="tenant_id">{{ 'Tenant.title' | translate}}</label>
+        <select class="form-control" name="tenant_id" (change)="onTenantChange($event)"
+          [ngModelOptions]="{standalone: true}">
+          <option value="0">Please Select Tenant</option>
+          <option *ngFor="let tenant of tenants" value="{{tenant.tenant_id}}">
+            {{tenant.company}} <ng-template [ngIf]="tenant.first_name">- {{tenant.first_name}}
+              {{tenant.last_name}}</ng-template>
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Assign to User
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="user_id">{{ 'User.title' | translate}}</label>
+        <select class="form-control" name="user_id" [ngModelOptions]="{standalone: true}" (change)="assignUser($event)">
+          <option value="0">Please Select User</option>
+          <option *ngFor="let user of aUser" value="{{user.user_id}}">
+            {{user.email}}
+          </option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Send Header
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-md-3">
+        <input type="checkbox" (change)="onHeadersend($event)" checked>
+        Remove Header<br>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="!loading && !uploaded_result">
+  <nb-card-header>
+    Save
+  </nb-card-header>
+  <nb-card-body>
+    <button class="btn-sm btn btn-success" (click)="send_data()">Send</button>
+  </nb-card-body>
+</nb-card>

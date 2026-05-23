@@ -1,0 +1,175 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit IVR Menu' : 'Add IVR Menu' }}</nb-card-header>
+  <nb-card-body>
+    <div class="alert alert-danger" *ngIf="isError"><ul><li *ngFor="let e of errorText">{{ e }}</li></ul></div>
+    <div class="alert alert-success" *ngIf="isSuccess">IVR Menu saved successfully.</div>
+
+    <nb-tabset>
+      <!-- ═══ TAB 1: Settings ═══ -->
+      <nb-tab tabTitle="Settings">
+        <nb-card><nb-card-body>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Name *</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_name" placeholder="Main Menu" required></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Extension *</label>
+            <div class="col-sm-9">
+              <input nbInput fullWidth [(ngModel)]="menu.ivr_menu_extension" placeholder="8000" required
+                     (blur)="checkExtension(menu.ivr_menu_extension)">
+              <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Language</label>
+            <div class="col-sm-9">
+              <select nbSelect fullWidth [(ngModel)]="menu.ivr_menu_language">
+                <option value="en">English (en)</option>
+                <option value="fr">French (fr)</option>
+                <option value="de">German (de)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="it">Italian (it)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Greeting (long)</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_greet_long" placeholder="ivr/ivr-welcome_to_company.wav"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Greeting (short)</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_greet_short" placeholder="ivr/ivr-press_1.wav"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Invalid Sound</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_invalid_sound" placeholder="ivr/ivr-that_was_an_invalid_entry.wav"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Exit Sound</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_exit_sound" placeholder="ivr/ivr-thank_you.wav"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Timeout (ms)</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="menu.ivr_menu_timeout" placeholder="10000"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Exit Action</label>
+            <div class="col-sm-9">
+              <select nbSelect fullWidth [(ngModel)]="menu.ivr_menu_exit_app">
+                <option value="">-- None --</option>
+                <option value="transfer">Transfer</option>
+                <option value="hangup">Hangup</option>
+                <option value="voicemail">Voicemail</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" *ngIf="menu.ivr_menu_exit_app === 'transfer'">
+            <label class="col-sm-3 col-form-label">Exit Destination</label>
+            <div class="col-sm-9">
+              <div class="d-flex" style="gap:8px">
+                <select nbSelect [(ngModel)]="exitDestType" (ngModelChange)="onExitDestTypeChange()" style="width:140px">
+                  <option value="extension">Extension</option>
+                  <option value="ring_group">Ring Group</option>
+                  <option value="ivr">IVR Menu</option>
+                </select>
+                <select nbSelect fullWidth [(ngModel)]="exitDestValue" (ngModelChange)="onExitDestValueChange()">
+                  <option value="">— Select —</option>
+                  <option *ngFor="let o of exitDestList" [value]="o.extension">{{ o.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Max Failures</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="menu.ivr_menu_max_failures"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Max Timeouts</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="menu.ivr_menu_max_timeouts"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Direct Dial</label>
+            <div class="col-sm-9"><nb-checkbox [(ngModel)]="menu.ivr_menu_direct_dial">Allow direct extension dialling</nb-checkbox></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Description</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_description"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Enabled</label>
+            <div class="col-sm-9"><nb-checkbox [(ngModel)]="menu.ivr_menu_enabled">Active</nb-checkbox></div>
+          </div>
+        </nb-card-body></nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 2: Options (keypress mappings) ═══ -->
+      <nb-tab tabTitle="Options">
+        <nb-card>
+          <nb-card-header>
+            Key Press Mappings
+            <button nbButton size="small" status="primary" (click)="addOption()" style="float:right">
+              <nb-icon icon="plus-outline"></nb-icon> Add Option
+            </button>
+          </nb-card-header>
+          <nb-card-body>
+            <div *ngIf="!menu.options || menu.options.length === 0" class="text-muted">
+              No options yet. Click "Add Option" to map keypresses to destinations.
+            </div>
+            <table class="table table-bordered" *ngIf="menu.options && menu.options.length > 0">
+              <thead>
+                <tr>
+                  <th>Digits</th>
+                  <th>Action</th>
+                  <th>Destination / Parameter</th>
+                  <th>Order</th>
+                  <th>Enabled</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let opt of menu.options; let i = index">
+                  <td><input nbInput [(ngModel)]="opt.ivr_menu_option_digits" placeholder="1" style="width:70px"></td>
+                  <td>
+                    <select nbSelect [(ngModel)]="opt.ivr_menu_option_action" style="width:120px">
+                      <option *ngFor="let a of optionActions" [value]="a">{{ a }}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="opt.ivr_menu_option_action === 'transfer'; else rawParam">
+                      <div class="d-flex" style="gap:4px">
+                        <select nbSelect [(ngModel)]="optionDestType[i]" (ngModelChange)="onOptionDestTypeChange(i)" style="width:120px">
+                          <option value="extension">Extension</option>
+                          <option value="ring_group">Ring Group</option>
+                          <option value="ivr">IVR Menu</option>
+                        </select>
+                        <select nbSelect [(ngModel)]="optionDestValue[i]" (ngModelChange)="onOptionDestValueChange(i)" style="width:160px">
+                          <option value="">— Select —</option>
+                          <option *ngFor="let o of optionDestList(i)" [value]="o.extension">{{ o.label }}</option>
+                        </select>
+                      </div>
+                    </ng-container>
+                    <ng-template #rawParam>
+                      <input nbInput [(ngModel)]="opt.ivr_menu_option_param" placeholder="Parameter" style="width:200px">
+                    </ng-template>
+                  </td>
+                  <td><input nbInput type="number" [(ngModel)]="opt.ivr_menu_option_order" style="width:70px"></td>
+                  <td><nb-checkbox [(ngModel)]="opt.ivr_menu_option_enabled"></nb-checkbox></td>
+                  <td>
+                    <button nbButton ghost size="small" (click)="removeOption(i)">
+                      <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/ivr_menus/ivr_menus']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

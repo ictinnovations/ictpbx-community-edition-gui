@@ -1,0 +1,52 @@
+export class Provider {
+  provider_id: number;
+  name: string;
+  from_email: string;
+  encryption: string;
+  gateway_flag: number;
+  service_flag: number;
+  fpbx_gateway_uuid: string;
+  node_id: number;
+  host: any;
+  port: number;
+  username: string;
+  password: string;
+  dialstring: string;
+  prefix: any;
+  settings: string;
+  register: any;
+  weight: number;
+  type: any;
+  active: any;
+  httpkey: any;
+  description: string;
+
+  // FusionPBX gateway parity
+  realm: string;
+  from_user: string;
+  from_domain: string;
+  proxy: string;
+  register_proxy: string;
+  outbound_proxy: string;
+  expire_seconds: number;
+  retry_seconds: number;
+  register_transport: string;
+  auth_username: string;
+  contact_params: string;
+  extension: string;
+  distinct_to: string;
+  caller_id_in_from: string;
+  supress_cng: string;
+  sip_cid_type: string;
+  codec_prefs: string;
+  extension_in_contact: string;
+  ping: string;
+  ping_min: string;
+  ping_max: string;
+  contact_in_ping: string;
+  channels: number;
+  hostname: string;
+  context: string;
+  profile: string;
+  enabled: string;
+}

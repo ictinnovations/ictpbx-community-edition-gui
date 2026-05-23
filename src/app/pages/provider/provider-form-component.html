@@ -1,0 +1,400 @@
+<div *ngIf="isError" class="ict_error">
+  <p *ngFor="let err of errorText">{{ err }}</p>
+</div>
+
+<nb-card>
+  <nb-card-header>
+    <h5 *ngIf="!provider.provider_id" style="margin:0">{{ 'provider.add' | translate }}</h5>
+    <h5 *ngIf="provider.provider_id" style="margin:0">{{ 'provider.edit' | translate }}</h5>
+  </nb-card-header>
+
+  <nb-card-body>
+    <form id="form1" #f1="ngForm">
+      <nb-tabset>
+
+        <!-- ═══════════════ TAB 1: GATEWAY ═══════════════ -->
+        <nb-tab tabTitle="Gateway">
+          <nb-card>
+            <nb-card-body>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Provider Name <span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="name" [(ngModel)]="provider.name" #name="ngModel" required placeholder="e.g. signalwire-uk">
+                  <small *ngIf="name.invalid && name.touched" style="color:#ff3d71">Provider name is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Gateway Type <span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="type" [(ngModel)]="provider.type" [disabled]="provider_id > 0" required>
+                    <option value="">Please select…</option>
+                    <option value="sip">SIP</option>
+                    <option value="smtp">SMTP</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Authentication</label>
+                <div class="col-sm-9">
+                  <nb-checkbox name="ip_auth" [(ngModel)]="ip_auth" (ngModelChange)="onIpAuthChange()">
+                    Carrier uses IP address authentication (no username / password)
+                  </nb-checkbox>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Supports Fax</label>
+                <div class="col-sm-9">
+                  <nb-checkbox name="fax_support" [(ngModel)]="fax_support" (ngModelChange)="onFaxSupportChange()">
+                    T.38 / G.711 fax pass-through
+                  </nb-checkbox>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http' && !ip_auth">
+                <label class="col-sm-3 col-form-label">Username <span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="username" [(ngModel)]="provider.username" #username="ngModel" required>
+                  <small *ngIf="username.invalid && username.touched" style="color:#ff3d71">Username is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http' && !ip_auth">
+                <label class="col-sm-3 col-form-label">Password <span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="password" name="password" [(ngModel)]="provider.password" #pw="ngModel" required>
+                  <small *ngIf="pw.invalid && pw.touched" style="color:#ff3d71">Password is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Host / Proxy <span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="host" [(ngModel)]="provider.host" #host="ngModel" required placeholder="sip.signalwire.com">
+                  <small *ngIf="host.invalid && host.touched" style="color:#ff3d71">Host / Proxy is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Port</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="port" [(ngModel)]="provider.port" placeholder="5060">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">From User</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="from_user" [(ngModel)]="provider.from_user" placeholder="defaults to username">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">From Domain</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="from_domain" [(ngModel)]="provider.from_domain" placeholder="defaults to proxy">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Realm</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="realm" [(ngModel)]="provider.realm" placeholder="defaults to proxy">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Register</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="register" [(ngModel)]="provider.register">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Expire (sec)</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="expire_seconds" [(ngModel)]="provider.expire_seconds" placeholder="800">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http'">
+                <label class="col-sm-3 col-form-label">Retry (sec)</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="retry_seconds" [(ngModel)]="provider.retry_seconds" placeholder="30">
+                </div>
+              </div>
+
+              <!-- HTTP credentials block (kept for parity with prior form) -->
+              <div *ngIf="provider.type === 'http'">
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">Host</label>
+                  <div class="col-sm-9">
+                    <input nbInput fullWidth name="host_http" [(ngModel)]="provider.host" required>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-3 col-form-label">API Key</label>
+                  <div class="col-sm-9">
+                    <input nbInput fullWidth name="httpkey" [(ngModel)]="provider.httpkey" required>
+                  </div>
+                </div>
+              </div>
+
+            </nb-card-body>
+          </nb-card>
+        </nb-tab>
+
+        <!-- ═══════════════ TAB 2: ADVANCED ═══════════════ -->
+        <nb-tab tabTitle="Advanced">
+          <nb-card>
+            <nb-card-body>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Auth Username</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="auth_username" [(ngModel)]="provider.auth_username">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Register Proxy</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="register_proxy" [(ngModel)]="provider.register_proxy">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Outbound Proxy</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="outbound_proxy" [(ngModel)]="provider.outbound_proxy">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Register Transport</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="register_transport" [(ngModel)]="provider.register_transport">
+                    <option value="udp">UDP</option>
+                    <option value="tcp">TCP</option>
+                    <option value="tls">TLS</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Contact Params</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="contact_params" [(ngModel)]="provider.contact_params">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Extension</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="extension" [(ngModel)]="provider.extension">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Caller-ID in From</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="caller_id_in_from" [(ngModel)]="provider.caller_id_in_from">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Suppress CNG</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="supress_cng" [(ngModel)]="provider.supress_cng">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">SIP CID Type</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="sip_cid_type" [(ngModel)]="provider.sip_cid_type">
+                    <option value="none">none</option>
+                    <option value="pid">pid</option>
+                    <option value="rpid">rpid</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Codec Prefs</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="codec_prefs" [(ngModel)]="provider.codec_prefs" placeholder="PCMU,PCMA,T38">
+                  <small class="form-text text-muted">Auto-set when Fax support is toggled on the General tab.</small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Extension in Contact</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="extension_in_contact" [(ngModel)]="provider.extension_in_contact">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Ping (sec)</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="ping" [(ngModel)]="provider.ping">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Ping Min</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="ping_min" [(ngModel)]="provider.ping_min">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Ping Max</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="ping_max" [(ngModel)]="provider.ping_max">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Contact in Ping</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="contact_in_ping" [(ngModel)]="provider.contact_in_ping">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Channels</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="channels" [(ngModel)]="provider.channels">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Hostname</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="hostname" [(ngModel)]="provider.hostname">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Distinct To</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="distinct_to" [(ngModel)]="provider.distinct_to">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
+            </nb-card-body>
+          </nb-card>
+        </nb-tab>
+
+        <!-- ═══════════════ TAB 3: GENERAL ═══════════════ -->
+        <nb-tab tabTitle="General">
+          <nb-card>
+            <nb-card-body>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Context</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="context" [(ngModel)]="provider.context" placeholder="public">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Profile</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="profile" [(ngModel)]="provider.profile">
+                    <option value="external">external</option>
+                    <option value="internal">internal</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Enabled</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="enabled" [(ngModel)]="provider.enabled">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Active</label>
+                <div class="col-sm-9">
+                  <select nbInput fullWidth name="active" [(ngModel)]="provider.active">
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Weight</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth type="number" name="weight" [(ngModel)]="provider.weight" placeholder="0">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Description</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="description" [(ngModel)]="provider.description">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http' && provider.type !== 'smtp'">
+                <label class="col-sm-3 col-form-label">Prefix</label>
+                <div class="col-sm-9">
+                  <input nbInput fullWidth name="prefix" [(ngModel)]="provider.prefix" placeholder="e.g. +1, +44">
+                </div>
+              </div>
+
+              <div class="form-group row" *ngIf="provider.type !== 'http' && provider.type !== 'smtp'">
+                <label class="col-sm-3 col-form-label">Settings (raw)</label>
+                <div class="col-sm-9">
+                  <textarea nbInput fullWidth name="settings" [(ngModel)]="provider.settings" rows="6"></textarea>
+                  <small class="form-text text-muted">Extra key=value gateway settings appended verbatim.</small>
+                </div>
+              </div>
+
+            </nb-card-body>
+          </nb-card>
+        </nb-tab>
+
+      </nb-tabset>
+    </form>
+  </nb-card-body>
+
+  <nb-card-footer>
+    <button *ngIf="provider_id > 0" nbButton status="primary" (click)="updateProvider()" [disabled]="!f1.valid">
+      {{ 'buttons.update' | translate }}
+    </button>
+    <button *ngIf="!provider_id" nbButton status="success" (click)="addProvider()" [disabled]="!f1.valid">
+      {{ 'buttons.submit' | translate }}
+    </button>
+    <button nbButton ghost [routerLink]="['/pages/provider/provider']" style="margin-left:8px">Cancel</button>
+  </nb-card-footer>
+</nb-card>

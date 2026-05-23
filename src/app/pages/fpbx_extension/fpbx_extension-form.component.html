@@ -1,0 +1,414 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Extension' : 'Add Extension' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Extension saved successfully.</div>
+
+    <nb-tabset>
+
+      <!-- ═══ TAB 1: Basic ═══ -->
+      <nb-tab tabTitle="Basic">
+        <nb-card>
+          <nb-card-body>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Extension Number *</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.extension" placeholder="1001" required
+                       (blur)="checkExtension(ext.extension)">
+                <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Number Alias</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.number_alias" placeholder="Alternate number">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Password / SIP Auth <span style="color:red">*</span></label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth type="password" [(ngModel)]="ext.password" name="password" #password="ngModel" placeholder="SIP registration password" required>
+                <small *ngIf="password.invalid && password.touched" style="color:#ff3d71">Password is required.</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Description</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.description">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Fax Email</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth type="email" [(ngModel)]="ext.fax_email" placeholder="user@example.com">
+                <small class="text-muted">Received faxes will be delivered here.</small>
+              </div>
+            </div>
+            <div class="form-group row" *ngIf="showUserAssign">
+              <label class="col-sm-3 col-form-label">Assign to User</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth [(ngModel)]="linked_user_id">
+                  <option value="">— Unassigned —</option>
+                  <option *ngFor="let u of tenantUsers" [value]="u.user_id">{{ u.username }}</option>
+                </select>
+                <small class="text-muted">End user whose My Account will show this extension.</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Enabled</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.enabled">Active</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Do Not Disturb</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.do_not_disturb">Enable DND</nb-checkbox>
+              </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 2: Caller ID ═══ -->
+      <nb-tab tabTitle="Caller ID">
+        <nb-card>
+          <nb-card-body>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Effective Caller ID Name</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.effective_caller_id_name" placeholder="John Smith">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Effective Caller ID Number <span style="color:red">*</span></label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.effective_caller_id_number" name="effective_caller_id_number" #cid="ngModel" placeholder="1001" required>
+                <small *ngIf="cid.invalid && cid.touched" style="color:#ff3d71">Caller ID Number is required.</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Outbound Caller ID Name</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.outbound_caller_id_name" placeholder="Company Name">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Outbound Caller ID Number</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.outbound_caller_id_number" placeholder="+12125551234">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Emergency Caller ID Name</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.emergency_caller_id_name">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Emergency Caller ID Number</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.emergency_caller_id_number">
+              </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 3: Call Handling ═══ -->
+      <nb-tab tabTitle="Call Handling">
+        <nb-card>
+          <nb-card-body>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Call Timeout (sec)</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth type="number" [(ngModel)]="ext.call_timeout" placeholder="30">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Call Group</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.call_group" placeholder="sales">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Toll Allow</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.toll_allow" placeholder="local,domestic,international">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Account Code</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.accountcode">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Hold Music</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.hold_music" placeholder="default">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Call Recording</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth [(ngModel)]="ext.user_record">
+                  <option *ngFor="let opt of recordOptions" [value]="opt">{{ opt }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Codec String</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.absolute_codec_string" placeholder="PCMU,PCMA,G722">
+              </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 4: Forwarding ═══ -->
+      <nb-tab tabTitle="Forwarding">
+        <nb-card>
+          <nb-card-body>
+
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Forward All Calls</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.forward_all_enabled">Enable</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row" *ngIf="ext.forward_all_enabled">
+              <label class="col-sm-3 col-form-label">Forward All Destination</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth *ngIf="!_extMode_fwd_all"
+                  [(ngModel)]="ext.forward_all_destination"
+                  (ngModelChange)="onFwdChange('forward_all_destination', $event)">
+                  <option value="">— None —</option>
+                  <option *ngFor="let e of extensions" [value]="e.extension">{{ e.label }}</option>
+                  <option value="__external__">External / Other...</option>
+                </select>
+                <div *ngIf="_extMode_fwd_all" style="display:flex;gap:8px;align-items:center">
+                  <input nbInput fullWidth [(ngModel)]="ext.forward_all_destination" placeholder="+12125551234">
+                  <a style="cursor:pointer;white-space:nowrap;font-size:12px" (click)="ext.forward_all_destination=''; _extMode_fwd_all=false">← Extension</a>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Forward on Busy</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.forward_busy_enabled">Enable</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row" *ngIf="ext.forward_busy_enabled">
+              <label class="col-sm-3 col-form-label">Busy Destination</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth *ngIf="!_extMode_fwd_busy"
+                  [(ngModel)]="ext.forward_busy_destination"
+                  (ngModelChange)="onFwdChange('forward_busy_destination', $event)">
+                  <option value="">— None —</option>
+                  <option *ngFor="let e of extensions" [value]="e.extension">{{ e.label }}</option>
+                  <option value="__external__">External / Other...</option>
+                </select>
+                <div *ngIf="_extMode_fwd_busy" style="display:flex;gap:8px;align-items:center">
+                  <input nbInput fullWidth [(ngModel)]="ext.forward_busy_destination" placeholder="+12125551234">
+                  <a style="cursor:pointer;white-space:nowrap;font-size:12px" (click)="ext.forward_busy_destination=''; _extMode_fwd_busy=false">← Extension</a>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Forward on No Answer</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.forward_no_answer_enabled">Enable</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row" *ngIf="ext.forward_no_answer_enabled">
+              <label class="col-sm-3 col-form-label">No Answer Destination</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth *ngIf="!_extMode_fwd_no_answer"
+                  [(ngModel)]="ext.forward_no_answer_destination"
+                  (ngModelChange)="onFwdChange('forward_no_answer_destination', $event)">
+                  <option value="">— None —</option>
+                  <option *ngFor="let e of extensions" [value]="e.extension">{{ e.label }}</option>
+                  <option value="__external__">External / Other...</option>
+                </select>
+                <div *ngIf="_extMode_fwd_no_answer" style="display:flex;gap:8px;align-items:center">
+                  <input nbInput fullWidth [(ngModel)]="ext.forward_no_answer_destination" placeholder="+12125551234">
+                  <a style="cursor:pointer;white-space:nowrap;font-size:12px" (click)="ext.forward_no_answer_destination=''; _extMode_fwd_no_answer=false">← Extension</a>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Forward if Not Registered</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.forward_user_not_registered_enabled">Enable</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row" *ngIf="ext.forward_user_not_registered_enabled">
+              <label class="col-sm-3 col-form-label">Not Registered Destination</label>
+              <div class="col-sm-9">
+                <select nbSelect fullWidth *ngIf="!_extMode_fwd_unreg"
+                  [(ngModel)]="ext.forward_user_not_registered_destination"
+                  (ngModelChange)="onFwdChange('forward_user_not_registered_destination', $event)">
+                  <option value="">— None —</option>
+                  <option *ngFor="let e of extensions" [value]="e.extension">{{ e.label }}</option>
+                  <option value="__external__">External / Other...</option>
+                </select>
+                <div *ngIf="_extMode_fwd_unreg" style="display:flex;gap:8px;align-items:center">
+                  <input nbInput fullWidth [(ngModel)]="ext.forward_user_not_registered_destination" placeholder="+12125551234">
+                  <a style="cursor:pointer;white-space:nowrap;font-size:12px" (click)="ext.forward_user_not_registered_destination=''; _extMode_fwd_unreg=false">← Extension</a>
+                </div>
+              </div>
+            </div>
+
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 5: Directory ═══ -->
+      <nb-tab tabTitle="Directory">
+        <nb-card>
+          <nb-card-body>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">First Name</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.directory_first_name">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Last Name</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="ext.directory_last_name">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Directory Visible</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.directory_visible">Show in directory</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Show Extension in Directory</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="ext.directory_exten_visible">Show extension number</nb-checkbox>
+              </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+      <!-- ═══ TAB 6: Follow Me ═══ -->
+      <nb-tab tabTitle="Follow Me">
+        <nb-card>
+          <nb-card-body>
+
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Enabled</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="followMe.follow_me_enabled">Enable Follow Me</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Ignore Busy</label>
+              <div class="col-sm-9">
+                <nb-checkbox [(ngModel)]="followMe.follow_me_ignore_busy">Continue ringing if busy</nb-checkbox>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">CID Name Prefix</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="followMe.cid_name_prefix" placeholder="e.g. FM:">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">CID Number Prefix</label>
+              <div class="col-sm-9">
+                <input nbInput fullWidth [(ngModel)]="followMe.cid_number_prefix">
+              </div>
+            </div>
+
+            <hr style="margin:16px 0">
+
+            <div style="margin-bottom:10px">
+              <strong>Destinations</strong>
+              <button nbButton size="small" status="primary" style="margin-left:12px" (click)="addFmDest()">
+                <nb-icon icon="plus-outline"></nb-icon> Add
+              </button>
+            </div>
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="border-bottom:1px solid #eee;text-align:left">
+                  <th style="padding:6px">Destination</th>
+                  <th style="padding:6px">Delay (s)</th>
+                  <th style="padding:6px">Timeout (s)</th>
+                  <th style="padding:6px">Prompt</th>
+                  <th style="padding:6px">Order</th>
+                  <th style="padding:6px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of followMe.destinations; let i = index" style="border-bottom:1px solid #f5f5f5">
+                  <td style="padding:4px">
+                    <ng-container *ngIf="!isFmExternalMode(i)">
+                      <select nbSelect [(ngModel)]="d.follow_me_destination" style="width:170px">
+                        <option value="">— Select extension —</option>
+                        <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                      </select>
+                      <a href="javascript:void(0)" (click)="toggleFmExternal(i)" style="display:block;font-size:11px;margin-top:2px">External number?</a>
+                    </ng-container>
+                    <ng-container *ngIf="isFmExternalMode(i)">
+                      <input nbInput [(ngModel)]="d.follow_me_destination" placeholder="+15551234567" style="width:160px">
+                      <a href="javascript:void(0)" (click)="toggleFmExternal(i)" style="display:block;font-size:11px;margin-top:2px">Pick extension</a>
+                    </ng-container>
+                  </td>
+                  <td style="padding:4px">
+                    <input nbInput type="number" [(ngModel)]="d.follow_me_delay" style="width:70px">
+                  </td>
+                  <td style="padding:4px">
+                    <input nbInput type="number" [(ngModel)]="d.follow_me_timeout" style="width:70px">
+                  </td>
+                  <td style="padding:4px">
+                    <nb-select [(ngModel)]="d.follow_me_prompt">
+                      <nb-option value="false">No</nb-option>
+                      <nb-option value="true">Yes</nb-option>
+                    </nb-select>
+                  </td>
+                  <td style="padding:4px">
+                    <input nbInput type="number" [(ngModel)]="d.follow_me_order" style="width:60px">
+                  </td>
+                  <td style="padding:4px">
+                    <button nbButton ghost size="tiny" status="danger" (click)="removeFmDest(i)">
+                      <nb-icon icon="trash-2-outline"></nb-icon>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="followMe.destinations.length === 0">
+                  <td colspan="6" style="padding:12px;text-align:center;color:#aaa">No destinations — click Add to create one</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </nb-card-body>
+        </nb-card>
+      </nb-tab>
+
+    </nb-tabset>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/fpbx_extension/extensions']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

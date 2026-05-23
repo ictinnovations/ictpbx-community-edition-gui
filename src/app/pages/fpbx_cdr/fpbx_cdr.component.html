@@ -1,0 +1,114 @@
+<!-- ETL Status Card -->
+<nb-card [status]="etlStatus?.running ? 'warning' : etlStatus?.status === 'error' ? 'danger' : 'basic'" style="margin-bottom:16px">
+  <nb-card-body>
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <strong>CDR Sync (ETL)</strong>&nbsp;
+        <span *ngIf="etlStatus?.running" class="badge badge-warning">Running...</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'ok'" class="badge badge-success">OK</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'error'" class="badge badge-danger">Error</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'never_run'" class="badge badge-secondary">Never run</span>
+        <div class="text-muted" style="font-size:12px;margin-top:4px" *ngIf="etlStatus?.last_run">
+          Last run: {{ etlStatus.last_run }} &mdash; {{ etlStatus.inserted }} record(s) inserted
+        </div>
+        <div class="text-danger" style="font-size:12px;margin-top:4px" *ngIf="etlStatus?.error">
+          {{ etlStatus.error }}
+        </div>
+        <div class="text-muted" style="font-size:11px;margin-top:2px">
+          Syncs FreeSWITCH Master.csv → ICTCore CDR. Runs automatically every hour.
+        </div>
+      </div>
+      <button nbButton size="small" status="primary"
+              [disabled]="etlTriggering || etlStatus?.running"
+              (click)="runEtl()">
+        <nb-icon icon="sync-outline"></nb-icon>
+        {{ etlStatus?.running ? 'Running...' : 'Run ETL Now' }}
+      </button>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<!-- PBX CDR Table -->
+<nb-card>
+  <nb-card-header>PBX CDR</nb-card-header>
+  <nb-card-body>
+
+    <!-- Filters -->
+    <form [formGroup]="range" class="row align-items-end mb-3">
+      <div class="col-auto">
+        <label class="d-block" style="font-size:12px;margin-bottom:4px">Start Date</label>
+        <input nbInput fieldSize="small" type="date" formControlName="start">
+      </div>
+      <div class="col-auto">
+        <label class="d-block" style="font-size:12px;margin-bottom:4px">End Date</label>
+        <input nbInput fieldSize="small" type="date" formControlName="end">
+      </div>
+      <div class="col-auto">
+        <label class="d-block" style="font-size:12px;margin-bottom:4px">Direction</label>
+        <select nbSelect [(ngModel)]="direction" [ngModelOptions]="{standalone:true}" size="small">
+          <option value="">All</option>
+          <option value="inbound">Inbound</option>
+          <option value="outbound">Outbound</option>
+          <option value="local">Local</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button nbButton status="primary" size="small" (click)="applyFilter()">Filter</button>
+        &nbsp;
+        <button nbButton status="basic" size="small" (click)="clearFilter()">Clear</button>
+      </div>
+    </form>
+
+    <!-- Table -->
+    <div *ngIf="loading" class="text-center py-3">Loading...</div>
+
+    <table class="table table-bordered table-sm table-hover" *ngIf="!loading">
+      <thead class="thead-light">
+        <tr>
+          <th>Date / Time</th>
+          <th>Domain</th>
+          <th>Direction</th>
+          <th>Caller</th>
+          <th>Destination</th>
+          <th>Duration</th>
+          <th>Billed</th>
+          <th>Hangup Cause</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of rows">
+          <td style="white-space:nowrap">{{ r.start_stamp | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+          <td>{{ r.domain_name }}</td>
+          <td>
+            <span [class]="'badge badge-' + (r.direction==='inbound'?'success':r.direction==='outbound'?'primary':'secondary')">
+              {{ r.direction }}
+            </span>
+          </td>
+          <td>{{ r.caller_id_name }} <small class="text-muted">{{ r.caller_id_number }}</small></td>
+          <td>{{ r.destination_number }}</td>
+          <td>{{ r.duration }}s</td>
+          <td>{{ r.billsec }}s</td>
+          <td>
+            <span [class]="r.hangup_cause==='NORMAL_CLEARING'?'text-success':'text-danger'" style="font-size:11px">
+              {{ r.hangup_cause }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="rows.length === 0 && !loading">
+          <td colspan="8" class="text-center text-muted">No CDR records found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="d-flex align-items-center justify-content-between mt-2" *ngIf="total > 0">
+      <small class="text-muted">{{ pageStart }}–{{ pageEnd }} of {{ total }}</small>
+      <div>
+        <button nbButton size="tiny" [disabled]="pageIndex === 0" (click)="prevPage()">&#8592; Prev</button>
+        &nbsp;
+        <button nbButton size="tiny" [disabled]="pageEnd >= total" (click)="nextPage()">Next &#8594;</button>
+      </div>
+    </div>
+
+  </nb-card-body>
+</nb-card>

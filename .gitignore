@@ -1,0 +1,62 @@
+# compiled output
+/dist
+/tmp
+/.tmp
+/out-tsc
+
+# dependencies
+/node_modules
+
+# IDEs and editors
+.angular
+/.angular
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+/docs
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Sensitive / local only
+git-token
+access.txt
+abc.txt
+internal-docs/git-plan.md
+internal-docs/demo.md
+internal-docs/future-plan.md
+.claude/
+.scratch/
+
+# Generated test artifacts
+/playwright-report/
+/playwright-report-*/
+/test-results/
+/e2e/screenshots/
+proposal.md
+ictcore-install.sh

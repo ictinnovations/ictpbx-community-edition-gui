@@ -1,0 +1,85 @@
+<h3>Add::Payment</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        Paid By
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="usr_id">Paid By</label>
+              <select class="form-control" name="usr_id" [(ngModel)]="payment.usr_id" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let user of users" [value]="user.user_id">
+                  {{user.username}}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="description">Comments: <span class="text-danger">*</span></label>
+              <textarea [(ngModel)]="this.payment.description" [ngModelOptions]="{standalone: true}" #payDesc="ngModel"
+                        class="form-control" id="description" rows="5" cols="20" required></textarea>
+              <div [hidden]="payDesc.valid || payDesc.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!payDesc.hasError('required')">Comments are required.</div>
+              </div>
+            </div>
+          </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        Payment
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="paid_amount">Total Paid Amount: <span class="text-danger">*</span></label>
+              <input [(ngModel)]="payment.paid_amount" [ngModelOptions]="{standalone: true}" #paidAmount="ngModel"
+                     type="text" class="form-control" id="paid_amount" name="paid_amount"
+                     required pattern="^[0-9]+(\.[0-9]{1,2})?$"
+                     placeholder="e.g. 150.00"/>
+              <div [hidden]="paidAmount.valid || paidAmount.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!paidAmount.hasError('required')">Amount is required.</div>
+                <div [hidden]="!paidAmount.hasError('pattern')">Enter numbers only (e.g. 150.00). Do not include currency signs ($, £, €).</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+              <label for="type">Payment Type:</label>
+              <select class="form-control" name="type" [(ngModel)]="payment.type" [ngModelOptions]="{standalone: true}">
+                <option value="cash">Cash</option>
+                <option value="cheque">Cheque</option>
+                <option value="online_payment">Online Payment</option>
+                <option value="other">Other</option>
+              </select>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group"><br>
+              <label for="paid_date">Date Paid on: <span class="text-danger">*</span></label>
+              <input [(ngModel)]="payment.paid_date" [ngModelOptions]="{standalone: true}" #paidDate="ngModel"
+                     type="date" class="form-control" id="paid_date" required/>
+              <div [hidden]="paidDate.valid || paidDate.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!paidDate.hasError('required')">Payment date is required.</div>
+              </div>
+            </div>
+          </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div *ngIf="(payment_id>0)">
+      <button type="button" class="btn btn-primary"
+              [disabled]="payDesc.invalid || paidAmount.invalid || paidDate.invalid"
+              (click)="updatePayment()">Update</button>
+    </div>
+    <div *ngIf="(!payment_id)">
+      <button type="button" class="btn btn-success"
+              [disabled]="payDesc.invalid || paidAmount.invalid || paidDate.invalid"
+              (click)="addPayment()">Submit</button>
+    </div>
+  </form>
+</div>

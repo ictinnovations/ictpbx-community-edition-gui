@@ -1,0 +1,91 @@
+<nb-card>
+  <nb-card-header>
+    <span>Extensions</span>
+    <button nbButton status="primary" size="small" [routerLink]="['/pages/fpbx_extension/extensions/new']" style="float:right">
+      <nb-icon icon="plus-outline"></nb-icon> Add Extension
+    </button>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row mb-3" *ngIf="isAdmin">
+      <div class="col-auto">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="loadList()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <mat-table #table [dataSource]="dataSource" matSort>
+
+      <ng-container matColumnDef="extension">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Extension</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.extension }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="effective_caller_id_name">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.effective_caller_id_name }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="effective_caller_id_number">
+        <mat-header-cell *matHeaderCellDef>Caller ID Number</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.effective_caller_id_number }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="call_timeout">
+        <mat-header-cell *matHeaderCellDef>Timeout (s)</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.call_timeout }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="enabled">
+        <mat-header-cell *matHeaderCellDef>Enabled</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <nb-icon [icon]="row.enabled === 'true' || row.enabled === true ? 'checkmark-circle-2-outline' : 'close-circle-outline'"
+                   [status]="row.enabled === 'true' || row.enabled === true ? 'success' : 'danger'"></nb-icon>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="tenant_name">
+        <mat-header-cell *matHeaderCellDef>Tenant</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.tenant_name || '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="linked_username">
+        <mat-header-cell *matHeaderCellDef>Assigned User</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.linked_username || '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="fax_email">
+        <mat-header-cell *matHeaderCellDef>Fax Email</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.fax_email || '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="operations">
+        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button nbButton ghost size="small" [routerLink]="['/pages/fpbx_extension/extensions', row.extension_uuid]">
+            <nb-icon icon="edit-2-outline" status="primary"></nb-icon>
+          </button>
+          <button nbButton ghost size="small" (click)="openDeleteDialog(row.extension_uuid, deleteDialog)">
+            <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data>
+  <nb-card>
+    <nb-card-header>Confirm Delete</nb-card-header>
+    <nb-card-body>Are you sure you want to delete this extension?</nb-card-body>
+    <nb-card-footer>
+      <button nbButton status="danger" (click)="confirmDelete()">Delete</button>
+      <button nbButton ghost (click)="cancelDelete()">Cancel</button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

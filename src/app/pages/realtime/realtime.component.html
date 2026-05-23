@@ -1,0 +1,118 @@
+<div class="row" style="margin-bottom:16px">
+  <div class="col-md-4">
+    <nb-card status="primary">
+      <nb-card-body style="text-align:center">
+        <div style="font-size:48px;font-weight:bold">{{ channelCount }}</div>
+        <div>Active Channels</div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+  <div class="col-md-4">
+    <nb-card status="success">
+      <nb-card-body style="text-align:center">
+        <div style="font-size:48px;font-weight:bold">{{ registrationCount }}</div>
+        <div>Registrations</div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+  <div class="col-md-4">
+    <nb-card>
+      <nb-card-body style="text-align:center">
+        <nb-icon icon="refresh-outline" style="font-size:32px"></nb-icon>
+        <div>Polling every 5s</div>
+        <div *ngIf="lastUpdated" style="font-size:11px;color:#888">{{ lastUpdated | date:'HH:mm:ss' }}</div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>
+
+<nb-card>
+  <nb-card-header>Active Channels</nb-card-header>
+  <nb-card-body>
+    <table class="table table-bordered table-sm" *ngIf="channels.length > 0">
+      <thead>
+        <tr>
+          <th>Direction</th>
+          <th>Caller ID</th>
+          <th>Destination</th>
+          <th>State</th>
+          <th>Call State</th>
+          <th>Codec</th>
+          <th>IP</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ch of channels">
+          <td>{{ ch.direction }}</td>
+          <td>{{ ch.cid_name }} &lt;{{ ch.cid_num }}&gt;</td>
+          <td>{{ ch.dest }}</td>
+          <td>{{ ch.state }}</td>
+          <td>{{ ch.callstate }}</td>
+          <td>{{ ch.read_codec }}</td>
+          <td>{{ ch.ip_addr }}</td>
+          <td style="white-space:nowrap;min-width:220px">
+            <ng-container *ngIf="transferUuid !== ch.uuid">
+              <button nbButton size="tiny" status="danger"
+                      [disabled]="pendingUuid === ch.uuid"
+                      (click)="controlCall('hangup', ch.uuid)"
+                      title="Hangup">
+                <nb-icon icon="phone-off-outline"></nb-icon>
+              </button>
+              &nbsp;
+              <button nbButton size="tiny" status="warning"
+                      [disabled]="pendingUuid === ch.uuid"
+                      (click)="controlCall('hold', ch.uuid)"
+                      [title]="isHeld(ch) ? 'Unhold' : 'Hold'">
+                <nb-icon [icon]="isHeld(ch) ? 'play-circle-outline' : 'pause-circle-outline'"></nb-icon>
+              </button>
+              &nbsp;
+              <button nbButton size="tiny" status="info"
+                      [disabled]="pendingUuid === ch.uuid"
+                      (click)="startTransfer(ch.uuid)"
+                      title="Transfer">
+                <nb-icon icon="swap-outline"></nb-icon>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="transferUuid === ch.uuid">
+              <input nbInput fieldSize="tiny" placeholder="Extension"
+                     [(ngModel)]="transferDest" style="width:90px">
+              &nbsp;
+              <button nbButton size="tiny" status="success"
+                      [disabled]="!transferDest"
+                      (click)="controlCall('transfer', ch.uuid, transferDest)">
+                <nb-icon icon="checkmark-outline"></nb-icon>
+              </button>
+              &nbsp;
+              <button nbButton size="tiny" status="basic" (click)="cancelTransfer()">
+                <nb-icon icon="close-outline"></nb-icon>
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="channels.length === 0" class="text-muted text-center">No active channels.</div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>Registrations</nb-card-header>
+  <nb-card-body>
+    <table class="table table-bordered table-sm" *ngIf="registrations.length > 0">
+      <thead>
+        <tr><th>User</th><th>Realm</th><th>Network IP</th><th>User Agent</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reg of registrations">
+          <td>{{ reg.reg_user }}</td>
+          <td>{{ reg.realm }}</td>
+          <td>{{ reg.network_ip }}</td>
+          <td>{{ reg.user_agent }}</td>
+          <td>{{ reg.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="registrations.length === 0" class="text-muted text-center">No registrations.</div>
+  </nb-card-body>
+</nb-card>

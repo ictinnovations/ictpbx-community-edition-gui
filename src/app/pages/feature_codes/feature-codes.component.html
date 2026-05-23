@@ -1,0 +1,50 @@
+<nb-card>
+  <nb-card-header>
+    <span>Feature Codes</span>
+  </nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+    <div class="row mb-3">
+      <div class="col-sm-4">
+        <input nbInput fullWidth placeholder="Search codes or names…" [(ngModel)]="filter">
+      </div>
+      <div class="col-auto" style="padding-top:4px">
+        <button nbButton ghost size="small" (click)="load()">
+          <nb-icon icon="refresh-outline"></nb-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center text-muted" *ngIf="loading">Loading…</div>
+
+    <table class="table table-bordered table-sm" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th style="width:120px">Code</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th style="width:80px">Enabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filtered">
+          <td><strong>{{ item.dialplan_number }}</strong></td>
+          <td>{{ item.dialplan_name }}</td>
+          <td>{{ item.dialplan_description }}</td>
+          <td>
+            <nb-icon [icon]="item.dialplan_enabled === 'true' ? 'checkmark-circle-2-outline' : 'close-circle-outline'"
+                     [status]="item.dialplan_enabled === 'true' ? 'success' : 'danger'"></nb-icon>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0 && !loading">
+          <td colspan="4" class="text-center text-muted">No feature codes found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <small class="text-muted">Feature codes are read-only here. To modify them, use FusionPBX Dialplans.</small>
+
+  </nb-card-body>
+</nb-card>

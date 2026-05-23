@@ -1,0 +1,125 @@
+<nb-card>
+  <nb-card-header>
+    Extensions CDR
+  </nb-card-header>
+  <nb-card-body>
+    <div class="example-container cdr_filter" >
+      
+      <mat-form-field class="field">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date" />
+          <input matEndDate formControlName="end" placeholder="End date" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+      
+      <div class="field" >
+        <select class="form-control" name="tenant_id" (change)="onTenantSelect($event.target.value)">
+          <option value="0">All Tenant</option>
+          <option *ngFor="let tenant of tenants" value="{{ tenant.tenant_id }}">
+            {{ tenant.company }}
+           <ng-template [ngIf]="tenant.first_name">- {{ tenant.first_name }} {{ tenant.last_name }}</ng-template>
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <select class="form-control" name="user" (change)="onUserSelect($event.target.value)">
+          <option value="0">All User</option>
+          <option *ngFor="let user of users" value="{{ user.user_id }}">
+            {{ user.first_name }} {{ user.last_name }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="field" >
+        <select class="form-control"  (change)="onExtesionSelect($event.target.value)">
+          <option value="0">All Domains</option>
+          <option *ngFor="let extension of extensions" value="{{ extension.domain }}">
+            {{extension.domain}} 
+          </option>
+        </select>
+      </div>
+
+      <div class="field" >
+        <select class="form-control"  (change)="onStatusSelect($event.target.value)">
+          <option value="0">All status</option>
+          <option  value="NORMAL_CLEARING">Completed </option>
+          <option  value="false">Failed </option>
+        </select>
+      </div>
+    </div>
+    <br>
+    <div class="example-container cdr_filter">
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="filterList()">
+        <i class="fa fa-filter"></i>
+        Filter Report
+      </button>
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="exportCDR()">
+        <i class="fa fa-file" title="CSV File download"></i>
+        {{ "cdr.export_to_csv" | translate }}
+      </button>
+      <!-- <button type="button" class="btn" mat-raised-button color="primary" (click)="exportCDR(true)">
+          <i class="fa fa-file" title="CSV File download"></i>
+          {{ "cdr.export_to_csv_monthly" | translate }}
+        </button> -->
+    </div>
+
+    <br><br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aUsersCdr" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.id}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Time">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> Time</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.start_time}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="CallerNumber">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Caller Number</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.caller_number}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="destination">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Destination</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.destination}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Duration">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Duration</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.duration}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="HangupCause">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Hangup Cause</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.hangup_cause}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Domain">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Domain</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.domain}}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>

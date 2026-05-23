@@ -1,0 +1,94 @@
+<div class="softphone-wrapper">
+  <!-- Trigger button -->
+  <button class="phone-btn" (click)="toggle()" [class.has-incoming]="callState === 'ringing'" title="Softphone">
+    <nb-icon [icon]="callState === 'ringing' ? 'phone-call-outline' : 'phone-outline'"></nb-icon>
+    <span class="status-dot" [class]="statusClass"></span>
+  </button>
+
+  <!-- Floating panel -->
+  <div class="softphone-panel" *ngIf="open">
+
+    <!-- Header bar -->
+    <div class="sp-header">
+      <span class="sp-status" [class]="statusClass">{{ statusLabel }}</span>
+      <span *ngIf="cfg.user" class="sp-user">{{ cfg.user }}&#64;{{ cfg.domain }}</span>
+      <button class="sp-close" (click)="toggle()">&#x2715;</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sp-tabs">
+      <button [class.active]="activeTab === 'dialer'" (click)="activeTab = 'dialer'">Dialer</button>
+      <button [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">Settings</button>
+    </div>
+
+    <!-- ── DIALER TAB ── -->
+    <div *ngIf="activeTab === 'dialer'" class="sp-body">
+
+      <!-- Incoming call UI -->
+      <div class="incoming-call" *ngIf="callState === 'ringing'">
+        <nb-icon icon="phone-incoming-outline" class="ring-icon"></nb-icon>
+        <p class="caller-id">{{ callerInfo || 'Unknown' }}</p>
+        <div class="incoming-actions">
+          <button class="btn-answer" (click)="phone.answer()">
+            <nb-icon icon="phone-outline"></nb-icon>
+          </button>
+          <button class="btn-reject" (click)="phone.reject()">
+            <nb-icon icon="phone-off-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active call UI -->
+      <div class="active-call" *ngIf="callState === 'active' || callState === 'calling'">
+        <p class="caller-id">{{ callerInfo }}</p>
+        <p class="call-status">{{ callState === 'calling' ? 'Calling...' : 'Connected' }}</p>
+        <div class="call-actions">
+          <button class="btn-mute" [class.active-btn]="muted" (click)="phone.toggleMute()" title="Mute">
+            <nb-icon [icon]="muted ? 'mic-off-outline' : 'mic-outline'"></nb-icon>
+          </button>
+          <button class="btn-hangup" (click)="phone.hangup()">
+            <nb-icon icon="phone-off-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dial input + pad (shown when idle or active for DTMF) -->
+      <div *ngIf="callState === 'idle' || callState === 'active'">
+        <div class="dial-display">
+          <input type="text" [(ngModel)]="dialInput" placeholder="Enter number" class="dial-input"
+            (keyup.enter)="makeCall()" />
+          <button class="btn-bs" (click)="backspace()">&#x232B;</button>
+        </div>
+
+        <div class="dialpad">
+          <button *ngFor="let d of ['1','2','3','4','5','6','7','8','9','*','0','#']"
+            class="pad-btn" (click)="pressDigit(d)">{{ d }}</button>
+        </div>
+
+        <button *ngIf="callState === 'idle'" class="btn-call" (click)="makeCall()" [disabled]="!dialInput.trim()">
+          <nb-icon icon="phone-outline"></nb-icon> Call
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div *ngIf="activeTab === 'settings'" class="sp-body sp-settings">
+      <label>Extension / Username</label>
+      <input type="text" [(ngModel)]="cfg.user" placeholder="e.g. 1001" class="sp-input" />
+
+      <label>SIP Password</label>
+      <input type="password" [(ngModel)]="cfg.password" placeholder="SIP password" class="sp-input" />
+
+      <label>Domain</label>
+      <input type="text" [(ngModel)]="cfg.domain" placeholder="e.g. pbx.example.com" class="sp-input" />
+
+      <label>WebSocket URI</label>
+      <input type="text" [(ngModel)]="cfg.wsUri" placeholder="wss://host:7443" class="sp-input" />
+
+      <button class="btn-save" (click)="saveSettings()">Connect</button>
+      <button class="btn-disconnect" (click)="disconnect()" *ngIf="registered">Disconnect</button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,35 @@
+export class Tenant {
+  tenant_id: number;
+  domain: string;
+  title: string;
+  logo_name: string;
+  footer: string;
+  first_name: string;
+  last_name: string;
+  company: string;
+  phone: number;
+  email: string;
+  address: string;
+  country_id: number;
+  timezone_id: number;
+  active: number;
+  daily_limit: number = 50;
+  monthly_limit: number = 500;
+  permissions: any;
+  min_retention: number = 1;
+  max_retention: number = 7;
+  retention_period: number;
+  sendfax;string;
+  total_inbound:any;
+  roles:string;
+  daily_sent:number;
+  mfa_enabled: boolean;
+  quota_extensions: number = 25;
+  quota_devices: number = 25;
+  quota_ring_groups: number = 10;
+  quota_call_queues: number = 5;
+  quota_conferences: number = 5;
+  quota_ivr_menus: number = 10;
+  quota_voicemails: number = 50;
+  quota_music_on_hold: number = 20;
+}

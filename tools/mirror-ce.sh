@@ -163,6 +163,12 @@ CE_DEMO_EOF
     echo "[FAIL] CE validation failed — fix strip list or installer before pushing." >&2
     exit 1
   fi
+
+  echo "[backend] keyword scan — catch EE content in remaining docs"
+  while IFS= read -r _hit; do
+    echo "[WARN] EE keyword found in: $_hit" >&2
+  done < <(grep -rli --include="*.md" -iE "EE only|Enterprise Edition|SP Edition|Service Provider Edition" . 2>/dev/null | grep -v '.git' || true)
+
   echo "[backend] CE validation passed"
 
   echo "[backend] fresh init + force push main + append to master"
@@ -225,10 +231,19 @@ mirror_frontend() {
     rm -rf /tmp/_ce_guide_safe
   fi
 
-  # Root-level .md: strip known EE-only docs.
-  # Add rm -f here for any new EE root doc; CE-safe ones (README, CHANGELOG, LICENSE, etc.) need no action.
-  rm -f installer-diagram.md
-  rm -f proposal.md
+  # Root-level .md: whitelist — keep only CE-safe files, strip everything else automatically.
+  # To expose a new root doc to CE: add its filename to CE_ROOT_MD below.
+  _CE_ROOT_MD="README-ce.md CHANGELOG.md LICENSE.md CODE_OF_CONDUCT.md CONTRIBUTING.md DEV_DOCS.md"
+  for _md in *.md; do
+    _keep=0
+    for _safe in $_CE_ROOT_MD; do [ "$_md" = "$_safe" ] && _keep=1 && break; done
+    [ "$_keep" -eq 0 ] && { echo "[frontend] stripping root doc: $_md"; rm -f "$_md"; }
+  done
+
+  echo "[frontend] keyword scan — catch EE content in remaining docs"
+  while IFS= read -r _hit; do
+    echo "[WARN] EE keyword found in: $_hit" >&2
+  done < <(grep -rli --include="*.md" -iE "EE only|Enterprise Edition|SP Edition|Service Provider Edition" . 2>/dev/null | grep -v '.git' || true)
 
   echo "[frontend] swap README-ce.md → README.md"
   if [ -f README-ce.md ]; then

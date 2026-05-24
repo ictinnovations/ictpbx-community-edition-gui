@@ -68,7 +68,7 @@ export class BillingQuotaComponent implements OnInit {
     if (!perms.length) return [];
     return rows.filter(r => {
       const key = BillingQuotaComponent.RESOURCE_PERMISSION_MAP[r.resource_id];
-      return key && perms.includes(key);
+      return !key || perms.includes(key);
     });
   }
 

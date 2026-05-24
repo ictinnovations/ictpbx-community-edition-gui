@@ -184,7 +184,7 @@ export class PagesComponent {
     } else if (is_admin == 1) {
       this.menu = MENU_ITEMS;
     } else if (is_tenant == 1) {
-      const tenantAlwaysShow = ['dashboard', 'user', 'administration'];
+      const tenantAlwaysShow = ['dashboard', 'user', 'administration', 'billing', 'incoming_number', 'my_cids', 'cdr_reports', 'activities'];
       const filterTenantItem = (item: MenuItem): MenuItem | null => {
         if (tenantAlwaysShow.includes(item.key)) return item;
         if (item.children) {
@@ -200,7 +200,7 @@ export class PagesComponent {
     } else {
       const alwaysShow = environment.COMMUNITY_EDITION
         ? ['dashboard', 'my_account']
-        : ['dashboard', 'my_account', 'devices', 'billing', 'billing_quota', 'billing_usage'];
+        : ['dashboard', 'my_account', 'billing', 'billing_quota', 'billing_usage', 'incoming_number', 'my_cids'];
 
       const filterItem = (item: MenuItem): MenuItem | null => {
         if (alwaysShow.includes(item.key)) return item;

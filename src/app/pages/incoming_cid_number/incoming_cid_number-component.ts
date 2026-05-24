@@ -27,6 +27,8 @@ import { User } from '../user/user';
 export class FormsIncomingCIDNumberComponent implements OnInit {
 
   auser: any;
+  isAdmin = false;
+  isTenant = false;
 
   constructor(private in_number_service: IncomingCIDNumberService, private authService: NbAuthService
   , private did_service: CIDService, private user_service: AUserService) {
@@ -53,6 +55,8 @@ export class FormsIncomingCIDNumberComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngOnInit() {
+    this.isAdmin = localStorage.getItem('is_admin') === '1';
+    this.isTenant = localStorage.getItem('is_tenant') === '1';
     if (this.auser.is_admin == 0) {
       this.getIncomingNumberlist();
     } else {

@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         { key: 'gateways',    perm: 'gateways',       title: 'Gateways',     type: 'warning' },
       ];
       const permission = localStorage.getItem('permission') || '';
-      const visible = (this.isAdmin || this.isTenant)
+      const visible = this.isAdmin
         ? labels
         : labels.filter(l => permission.includes(l.perm));
       this.pbxCardItems = visible.map(l => ({

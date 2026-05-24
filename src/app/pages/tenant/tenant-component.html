@@ -70,7 +70,8 @@
               <mat-icon><a routerLink="/pages/tenant/tenant/{{tenant.tenant_id}}" title="Edit"><nb-icon
                     icon="edit-2-outline"></nb-icon></a></mat-icon>
             </button>
-            <button mat-icon-button color="primary" style="font-size:20px">
+            <button mat-icon-button color="primary" style="font-size:20px"
+              *ngIf="+tenant.tenant_id !== 1">
               <mat-icon style="color: red" (click)="showStaticModal(tenant.company , tenant.tenant_id)"><nb-icon
                   icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
             </button>

@@ -115,13 +115,20 @@
             "fax_setting": "ファックス設定",
             "cover_page" : "表紙ページ"
         },
+        "fax": {
+            "fax": "ファックス",
+            "incoming_number": "マイDID",
+            "my_cids": "マイCID"
+        },
         "routings":{
             "routings": "ルーティング",
             "providers": "プロバイダー/トランク",
             "regions": "地域",
             "countries": "国",
             "destinations": "目的地",
-            "routes": "ルート"
+            "routes": "ルート",
+            "my_dids": "DID番号",
+            "my_cids": "マイCID"
         },
         "send_voice": "音声送信",
         "media_library": {
@@ -161,6 +168,8 @@
             "billing": "請求",
             "rate": "料金プラン",
             "plan": "プラン",
+            "package": "パッケージ",
+            "subscription": "サブスクリプション",
             "payment": "支払い",
             "billing_quota": "クォータ",
             "billing_usage": "使用状況"

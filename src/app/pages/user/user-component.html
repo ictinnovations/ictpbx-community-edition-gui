@@ -117,7 +117,8 @@
                   icon="clock-outline" title="Session Destroy"></nb-icon>
               </mat-icon>
             </button>
-            <button mat-icon-button color="primary" style="font-size:20px">
+            <button mat-icon-button color="primary" style="font-size:20px"
+              *ngIf="+user.user_id !== +auser?.user_id && +user.user_id !== 1">
               <mat-icon style="color: red"
                 (click)="showStaticModal(deleteTemplate,user.first_name, user.user_id)"><nb-icon icon="trash-2-outline"
                   title="Delete"></nb-icon></mat-icon>

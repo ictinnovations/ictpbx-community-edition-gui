@@ -133,6 +133,8 @@ export class AppService {
   apiUrlBillingUsage   = `${this.apiUrl}/billing/usage`;
   apiUrlBillingQuota   = `${this.apiUrl}/billing/quota`;
   apiUrlBillingCredit  = `${this.apiUrl}/billing/credit`;
+  apiUrlPackages       = `${this.apiUrl}/packages`;
+  apiUrlSubscriptions  = `${this.apiUrl}/subscriptions`;
 
   createAuthorizationHeader(headers: Headers) {
     let copy_token = localStorage.getItem('copy_token');

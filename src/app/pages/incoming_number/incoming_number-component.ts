@@ -27,6 +27,8 @@ import { User } from '../user/user';
 export class FormsIncomingNumberComponent implements OnInit {
 
   auser: any;
+  isAdmin = false;
+  isTenant = false;
 
   constructor(private in_number_service: IncomingNumberService,private modalService: NgbModal, private authService: NbAuthService
   , private did_service: DIDService, private user_service: AUserService) {
@@ -55,6 +57,8 @@ export class FormsIncomingNumberComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngOnInit() {
+    this.isAdmin = localStorage.getItem('is_admin') === '1';
+    this.isTenant = localStorage.getItem('is_tenant') === '1';
     if (this.auser.is_admin == 0) {
       this.getIncomingNumberlist();
     } else {

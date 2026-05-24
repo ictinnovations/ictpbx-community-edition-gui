@@ -25,6 +25,16 @@ export class ExtensionService {
     .then(response => response.json() as Extension[]).catch(response => this.app_service.handleError(response));
   }
 
+  get_FaxExtensionList(tenantId: number = 0): Promise<Extension[]> {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers});
+    let getUrl = `${this.app_service.apiUrlAccounts}?type=account`;
+    if (tenantId > 0) getUrl += `&tenant_id=${tenantId}`;
+    return this.http.get(getUrl, options).toPromise()
+    .then(response => response.json() as Extension[]).catch(response => this.app_service.handleError(response));
+  }
+
   get_DidList(): Promise<Extension[]> {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);

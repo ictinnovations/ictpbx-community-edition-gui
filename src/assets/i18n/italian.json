@@ -101,13 +101,20 @@
           "fax_accounts": "Account Fax",
           "extension": "Account Fax"
       },
+      "fax": {
+          "fax": "Fax",
+          "incoming_number": "I miei DID",
+          "my_cids": "I miei CID"
+      },
       "routings":{
           "routings": "Percorsi",
           "providers": "Fornitrici / Tronchi",
           "regions": "Regioni",
           "countries": "Paesi",
           "destinations": "Destinazioni",
-          "routes": "Itinerari"
+          "routes": "Itinerari",
+          "my_dids": "Numeri DID",
+          "my_cids": "I miei CID"
      },
      "send_voice": "Invia Voce",
      "media_library": {
@@ -147,6 +154,8 @@
          "billing": "Fatturazione",
          "rate": "Piani tariffari",
          "plan": "Piani",
+         "package": "Pacchetti",
+         "subscription": "Abbonamenti",
          "payment": "Pagamenti",
          "billing_quota": "Quota",
          "billing_usage": "Utilizzo"

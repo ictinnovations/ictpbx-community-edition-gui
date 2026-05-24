@@ -71,6 +71,8 @@ export const MENU_ITEMS: MenuItem[] = [
       },
       { title: 'Fax Settings', icon: 'settings-outline', link: '/pages/faxsettings',         key: 'fax_setting' },
       { title: 'Cover Page',   icon: 'book-outline',      link: '/pages/coverpage/coverpage', key: 'cover_page' },
+      { title: 'My DIDs',      icon: 'sim-card-outline',  link: '/pages/incoming_number/incoming_number',           key: 'incoming_number' },
+      { title: 'My CIDs',      icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number', key: 'my_cids' },
     ],
   },
   {
@@ -78,11 +80,10 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: 'shuffle-2-outline',
     key: 'routings',
     children: [
-      { title: 'Trunks',            icon: 'done-all-outline',      link: '/pages/provider/provider',                             key: 'providers' },
-      { title: 'Routes',            icon: 'swap-outline',           link: '/pages/route',                                         key: 'routes' },
-      { title: 'DID Number',         icon: 'sim-card-outline',       link: '/pages/did/did',                                       key: 'my_dids' },
-      { title: 'CID Numbers',       icon: 'person-outline',         link: '/pages/cid/cid',                                       key: 'cid_number' },
-      { title: 'My CIDs',           icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number',       key: 'my_cids' },
+      { title: 'Trunks',       icon: 'done-all-outline', link: '/pages/provider/provider', key: 'providers' },
+      { title: 'Routes',       icon: 'swap-outline',     link: '/pages/route',             key: 'routes' },
+      { title: 'DID Numbers',  icon: 'sim-card-outline', link: '/pages/did/did',           key: 'my_dids' },
+      { title: 'CID Numbers',  icon: 'person-outline',   link: '/pages/cid/cid',           key: 'cid_number' },
     ],
   },
   {
@@ -102,11 +103,13 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: 'credit-card-outline',
     key: 'billing',
     children: [
-      { title: 'Rate Plans', icon: 'pricetags-outline',   link: '/pages/rate/rate',       key: 'rate' },
-      { title: 'Plans',      icon: 'layers-outline',      link: '/pages/plan/plan',       key: 'plan' },
-      { title: 'Payments',   icon: 'credit-card-outline', link: '/pages/payment/payment', key: 'payment' },
-      { title: 'Quota',      icon: 'pie-chart-outline',   link: '/pages/billing-quota', key: 'billing_quota' },
-      { title: 'Usage',      icon: 'trending-up-outline', link: '/pages/billing-usage', key: 'billing_usage' },
+      { title: 'Rate Plans',    icon: 'pricetags-outline',   link: '/pages/rate/rate',       key: 'rate' },
+      { title: 'Plans',         icon: 'layers-outline',      link: '/pages/plan/plan',       key: 'plan' },
+      { title: 'Packages',      icon: 'cube-outline',        link: '/pages/package',         key: 'package' },
+      { title: 'Subscriptions', icon: 'people-outline',      link: '/pages/subscription',    key: 'subscription' },
+      { title: 'Payments',      icon: 'credit-card-outline', link: '/pages/payment/payment', key: 'payment' },
+      { title: 'Quota',         icon: 'pie-chart-outline',   link: '/pages/billing-quota',   key: 'billing_quota' },
+      { title: 'Usage',         icon: 'trending-up-outline', link: '/pages/billing-usage',   key: 'billing_usage' },
     ],
   },
   {
@@ -166,6 +169,8 @@ export const tenantMenuItems: MenuItem[] = [
       },
       { title: 'Fax Settings', icon: 'settings-outline', link: '/pages/faxsettings',         key: 'fax_setting' },
       { title: 'Cover Page',   icon: 'book-outline',      link: '/pages/coverpage/coverpage', key: 'cover_page' },
+      { title: 'My DIDs',      icon: 'sim-card-outline',  link: '/pages/incoming_number/incoming_number',           key: 'incoming_number' },
+      { title: 'My CIDs',      icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number', key: 'my_cids' },
     ],
   },
   {
@@ -173,8 +178,7 @@ export const tenantMenuItems: MenuItem[] = [
     icon: 'shuffle-2-outline',
     key: 'routings',
     children: [
-      { title: 'DID Number', icon: 'sim-card-outline',       link: '/pages/did/did',                                       key: 'my_dids' },
-      { title: 'My CIDs', icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number', key: 'my_cids' },
+      { title: 'DID Numbers', icon: 'sim-card-outline', link: '/pages/did/did', key: 'my_dids' },
     ],
   },
   {
@@ -250,15 +254,8 @@ export const userMenuItems: MenuItem[] = [
       },
       { title: 'Fax Settings', icon: 'settings-outline', link: '/pages/faxsettings',         key: 'fax_setting' },
       { title: 'Cover Page',   icon: 'book-outline',      link: '/pages/coverpage/coverpage', key: 'cover_page' },
-    ],
-  },
-  {
-    title: 'Routing',
-    icon: 'shuffle-2-outline',
-    key: 'routings',
-    children: [
-      { title: 'DID Number', icon: 'sim-card-outline',       link: '/pages/did/did',                                 key: 'my_dids' },
-      { title: 'My CIDs', icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number', key: 'my_cids' },
+      { title: 'My DIDs',      icon: 'sim-card-outline',  link: '/pages/incoming_number/incoming_number',           key: 'incoming_number' },
+      { title: 'My CIDs',      icon: 'arrowhead-down-outline', link: '/pages/incoming_cid_number/incoming_cid_number', key: 'my_cids' },
     ],
   },
   {

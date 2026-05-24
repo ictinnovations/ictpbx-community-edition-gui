@@ -101,6 +101,8 @@ export class FormsUserComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
+    this.UserList = [];
+    this.length = 0;
     this.is_admin = Number(localStorage.getItem('is_admin'));
 
     this.is_tenant = Number(localStorage.getItem('is_tenant'));

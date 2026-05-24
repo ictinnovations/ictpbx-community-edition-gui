@@ -50,10 +50,14 @@ export class ForwardIncomingNumberComponent implements OnInit {
   newAccounts: any = [];
 
   ngOnInit(): void {
+    const isAdmin  = localStorage.getItem('is_admin')  === '1';
+    const isTenant = localStorage.getItem('is_tenant') === '1';
     this.getAllExt();
-    this.ringGroupService.get_RingGroupList().then(data => this.ringGroups = data || []);
-    this.ivrMenuService.getList().then(data => this.ivrMenus = data || []);
-    this.voicemailService.get_VoicemailList().then(data => this.voicemails = data || []);
+    if (isAdmin || isTenant) {
+      this.ringGroupService.get_RingGroupList().then(data => this.ringGroups = data || []);
+      this.ivrMenuService.getList().then(data => this.ivrMenus = data || []);
+      this.voicemailService.get_VoicemailList().then(data => this.voicemails = data || []);
+    }
     this.route.params.subscribe(params => {
       this.user_id = localStorage.getItem('aid');
       this.getUserData(this.user_id);
@@ -72,8 +76,10 @@ export class ForwardIncomingNumberComponent implements OnInit {
   }
 
   getAllExt() {
-    this.ext_service.get_ExtensionList().then(response => {
-      this.exts = response;
+    const isAdmin = localStorage.getItem('is_admin') === '1';
+    const tenantId = isAdmin ? 0 : Number(localStorage.getItem('tid') || 0);
+    this.ext_service.get_FaxExtensionList(tenantId).then(response => {
+      this.exts = response || [];
     });
   }
 

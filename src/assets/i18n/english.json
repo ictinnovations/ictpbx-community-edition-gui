@@ -144,6 +144,8 @@
             "extension": "Fax Accounts",
             "fax_setting": "Fax Settings",
             "cover_page": "Cover Page",
+            "incoming_number": "My DIDs",
+            "my_cids": "My CIDs",
             "contacts": {
                 "contacts": "Contacts",
                 "groups": "Contact Groups",
@@ -170,7 +172,7 @@
             "did_number": "DID Numbers",
             "did_management": "DID Management",
             "cid_number": "CID Numbers",
-            "my_dids": "My DIDs",
+            "my_dids": "DID Numbers",
             "my_cids": "My CIDs"
         },
         "send_voice": "Send Voice",
@@ -214,6 +216,8 @@
             "billing": "Billing",
             "rate": "Rate Plans",
             "plan": "Plans",
+            "package": "Packages",
+            "subscription": "Subscriptions",
             "payment": "Payments",
             "billing_quota": "Quota",
             "billing_usage": "Usage"

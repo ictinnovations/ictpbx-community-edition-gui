@@ -29,10 +29,10 @@
         <ng-container cdkColumnDef="Operations">
           <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
           <mat-cell *matCellDef="let in_num">
-            <button mat-icon-button color="primary" style= "font-size:20px">
+            <button mat-icon-button color="primary" style= "font-size:20px" *ngIf="isAdmin || isTenant">
               <mat-icon><a routerLink="/pages/incoming_cid_number/incoming_cid_number/{{in_num.account_id}}" title="Edit"><i class="ion-edit"></i></a></mat-icon>
             </button>
-            <button mat-icon-button color="primary" style= "font-size:20px">
+            <button mat-icon-button color="primary" style= "font-size:20px" *ngIf="isAdmin || isTenant">
               <mat-icon><a routerLink="/pages/incoming_cid_number/incoming_cid_number/{{in_num.account_id}}/assign" title="Assign"><i class="ion-person"></i></a></mat-icon>
             </button>
           </mat-cell>

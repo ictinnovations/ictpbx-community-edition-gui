@@ -334,6 +334,20 @@ const routes: Routes = [{
       canActivate: [EditionGuard],
     },
     {
+      path: 'package',
+      loadChildren: () => import('./package/package.module')
+        .then(m => m.PackageModule),
+      canLoad: [EditionGuard],
+      canActivate: [EditionGuard],
+    },
+    {
+      path: 'subscription',
+      loadChildren: () => import('./subscription/subscription.module')
+        .then(m => m.SubscriptionModule),
+      canLoad: [EditionGuard],
+      canActivate: [EditionGuard],
+    },
+    {
       path: '',
       redirectTo: 'dashboard',
       pathMatch: 'full',

@@ -210,9 +210,24 @@ mirror_frontend() {
   rm -rf internal-docs
   rm -rf playwright*
   rm -rf e2e
+
+  # user-guide: whitelist approach — strip entire folder, restore CE-safe files only.
+  # Any new EE guide added to user-guide/ is automatically excluded this way.
+  # To expose a new guide to CE: add its filename to the list below.
+  if [ -d user-guide ]; then
+    mkdir -p /tmp/_ce_guide_safe
+    for _f in index.md 01-overview.md 02-quick-start-ce.md 03-admin-guide.md \
+               05-pbx-features.md 06-fax-features.md 07-reference.md 08-troubleshooting.md; do
+      [ -f "user-guide/$_f" ] && cp "user-guide/$_f" "/tmp/_ce_guide_safe/$_f" || true
+    done
+    rm -rf user-guide && mkdir user-guide
+    cp /tmp/_ce_guide_safe/* user-guide/ 2>/dev/null || true
+    rm -rf /tmp/_ce_guide_safe
+  fi
+
+  # Root-level .md: strip known EE-only docs.
+  # Add rm -f here for any new EE root doc; CE-safe ones (README, CHANGELOG, LICENSE, etc.) need no action.
   rm -f installer-diagram.md
-  rm -f user-guide/02-quick-start-ee.md
-  rm -f user-guide/04-tenant-admin-guide.md
 
   echo "[frontend] swap README-ce.md → README.md"
   if [ -f README-ce.md ]; then

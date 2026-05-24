@@ -115,7 +115,7 @@
     "@angular/language-service": "13.3.6",
     "@compodoc/compodoc": "1.0.1",
     "@fortawesome/fontawesome-free": "^5.15.4",
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.49.0",
     "@types/d3-color": "1.0.5",
     "@types/googlemaps": "^3.43.3",
     "@types/jasminewd2": "^2.0.10",

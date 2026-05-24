@@ -47,6 +47,7 @@ export class FpbxExtension {
 
   // Fax account (auto-provisioned)
   fax_email: string = null;
+  extension_type: string = 'voice';
 
   // User assignment — transient, sent on save to link account.created_by
   user_id: number | null = null;

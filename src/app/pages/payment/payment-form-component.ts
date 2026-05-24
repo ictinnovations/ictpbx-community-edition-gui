@@ -1,12 +1,10 @@
-import { Component, OnInit, NgModule, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
-import { Router, ActivatedRoute, Params, ParamMap } from '@angular/router';
-import { Http, HttpModule, Response } from '@angular/http';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Http } from '@angular/http';
 import { Payment } from './payment';
 import { PaymentService } from './payment.service';
+import { AppService } from '../../app.service';
 import 'rxjs/add/operator/toPromise';
-import { AUserService } from '../user/user.service';
-import { User } from '../user/user';
 
 @Component({
   selector: 'ngx-add-payment-component',
@@ -17,14 +15,12 @@ import { User } from '../user/user';
 export class AddPaymentComponent implements OnInit {
 
   constructor(private http: Http, private route: ActivatedRoute, private payment_service: PaymentService,
-  private router: Router, private user_service: AUserService) { }
+  private router: Router, private app_service: AppService) { }
 
-
-  form1: any= {};
-  payment: Payment= new Payment;
-  payment_id: any= null;
-
-  users: User[] = [];
+  form1: any = {};
+  payment: Payment = new Payment;
+  payment_id: any = null;
+  tenants: any[] = [];
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -39,11 +35,19 @@ export class AddPaymentComponent implements OnInit {
         });
       }
     });
-    this.getUserList();
+    this.app_service.loadTenants().then(data => this.tenants = data);
   }
 
   addPayment(): void {
     this.payment_service.add_Payment(this.payment).then(response => {
+      // Refresh the header balance from the tenant's updated credit
+      const tid = this.payment.tenant_id;
+      if (tid) {
+        this.app_service.loadTenants().then((tenants: any[]) => {
+          const t = tenants.find(x => x.tenant_id == tid);
+          if (t && t.credit != null) localStorage.setItem('credit', String(t.credit));
+        }).catch(() => {});
+      }
       this.router.navigate(['../../payment'], {relativeTo: this.route});
     });
   }
@@ -53,13 +57,6 @@ export class AddPaymentComponent implements OnInit {
       this.router.navigate(['../../payment'], {relativeTo: this.route});
     })
     .catch(this.handleError);
-  }
-
-  getUserList() {
-    this.user_service.get_UserList().then(data => {
-      this.users = data;
-    })
-    .catch(err => this.handleError(err));
   }
 
   private handleError(error: any): Promise<any> {

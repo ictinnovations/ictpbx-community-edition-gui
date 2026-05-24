@@ -9,6 +9,12 @@
     <div class="alert alert-danger" *ngIf="isError">{{ errorText }}</div>
     <div class="alert alert-success" *ngIf="isSuccess">{{ successText }}</div>
 
+    <div class="alert alert-info" style="margin-bottom:12px">
+      <strong>Voice routing:</strong> Assigning a DID to a fax account enables fax delivery.
+      For voice calls, you must also create an <a [routerLink]="['/pages/inbound_routes/inbound_routes']">Inbound Route</a>
+      matching this DID number and pointing to the destination extension or ring group.
+    </div>
+
     <table style="width:100%;border-collapse:collapse">
       <thead>
         <tr style="border-bottom:1px solid #ccc">

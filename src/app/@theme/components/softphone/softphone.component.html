@@ -41,13 +41,30 @@
       <!-- Active call UI -->
       <div class="active-call" *ngIf="callState === 'active' || callState === 'calling'">
         <p class="caller-id">{{ callerInfo }}</p>
-        <p class="call-status">{{ callState === 'calling' ? 'Calling...' : 'Connected' }}</p>
+        <p class="call-status">{{ callState === 'calling' ? 'Calling...' : (held ? 'On Hold' : 'Connected') }}</p>
         <div class="call-actions">
-          <button class="btn-mute" [class.active-btn]="muted" (click)="phone.toggleMute()" title="Mute">
+          <button class="btn-mute" [class.active-btn]="muted" (click)="phone.toggleMute()" title="Mute/Unmute">
             <nb-icon [icon]="muted ? 'mic-off-outline' : 'mic-outline'"></nb-icon>
           </button>
-          <button class="btn-hangup" (click)="phone.hangup()">
+          <button class="btn-hold" [class.active-btn]="held" (click)="phone.toggleHold()" [title]="held ? 'Unhold' : 'Hold'">
+            <nb-icon [icon]="held ? 'play-circle-outline' : 'pause-circle-outline'"></nb-icon>
+          </button>
+          <button class="btn-transfer" [class.active-btn]="showTransfer" (click)="startTransfer()" title="Transfer" [disabled]="callState === 'calling'">
+            <nb-icon icon="swap-outline"></nb-icon>
+          </button>
+          <button class="btn-hangup" (click)="phone.hangup()" title="Hangup">
             <nb-icon icon="phone-off-outline"></nb-icon>
+          </button>
+        </div>
+        <!-- Transfer input row -->
+        <div class="transfer-row" *ngIf="showTransfer">
+          <input type="text" class="transfer-input" [(ngModel)]="transferDest"
+                 placeholder="Extension or number" (keyup.enter)="doTransfer()" autofocus>
+          <button class="btn-xfer-ok" (click)="doTransfer()" [disabled]="!transferDest.trim()" title="Send">
+            <nb-icon icon="checkmark-outline"></nb-icon>
+          </button>
+          <button class="btn-xfer-cancel" (click)="cancelTransfer()" title="Cancel">
+            <nb-icon icon="close-outline"></nb-icon>
           </button>
         </div>
       </div>

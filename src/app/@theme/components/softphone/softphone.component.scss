@@ -210,40 +210,91 @@
   .call-actions {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
+  }
+
+  %call-btn {
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
   }
 
   .btn-mute {
+    @extend %call-btn;
     background: #e8ecff;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    font-size: 1.1rem;
     color: #3366ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    &.active-btn { background: #ffaa00; color: #fff; }
+  }
 
-    &.active-btn {
-      background: #ffaa00;
-      color: #fff;
-    }
+  .btn-hold {
+    @extend %call-btn;
+    background: #e8ecff;
+    color: #3366ff;
+    &.active-btn { background: #ffaa00; color: #fff; }
+  }
+
+  .btn-transfer {
+    @extend %call-btn;
+    background: #e8ecff;
+    color: #3366ff;
+    &.active-btn { background: #3366ff; color: #fff; }
   }
 
   .btn-hangup {
+    @extend %call-btn;
     background: #ff3d71;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
     color: #fff;
-    font-size: 1.1rem;
+  }
+
+  .transfer-row {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+
+    .transfer-input {
+      flex: 1;
+      padding: 5px 8px;
+      border: 1px solid #d0d9ff;
+      border-radius: 5px;
+      font-size: 13px;
+      outline: none;
+      &:focus { border-color: #3366ff; }
+    }
+
+    .btn-xfer-ok {
+      background: #00d68f;
+      border: none;
+      border-radius: 5px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:disabled { opacity: 0.4; cursor: not-allowed; }
+    }
+
+    .btn-xfer-cancel {
+      background: #8f9bb3;
+      border: none;
+      border-radius: 5px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }
 

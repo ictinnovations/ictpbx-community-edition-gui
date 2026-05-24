@@ -18,6 +18,7 @@ export class SoftphoneService {
   callState$  = new BehaviorSubject<CallState>('idle');
   callerInfo$ = new BehaviorSubject<string>('');
   muted$      = new BehaviorSubject<boolean>(false);
+  held$       = new BehaviorSubject<boolean>(false);
 
   private ua: any = null;
   private session: any = null;
@@ -102,7 +103,7 @@ export class SoftphoneService {
 
     const s = this.ua.call(dest, {
       mediaConstraints: { audio: true, video: false },
-      pcConfig: { iceServers: [] },
+      pcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
     });
     this.session = s;
 
@@ -130,7 +131,7 @@ export class SoftphoneService {
     if (!this.session) return;
     this.session.answer({
       mediaConstraints: { audio: true, video: false },
-      pcConfig: { iceServers: [] },
+      pcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
     });
     this.session.on('peerconnection', (data: any) => {
       data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
@@ -165,6 +166,26 @@ export class SoftphoneService {
     else                   { this.session.mute({ audio: true });   this.muted$.next(true);  }
   }
 
+  toggleHold() {
+    if (!this.session) return;
+    if (this.held$.value) {
+      this.session.unhold();
+      this.held$.next(false);
+    } else {
+      this.session.hold();
+      this.held$.next(true);
+    }
+  }
+
+  transfer(destination: string) {
+    if (!this.session || !this.config) return;
+    const target = destination.includes('@')
+      ? `sip:${destination}`
+      : `sip:${destination}@${this.config.domain}`;
+    try { this.session.refer(target); } catch {}
+    this.onSessionEnd();
+  }
+
   sendDTMF(digit: string) {
     if (!this.session) return;
     try { this.session.sendDTMF(digit); } catch {}
@@ -188,6 +209,7 @@ export class SoftphoneService {
     this.callState$.next('idle');
     this.callerInfo$.next('');
     this.muted$.next(false);
+    this.held$.next(false);
     if (this.remoteAudio) {
       this.remoteAudio.srcObject = null;
       this.remoteAudio = null;

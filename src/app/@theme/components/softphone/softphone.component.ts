@@ -17,6 +17,9 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
   callState: CallState = 'idle';
   callerInfo = '';
   muted = false;
+  held = false;
+  showTransfer = false;
+  transferDest = '';
 
   cfg: SipConfig = { user: '', password: '', domain: '', wsUri: '' };
 
@@ -34,9 +37,10 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
     }
 
     this.subs.push(this.phone.registered$.subscribe(v => this.registered = v));
-    this.subs.push(this.phone.callState$.subscribe(v => this.callState = v));
+    this.subs.push(this.phone.callState$.subscribe(v => { this.callState = v; if (v === 'idle') { this.showTransfer = false; this.transferDest = ''; } }));
     this.subs.push(this.phone.callerInfo$.subscribe(v => this.callerInfo = v));
     this.subs.push(this.phone.muted$.subscribe(v => this.muted = v));
+    this.subs.push(this.phone.held$.subscribe(v => this.held = v));
   }
 
   ngOnDestroy() {
@@ -71,6 +75,10 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
     this.phone.register(this.cfg);
     this.activeTab = 'dialer';
   }
+
+  startTransfer() { this.showTransfer = true; this.transferDest = ''; }
+  cancelTransfer() { this.showTransfer = false; this.transferDest = ''; }
+  doTransfer() { if (this.transferDest.trim()) { this.phone.transfer(this.transferDest.trim()); this.showTransfer = false; } }
 
   disconnect() {
     this.phone.unregister();

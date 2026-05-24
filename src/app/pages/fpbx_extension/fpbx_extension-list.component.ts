@@ -42,9 +42,9 @@ export class FpbxExtensionListComponent implements OnInit {
   ngOnInit() {
     if (this.isAdmin) {
       this.app_service.loadTenants().then(d => this.tenants = d);
-      this.displayedColumns = ['extension', 'effective_caller_id_name', 'effective_caller_id_number', 'call_timeout', 'enabled', 'linked_username', 'tenant_name', 'fax_email', 'operations'];
+      this.displayedColumns = ['extension', 'effective_caller_id_name', 'effective_caller_id_number', 'extension_type', 'call_timeout', 'enabled', 'linked_username', 'tenant_name', 'fax_email', 'operations'];
     } else {
-      this.displayedColumns = ['extension', 'effective_caller_id_name', 'effective_caller_id_number', 'call_timeout', 'enabled', 'linked_username', 'fax_email', 'operations'];
+      this.displayedColumns = ['extension', 'effective_caller_id_name', 'effective_caller_id_number', 'extension_type', 'call_timeout', 'enabled', 'linked_username', 'fax_email', 'operations'];
     }
     this.loadList();
   }

@@ -31,6 +31,16 @@
         <mat-cell *matCellDef="let row">{{ row.effective_caller_id_number }}</mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="extension_type">
+        <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <span [style.background]="row.extension_type === 'fax' ? '#ffaa00' : '#0095ff'"
+                style="color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">
+            {{ row.extension_type === 'fax' ? 'Fax' : 'Voice' }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="call_timeout">
         <mat-header-cell *matHeaderCellDef>Timeout (s)</mat-header-cell>
         <mat-cell *matCellDef="let row">{{ row.call_timeout }}</mat-cell>

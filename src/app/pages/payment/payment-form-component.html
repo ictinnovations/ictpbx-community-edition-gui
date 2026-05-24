@@ -8,10 +8,11 @@
       <nb-card-body>
           <div class="col-sm-6">
             <div class="form-group">
-              <label for="usr_id">Paid By</label>
-              <select class="form-control" name="usr_id" [(ngModel)]="payment.usr_id" [ngModelOptions]="{standalone: true}">
-                <option *ngFor="let user of users" [value]="user.user_id">
-                  {{user.username}}
+              <label for="tenant_id">Tenant (Paid By)</label>
+              <select class="form-control" name="tenant_id" [(ngModel)]="payment.tenant_id" [ngModelOptions]="{standalone: true}">
+                <option [value]="null" disabled>-- Select Tenant --</option>
+                <option *ngFor="let t of tenants" [value]="t.tenant_id">
+                  {{t.company}}
                 </option>
               </select>
             </div>

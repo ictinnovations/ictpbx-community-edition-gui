@@ -28,7 +28,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   user: any;
   private socket: WebSocket;
   status: any;
-  private subscription: Subscription
+  private subscription: Subscription;
+  private creditInterval: any;
   domain_title: string = 'ICTFax';
   auser: any;
   credit: number = parseFloat(localStorage.getItem('credit') || '0');
@@ -162,6 +163,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
           }, 1000);
         }
       });
+
+    if (!this.isCommunity) {
+      this.creditInterval = setInterval(() => this.refreshCredit(), 10000);
+    }
+  }
+
+  refreshCredit() {
+    if (!localStorage.getItem('aid')) return;
+    this.app_service.getCredit().then(credit => {
+      if (credit != null) {
+        localStorage.setItem('credit', String(credit));
+        this.credit = credit;
+      }
+    }).catch(() => {});
   }
 
   socketmessage() {
@@ -250,6 +265,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.subscription.unsubscribe();
+    if (this.creditInterval) clearInterval(this.creditInterval);
   }
   changeTheme(themeName: string) {
     this.themeService.changeTheme(themeName);

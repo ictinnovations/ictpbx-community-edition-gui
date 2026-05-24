@@ -20,6 +20,7 @@ import {
   NbInputModule,
   NbSelectModule,
   NbCheckboxModule,
+  NbRadioModule,
   NbWindowModule,
   NbTabsetModule,
 } from '@nebular/theme';
@@ -42,6 +43,7 @@ import {
     NbInputModule,
     NbSelectModule,
     NbCheckboxModule,
+    NbRadioModule,
     NbWindowModule.forChild(),
     NbTabsetModule,
   ],

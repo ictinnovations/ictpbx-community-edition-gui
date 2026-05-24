@@ -7,8 +7,6 @@ import { PaymentDataSource } from './payment-datasource.component';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ModalComponent } from '../../modal.component';
 import { Observable } from 'rxjs/Rx';
-import { AUserService } from '../user/user.service';
-import { User } from '../user/user';
 import { AppService } from '../../app.service';
 
 @Component({
@@ -19,8 +17,8 @@ import { AppService } from '../../app.service';
 
 
 export class FormsPaymentComponent implements OnInit {
-  constructor(private payment_service: PaymentService, private modalService: NgbModal
-  ,private user_service: AUserService, private app_service: AppService) { }
+  constructor(private payment_service: PaymentService, private modalService: NgbModal,
+  private app_service: AppService) { }
 
   aPayment: PaymentDataSource | null;
   length: number;
@@ -28,8 +26,6 @@ export class FormsPaymentComponent implements OnInit {
   isAdmin = localStorage.getItem('is_admin') === '1';
   tenants: any[] = [];
   selectedTenant = 0;
-
-  users: User[] = [];
 
 
   displayedColumns= ['ID', 'UserName', 'PaidAmount', 'PaidDate'];
@@ -44,69 +40,35 @@ export class FormsPaymentComponent implements OnInit {
     if (this.isAdmin) {
       this.app_service.loadTenants().then(d => this.tenants = d);
     }
-    this.getUserlist();
     this.getPaymentlist();
   }
 
   getPaymentlist() {
     this.payment_service.get_PaymentList(this.selectedTenant).then(data => {
       this.length = data.length;
-      this.getUsername(data);
+      this.aPayment = new PaymentDataSource(new PaymentDatabase(data), this.sort, this.paginator);
+
+      Observable.fromEvent(this.filter.nativeElement, 'keyup')
+        .debounceTime(150)
+        .distinctUntilChanged()
+        .subscribe(() => {
+          if (!this.aPayment) { return; }
+          this.aPayment.filter = this.filter.nativeElement.value;
+        });
+
+      const sortState: Sort = {active: 'ID', direction: 'desc'};
+      this.sort.active = sortState.active;
+      this.sort.direction = sortState.direction;
+      this.sort.sortChange.emit(sortState);
     })
     .catch(this.handleError);
   }
-
 
   deletePayment(payment_id): void {
     this.payment_service.delete_Payment(payment_id).then(response => {
       this.getPaymentlist();
     })
     .catch(this.handleError);
-  }
-
-  getUserlist() {
-    this.user_service.get_UserList().then(response => {
-      this.users = response;
-    })
-  }
-
-  getUsername(data) {
-    data.forEach(element => {
-      let user_data = this.findById(element.usr_id);
-      if (user_data != null) {
-        element.name = user_data.username;
-      }
-      else {
-        element.name = null;
-      }
-    });
-    
-    this.aPayment = new PaymentDataSource(new PaymentDatabase( data ), this.sort, this.paginator);
-
-    // Observable for the filter
-    Observable.fromEvent(this.filter.nativeElement, 'keyup')
-   .debounceTime(150)
-   .distinctUntilChanged()
-   .subscribe(() => {
-     if (!this.aPayment) { return; }
-     this.aPayment.filter = this.filter.nativeElement.value;
-    });
-
-    //Sort the data automatically
-
-    const sortState: Sort = {active: 'ID', direction: 'desc'};
-    this.sort.active = sortState.active;
-    this.sort.direction = sortState.direction;
-    this.sort.sortChange.emit(sortState);
-  }
-
-  findById(id) {
-    for (var i = 0; i < this.users.length; i++) {
-      if (this.users[i].user_id === id) {
-        return this.users[i];
-      }
-    }
-    return null;
   }
 
   // Modal related

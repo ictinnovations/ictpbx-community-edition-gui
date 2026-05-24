@@ -16,8 +16,28 @@
       <ng-container *ngFor="let acc of accounts">
         <ng-container *ngIf="acc.pbx_extension">
 
-          <!-- SIP Credentials (read-only) -->
-          <nb-card accent="primary" style="margin-bottom:16px">
+          <!-- Fax Extension info (shown instead of SIP when type=fax) -->
+          <nb-card accent="warning" style="margin-bottom:16px" *ngIf="acc.pbx_extension_type === 'fax'">
+            <nb-card-header>Fax Extension — {{ acc.pbx_extension }}</nb-card-header>
+            <nb-card-body>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Extension Number</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_extension" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Fax Delivery Email</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_fax_email || acc.email || '—'" readonly>
+                  <small class="text-muted">Received faxes are delivered to this address.</small>
+                </div>
+              </div>
+            </nb-card-body>
+          </nb-card>
+
+          <!-- SIP Credentials (read-only) — voice extensions only -->
+          <nb-card accent="primary" style="margin-bottom:16px" *ngIf="acc.pbx_extension_type !== 'fax'">
             <nb-card-header>PBX Extension — {{ acc.pbx_extension }}</nb-card-header>
             <nb-card-body>
               <div class="form-group row">
@@ -44,8 +64,8 @@
             </nb-card-body>
           </nb-card>
 
-          <!-- Editable Extension Settings -->
-          <nb-card accent="info" style="margin-bottom:24px">
+          <!-- Editable Extension Settings — voice extensions only -->
+          <nb-card accent="info" style="margin-bottom:24px" *ngIf="acc.pbx_extension_type !== 'fax'">
             <nb-card-header>Extension Settings — {{ acc.pbx_extension }}</nb-card-header>
             <nb-card-body>
               <nb-alert *ngIf="saveSuccess[acc.account_id]" status="success" closable (close)="saveSuccess[acc.account_id]=false">Settings saved successfully.</nb-alert>

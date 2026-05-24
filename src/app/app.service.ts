@@ -132,6 +132,7 @@ export class AppService {
   apiUrlDids           = `${this.apiUrl}/dids`;
   apiUrlBillingUsage   = `${this.apiUrl}/billing/usage`;
   apiUrlBillingQuota   = `${this.apiUrl}/billing/quota`;
+  apiUrlBillingCredit  = `${this.apiUrl}/billing/credit`;
 
   createAuthorizationHeader(headers: Headers) {
     let copy_token = localStorage.getItem('copy_token');
@@ -186,6 +187,17 @@ export class AppService {
     return this.http.get(this.apiUrlTenants, options).toPromise()
       .then(r => r.json() as any[])
       .catch(() => []);
+  }
+
+  getCredit(): Promise<number | null> {
+    const headers = new Headers();
+    this.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers });
+    return this.http.get(this.apiUrlBillingCredit, options).toPromise()
+      .then(r => {
+        const d = r.json();
+        return d && d.credit != null ? parseFloat(d.credit) : null;
+      }).catch(() => null);
   }
 
   public checkFaxProvider(force = false): Promise<boolean> {

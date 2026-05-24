@@ -19,4 +19,6 @@ export class MyAccount {
   pbx_forward_busy_destination: string = '';
   pbx_forward_no_answer_enabled: boolean = false;
   pbx_forward_no_answer_destination: string = '';
+  pbx_extension_type: string = 'voice';
+  pbx_fax_email: string = '';
 }

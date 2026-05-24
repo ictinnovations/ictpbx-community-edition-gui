@@ -59,6 +59,7 @@ mirror_backend() {
   rm -f core/Api/BrandingApi.php
   rm -f core/Api/TenantApi.php
   rm -f core/Api/BillingUsageApi.php
+  rm -f core/Api/BillingCreditApi.php
   rm -f core/PbxQuota.php
 
   # Phase 1 strip — billing model + region/rate cluster (no CE references).
@@ -74,6 +75,7 @@ mirror_backend() {
   # statistics-report deltas, route/rate routing seed data, EE upgrade scripts.
   rm -f db/billing.sql
   rm -f db/billing_seed.sql
+  rm -f db/billing_cdr_sync.sql
   rm -f db/users_cdr.sql
   rm -f db/statistics_report_changes.sql
   rm -rf db/routes_management
@@ -134,7 +136,8 @@ CE_DEMO_EOF
   #    If any appear, a new EE file was added without a matching strip entry.
   for _ee_file in \
       core/Branding.php core/Api/BrandingApi.php core/Api/TenantApi.php \
-      core/Api/BillingUsageApi.php core/PbxQuota.php core/UsageQuota.php \
+      core/Api/BillingUsageApi.php core/Api/BillingCreditApi.php \
+      core/PbxQuota.php core/UsageQuota.php \
       core/Plan.php core/Api/PlanApi.php \
       core/Rate.php core/Api/RateApi.php \
       core/Payment.php core/Api/PaymentApi.php \
@@ -147,7 +150,7 @@ CE_DEMO_EOF
 
   # 3. EE-only SQL files must not exist after stripping.
   for _ee_sql in \
-      db/branding.sql db/billing.sql db/billing_seed.sql \
+      db/branding.sql db/billing.sql db/billing_seed.sql db/billing_cdr_sync.sql \
       db/users_cdr.sql db/statistics_report_changes.sql \
       db/data/role_tenant.sql db/data/role_user.sql; do
     if [ -f "$_ee_sql" ]; then

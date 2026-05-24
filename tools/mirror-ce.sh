@@ -228,6 +228,7 @@ mirror_frontend() {
   # Root-level .md: strip known EE-only docs.
   # Add rm -f here for any new EE root doc; CE-safe ones (README, CHANGELOG, LICENSE, etc.) need no action.
   rm -f installer-diagram.md
+  rm -f proposal.md
 
   echo "[frontend] swap README-ce.md → README.md"
   if [ -f README-ce.md ]; then

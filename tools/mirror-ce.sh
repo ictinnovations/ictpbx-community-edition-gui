@@ -180,7 +180,7 @@ CE_DEMO_EOF
     git checkout -q -b master FETCH_HEAD
     git rm -rf -q . >/dev/null 2>&1 || true
     git checkout -q main -- .
-    git commit -q -m "ICTPBX CE backend — synced ${DATE_TAG} from EE"
+    git commit -q -m "ICTPBX CE backend — synced ${DATE_TAG} from EE" || true
     git push -q origin master
   else
     git push -q origin main:master
@@ -209,7 +209,10 @@ mirror_frontend() {
   rm -f CLAUDE.md
   rm -rf internal-docs
   rm -rf playwright*
-  rm -rf e2e/capture-screenshots.spec.ts e2e/permission-groups.spec.ts
+  rm -rf e2e
+  rm -f installer-diagram.md
+  rm -f user-guide/02-quick-start-ee.md
+  rm -f user-guide/04-tenant-admin-guide.md
 
   echo "[frontend] swap README-ce.md → README.md"
   if [ -f README-ce.md ]; then
@@ -234,7 +237,7 @@ mirror_frontend() {
     git checkout -q -b master FETCH_HEAD
     git rm -rf -q . >/dev/null 2>&1 || true
     git checkout -q main -- .
-    git commit -q -m "ICTPBX CE frontend — synced ${DATE_TAG} from EE"
+    git commit -q -m "ICTPBX CE frontend — synced ${DATE_TAG} from EE" || true
     git push -q origin master
   else
     git push -q origin main:master

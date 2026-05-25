@@ -148,10 +148,24 @@ Translations in `src/assets/i18n/`:
 | Nebular 9 / ngx-admin | UI framework + theme |
 | Angular Material 13 | Component library |
 | ng2-smart-table | Data grids |
-| sip.js 0.21 | WebRTC SIP (agent dashboard) |
+| JsSIP (jssip) | WebRTC SIP softphone — floating panel, auto-registers on login |
 | @azure/msal-angular | Azure AD / SAML auth |
 | @ngx-translate | i18n |
 | ngx-echarts | Charts |
+
+---
+
+## WebRTC Softphone
+
+> **HTTPS + domain required.** The JsSIP softphone uses WSS (WebSocket Secure). Browsers block WSS connections from HTTPS pages to plain WS endpoints. A valid domain name with a TLS certificate (e.g. Let's Encrypt) is required — the softphone will not work on plain `http://IP` installs.
+
+Install with domain + HTTPS:
+```bash
+DOMAIN=pbx.example.com TLS_EMAIL=admin@example.com \
+    bash <(curl -fsSL https://raw.githubusercontent.com/ictinnovations/ictpbx-community-edition-gui/main/install-ce.sh)
+```
+
+Configure once under **Settings → Softphone**: SIP username/password/domain + WS URI (`wss://pbx.example.com/ws/`). Auto-registers on next login.
 
 ---
 

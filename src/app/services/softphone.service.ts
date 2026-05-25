@@ -55,6 +55,9 @@ export class SoftphoneService {
 
   register(cfg: SipConfig) {
     this.unregister();
+    if (window.location.protocol === 'https:' && cfg.wsUri.startsWith('ws://')) {
+      cfg.wsUri = cfg.wsUri.replace('ws://', 'wss://');
+    }
     this.config = cfg;
 
     const socket = new JsSIP.WebSocketInterface(cfg.wsUri);
@@ -113,16 +116,12 @@ export class SoftphoneService {
       this.attachRemoteAudio(data.ack?.connection || s.connection);
     });
     s.on('ended',  () => this.onSessionEnd());
-    s.on('failed', () => this.onSessionEnd());
+    s.on('failed', (data: any) => { console.error('[JsSIP] call failed:', data?.cause, data?.message || ''); this.onSessionEnd(); });
 
     // Also catch confirmed via peerconnection
     s.on('peerconnection', (data: any) => {
       data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
-        if (!this.remoteAudio) {
-          this.remoteAudio = new Audio();
-          this.remoteAudio.autoplay = true;
-        }
-        this.remoteAudio.srcObject = ev.streams[0];
+        this.playRemoteStream(ev.streams[0]);
       };
     });
   }
@@ -135,11 +134,7 @@ export class SoftphoneService {
     });
     this.session.on('peerconnection', (data: any) => {
       data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
-        if (!this.remoteAudio) {
-          this.remoteAudio = new Audio();
-          this.remoteAudio.autoplay = true;
-        }
-        this.remoteAudio.srcObject = ev.streams[0];
+        this.playRemoteStream(ev.streams[0]);
       };
     });
     this.callState$.next('active');
@@ -193,14 +188,18 @@ export class SoftphoneService {
 
   // ── Internal helpers ──────────────────────────────────────────────────────
 
+  private playRemoteStream(stream: MediaStream) {
+    if (!this.remoteAudio) {
+      this.remoteAudio = new Audio();
+    }
+    this.remoteAudio.srcObject = stream;
+    this.remoteAudio.play().catch(() => {});
+  }
+
   private attachRemoteAudio(conn: RTCPeerConnection) {
     if (!conn) return;
     conn.ontrack = (ev: RTCTrackEvent) => {
-      if (!this.remoteAudio) {
-        this.remoteAudio = new Audio();
-        this.remoteAudio.autoplay = true;
-      }
-      this.remoteAudio.srcObject = ev.streams[0];
+      this.playRemoteStream(ev.streams[0]);
     };
   }
 

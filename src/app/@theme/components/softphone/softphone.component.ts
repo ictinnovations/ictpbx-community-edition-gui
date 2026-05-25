@@ -37,7 +37,7 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
     }
 
     this.subs.push(this.phone.registered$.subscribe(v => this.registered = v));
-    this.subs.push(this.phone.callState$.subscribe(v => { this.callState = v; if (v === 'idle') { this.showTransfer = false; this.transferDest = ''; } }));
+    this.subs.push(this.phone.callState$.subscribe(v => { this.callState = v; if (v === 'ringing') this.open = true; if (v === 'idle') { this.showTransfer = false; this.transferDest = ''; } }));
     this.subs.push(this.phone.callerInfo$.subscribe(v => this.callerInfo = v));
     this.subs.push(this.phone.muted$.subscribe(v => this.muted = v));
     this.subs.push(this.phone.held$.subscribe(v => this.held = v));

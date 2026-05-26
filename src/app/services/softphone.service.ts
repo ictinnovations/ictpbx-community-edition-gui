@@ -81,6 +81,22 @@ export class SoftphoneService {
         this.callState$.next('ringing');
         s.on('ended',  () => this.onSessionEnd());
         s.on('failed', () => this.onSessionEnd());
+        // Must be registered before answer() — peerconnection event fires during answer()
+        s.on('peerconnection', (data: any) => {
+          data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
+            const stream = ev.streams[0] || new MediaStream([ev.track]);
+            this.playRemoteStream(stream);
+          };
+        });
+        s.on('confirmed', () => {
+          this.callState$.next('active');
+          const pc = s.connection;
+          if (pc) {
+            pc.getReceivers().forEach((r: RTCRtpReceiver) => {
+              if (r.track) this.playRemoteStream(new MediaStream([r.track]));
+            });
+          }
+        });
       }
     });
 
@@ -111,17 +127,22 @@ export class SoftphoneService {
     this.session = s;
 
     s.on('progress', () => this.callState$.next('calling'));
-    s.on('confirmed', (data: any) => {
+    s.on('confirmed', () => {
       this.callState$.next('active');
-      this.attachRemoteAudio(data.ack?.connection || s.connection);
+      const pc = s.connection;
+      if (pc) {
+        pc.getReceivers().forEach((r: RTCRtpReceiver) => {
+          if (r.track) this.playRemoteStream(new MediaStream([r.track]));
+        });
+      }
     });
     s.on('ended',  () => this.onSessionEnd());
     s.on('failed', (data: any) => { console.error('[JsSIP] call failed:', data?.cause, data?.message || ''); this.onSessionEnd(); });
 
-    // Also catch confirmed via peerconnection
     s.on('peerconnection', (data: any) => {
       data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
-        this.playRemoteStream(ev.streams[0]);
+        const stream = ev.streams[0] || new MediaStream([ev.track]);
+        this.playRemoteStream(stream);
       };
     });
   }
@@ -131,11 +152,6 @@ export class SoftphoneService {
     this.session.answer({
       mediaConstraints: { audio: true, video: false },
       pcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
-    });
-    this.session.on('peerconnection', (data: any) => {
-      data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
-        this.playRemoteStream(ev.streams[0]);
-      };
     });
     this.callState$.next('active');
   }

@@ -699,13 +699,20 @@ else
 fi
 
 chown -R ictcore:ictcore "$ICTCORE_DIR"
-ok "Ownership set: ictcore:ictcore"
+# data/ subdirs may be populated after the main chown — re-apply explicitly
+chown -R ictcore:ictcore "$ICTCORE_DIR/data"
+mkdir -p /var/log/ictcore && chown ictcore:ictcore /var/log/ictcore
+ok "Ownership set: ictcore:ictcore (including data/, /var/log/ictcore)"
 
 # FreeSWITCH config symlinks
 ln -sf "$ICTCORE_DIR/etc/freeswitch/dialplan/ictcore.xml"     /etc/freeswitch/dialplan/ictcore.xml
 ln -sf "$ICTCORE_DIR/etc/freeswitch/sip_profiles/ictcore.xml" /etc/freeswitch/sip_profiles/ictcore.xml
 ln -sf "$ICTCORE_DIR/etc/freeswitch/directory/ictcore.xml"    /etc/freeswitch/directory/ictcore.xml
 ok "FreeSWITCH config symlinks created"
+
+# Pre-create fpbx_extensions dir as ictcore so php-fpm (running as ictcore) can write XML files
+mkdir -p "$ICTCORE_DIR/etc/freeswitch/directory/fpbx_extensions"
+chown ictcore:ictcore "$ICTCORE_DIR/etc/freeswitch/directory/fpbx_extensions"
 
 # ictpbx.xml dial-string fixes for WebRTC/JsSIP compatibility:
 #   1. Remove ,${verto_contact(...)} — mod_verto not loaded; causes bridge errors

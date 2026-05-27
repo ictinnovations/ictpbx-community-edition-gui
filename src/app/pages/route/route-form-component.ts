@@ -124,7 +124,6 @@ export class AddRouteComponent implements OnInit {
   getRegion() {
     this.route_service.get_RegionList().then(data => {
       this.regions = data;
-      // Load Countries
       this.getCountry(this.region_id);
     }).catch(err => this.handleError(err));
   }
@@ -133,7 +132,6 @@ export class AddRouteComponent implements OnInit {
   getCountry(region_id: any, reload = false) {
     this.route_service.get_CountryList(region_id).then(data => {
       this.countries = data;
-      // Load Destinations
       (reload) ? this.destinations = [] : this.getDestination(this.country_id);
     }).catch(err => this.handleError(err));
   }

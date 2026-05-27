@@ -206,9 +206,14 @@ export class SoftphoneService {
 
   private playRemoteStream(stream: MediaStream) {
     if (!this.remoteAudio) {
-      this.remoteAudio = new Audio();
+      this.remoteAudio = document.createElement('audio');
+      this.remoteAudio.autoplay = true;
+      this.remoteAudio.style.display = 'none';
+      document.body.appendChild(this.remoteAudio);
     }
-    this.remoteAudio.srcObject = stream;
+    if (this.remoteAudio.srcObject !== stream) {
+      this.remoteAudio.srcObject = stream;
+    }
     this.remoteAudio.play().catch(() => {});
   }
 
@@ -227,6 +232,7 @@ export class SoftphoneService {
     this.held$.next(false);
     if (this.remoteAudio) {
       this.remoteAudio.srcObject = null;
+      try { document.body.removeChild(this.remoteAudio); } catch {}
       this.remoteAudio = null;
     }
   }

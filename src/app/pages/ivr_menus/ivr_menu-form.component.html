@@ -34,19 +34,31 @@
           </div>
           <div class="form-group row">
             <label class="col-sm-3 col-form-label">Greeting (long)</label>
-            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_greet_long" placeholder="ivr/ivr-welcome_to_company.wav"></div>
+            <div class="col-sm-9">
+              <ngx-recording-picker [(ngModel)]="menu.ivr_menu_greet_long"
+                placeholder="ivr/ivr-welcome_to_company.wav"></ngx-recording-picker>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-sm-3 col-form-label">Greeting (short)</label>
-            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_greet_short" placeholder="ivr/ivr-press_1.wav"></div>
+            <div class="col-sm-9">
+              <ngx-recording-picker [(ngModel)]="menu.ivr_menu_greet_short"
+                placeholder="ivr/ivr-please_enter_the_extension_number.wav"></ngx-recording-picker>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-sm-3 col-form-label">Invalid Sound</label>
-            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_invalid_sound" placeholder="ivr/ivr-that_was_an_invalid_entry.wav"></div>
+            <div class="col-sm-9">
+              <ngx-recording-picker [(ngModel)]="menu.ivr_menu_invalid_sound"
+                placeholder="ivr/ivr-that_was_an_invalid_entry.wav"></ngx-recording-picker>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-sm-3 col-form-label">Exit Sound</label>
-            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="menu.ivr_menu_exit_sound" placeholder="ivr/ivr-thank_you.wav"></div>
+            <div class="col-sm-9">
+              <ngx-recording-picker [(ngModel)]="menu.ivr_menu_exit_sound"
+                placeholder="ivr/ivr-thank_you.wav"></ngx-recording-picker>
+            </div>
           </div>
           <div class="form-group row">
             <label class="col-sm-3 col-form-label">Timeout (ms)</label>

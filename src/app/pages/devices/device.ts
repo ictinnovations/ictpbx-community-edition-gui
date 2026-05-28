@@ -12,4 +12,6 @@ export class Device {
   device_password: string = null;
   device_description: string = null;
   device_enabled: boolean = true;
+  device_profile_uuid: string = null;
+  device_serial_number: string = null;
 }

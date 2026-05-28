@@ -41,7 +41,10 @@ export const MENU_ITEMS: MenuItem[] = [
     title: 'PBX',
     icon: 'phone-outline',
     key: 'pbx',
-    children: PBX_CHILDREN,
+    children: [
+      ...PBX_CHILDREN,
+      { title: 'Device Profiles', icon: 'settings-2-outline', link: '/pages/devices/profiles', key: 'device_profiles' },
+    ],
   },
   {
     title: 'Fax',

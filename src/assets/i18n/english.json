@@ -202,7 +202,9 @@
             "music_on_hold": "Music on Hold",
             "gateways": "Gateways",
             "inbound_routes": "Inbound Routes",
-            "realtime": "Realtime"
+            "realtime": "Realtime",
+            "feature_codes": "Feature Codes",
+            "device_profiles": "Device Profiles"
         },
         "reports": {
             "reports": "Reports",

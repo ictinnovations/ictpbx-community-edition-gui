@@ -129,6 +129,9 @@ export class AppService {
   apiUrlFpbxExtensions = `${this.apiUrl}/fpbx_extensions`;
   apiUrlIvrMenus       = `${this.apiUrl}/ivr_menus`;
   apiUrlDevices        = `${this.apiUrl}/devices`;
+  apiUrlDeviceProfiles = `${this.apiUrl}/device_profiles`;
+  apiUrlDeviceVendors  = `${this.apiUrl}/device_vendors`;
+  apiUrlDeviceLines    = `${this.apiUrl}/device_lines`;
   apiUrlDids           = `${this.apiUrl}/dids`;
   apiUrlBillingUsage   = `${this.apiUrl}/billing/usage`;
   apiUrlBillingQuota   = `${this.apiUrl}/billing/quota`;

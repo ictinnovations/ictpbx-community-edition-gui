@@ -113,12 +113,29 @@
             "fax_accounts": "ファックスアカウント",
             "extension": "ファックスアカウント",
             "fax_setting": "ファックス設定",
-            "cover_page" : "表紙ページ"
+            "cover_page": "表紙ページ",
+            "announcement": "お知らせ",
+            "passwd_policy": "パスワードポリシー"
         },
         "fax": {
             "fax": "ファックス",
+            "my_account": "マイFaxアカウント",
+            "campaigns": "一括ファックス",
+            "send_fax": "ファックス送信",
+            "receive_fax": "ファックス受信",
+            "fax_setting": "ファックス設定",
+            "cover_page": "表紙ページ",
             "incoming_number": "マイDID",
-            "my_cids": "マイCID"
+            "my_cids": "マイCID",
+            "contacts": {
+                "contacts": "連絡先",
+                "groups": "連絡先グループ",
+                "contact_dnc": "DNC連絡先"
+            },
+            "media_library": {
+                "media_library": "メディアライブラリ",
+                "resources": { "fax_documents": "FAX文書" }
+            }
         },
         "routings":{
             "routings": "ルーティング",
@@ -128,6 +145,7 @@
             "destinations": "目的地",
             "routes": "ルート",
             "my_dids": "DID番号",
+            "cid_number": "CID番号",
             "my_cids": "マイCID"
         },
         "send_voice": "音声送信",
@@ -140,6 +158,7 @@
         },
         "pbx": {
             "pbx": "PBX",
+            "my_account": "マイ内線",
             "fpbx_extension": "内線",
             "devices": "デバイス",
             "ring_groups": "着信グループ",
@@ -154,7 +173,9 @@
             "music_on_hold": "保留音楽",
             "gateways": "ゲートウェイ",
             "inbound_routes": "着信ルート",
-            "realtime": "リアルタイム"
+            "realtime": "リアルタイム",
+            "feature_codes": "機能コード",
+            "device_profiles": "デバイスプロファイル"
         },
         "reports": {
             "reports": "レポート",

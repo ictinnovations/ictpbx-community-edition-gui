@@ -22,7 +22,7 @@ export class RoutesComponent implements OnInit {
   closeResult: any;
   destinations:any = [];
 
-  displayedColumns= [/*'name',*/ 'destination', 'service', 'provider', /*'operations'*/];
+  displayedColumns= [/*'name',*/ 'destination', 'service', 'provider', 'operations'];
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -53,10 +53,9 @@ export class RoutesComponent implements OnInit {
 
 
   deleteRoute(route_id): void {
-    this.route_service.delete_Route(route_id).then(response => {
-    })
-    .catch(this.handleError);
-    this.getRoutelist();
+    this.route_service.delete_Route(route_id).then(() => {
+      this.getRoutelist();
+    }).catch(this.handleError);
   }
 
   // Modal related

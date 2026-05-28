@@ -96,15 +96,33 @@
           "extensions": "Estensioni",
           "tenants": "Inquiline",
           "did_number": "Numero DID",
+          "cid_number": "Numeri CID",
           "providers": "Fornitrici / Tronchi",
           "fax_setting": "Impostazioni fax",
           "fax_accounts": "Account Fax",
-          "extension": "Account Fax"
+          "extension": "Account Fax",
+          "announcement": "Annuncio",
+          "passwd_policy": "Politica Password"
       },
       "fax": {
           "fax": "Fax",
+          "my_account": "Il Mio Account Fax",
+          "campaigns": "Fax in Blocco",
+          "send_fax": "Invia Fax",
+          "receive_fax": "Ricevi Fax",
+          "fax_setting": "Impostazioni Fax",
+          "cover_page": "Pagina di Copertina",
           "incoming_number": "I miei DID",
-          "my_cids": "I miei CID"
+          "my_cids": "I miei CID",
+          "contacts": {
+              "contacts": "Contatti",
+              "groups": "Gruppi di Contatto",
+              "contact_dnc": "DNC Contatti"
+          },
+          "media_library": {
+              "media_library": "Libreria Multimediale",
+              "resources": { "fax_documents": "Documenti Fax" }
+          }
       },
       "routings":{
           "routings": "Percorsi",
@@ -114,6 +132,7 @@
           "destinations": "Destinazioni",
           "routes": "Itinerari",
           "my_dids": "Numeri DID",
+          "cid_number": "Numeri CID",
           "my_cids": "I miei CID"
      },
      "send_voice": "Invia Voce",
@@ -126,6 +145,7 @@
      },
      "pbx": {
          "pbx": "PBX",
+         "my_account": "La Mia Estensione",
          "fpbx_extension": "Estensioni",
          "devices": "Dispositivi",
          "ring_groups": "Gruppi Suoneria",
@@ -140,7 +160,9 @@
          "music_on_hold": "Musica in Attesa",
          "gateways": "Gateway",
          "inbound_routes": "Rotte Ingresso",
-         "realtime": "Tempo Reale"
+         "realtime": "Tempo Reale",
+         "feature_codes": "Codici di Funzione",
+         "device_profiles": "Profili Dispositivo"
      },
      "reports": {
          "reports": "Rapporti",

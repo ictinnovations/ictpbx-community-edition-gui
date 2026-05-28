@@ -103,7 +103,7 @@ export class AddUserComponent implements OnInit {
 
     this.is_admin = Number(localStorage.getItem('is_admin'));
     // Admin defaults to 0 ("New Tenant" sentinel) to force explicit selection
-    this.user["tenant_id"] = this.isCommunity ? 1 : (this.is_admin === 1 ? 0 : Number(localStorage.getItem('tid')));
+    this.user["tenant_id"] = this.isCommunity ? 1 : (this.is_admin === 1 ? null : Number(localStorage.getItem('tid')));
     if (!this.isCommunity) {
       if (this.is_admin == 1) { this.getAllTenants(); }
       else this.getTenant(this.user.tenant_id);
@@ -303,6 +303,17 @@ export class AddUserComponent implements OnInit {
 
   get isEndUserRoleSelected(): boolean {
     return this.role && this.role.some(r => Number(r.role_id) === 4 && r.state);
+  }
+
+  get isTenantAdminRoleSelected(): boolean {
+    return this.role && this.role.some(r => Number(r.role_id) === 3 && r.state);
+  }
+
+  get filteredTenants(): any[] {
+    if (!this.tenants) return [];
+    return this.isTenantAdminRoleSelected
+      ? this.tenants.filter(t => Number(t.tenant_id) !== 1)
+      : this.tenants;
   }
 
   isRoleDisabled(roleId: any): boolean {
@@ -561,13 +572,12 @@ export class AddUserComponent implements OnInit {
         element.state = is_checked;
       }
     });
-    // Tenant role (3) implies user role (1) must also be active; reset to "New Tenant" sentinel
+    // Tenant role (3) implies user role (1) must also be active
     if (Number(role_id) === 3 && is_checked) {
       const userRole = this.role.find(r => Number(r.role_id) === 1);
       if (userRole) userRole.state = true;
-      if (this.is_admin === 1) {
-        this.user.tenant_id = 0;
-      }
+      // Super Admin tenant is not valid for a Tenant Admin — clear it if selected
+      if (Number(this.user.tenant_id) === 1) this.user.tenant_id = null;
     }
     // End-user role (4): uncheck and disable user+tenant; re-enable when unchecked
     if (Number(role_id) === 4) {

@@ -23,7 +23,7 @@
 
       <ng-container matColumnDef="device_address">
         <mat-header-cell *matHeaderCellDef mat-sort-header>MAC Address</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.device_address }}</mat-cell>
+        <mat-cell *matCellDef="let row">{{ formatMac(row.device_address) }}</mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="device_vendor">

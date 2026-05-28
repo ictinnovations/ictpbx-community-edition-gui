@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { DeviceService } from './device.service';
-import { DeviceDatabase } from './device-database.component';
-import { DeviceDataSource } from './device-datasource.component';
+import { DeviceProfileService } from './device-profile.service';
+import { DeviceProfileDatabase } from './device-profile-database.component';
+import { DeviceProfileDataSource } from './device-profile-datasource.component';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { NbWindowService, NbWindowRef } from '@nebular/theme';
@@ -13,21 +13,14 @@ import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/toPromise';
 
 @Component({
-  selector: 'ngx-device-list',
-  templateUrl: './device-list.component.html',
-  styleUrls: ['./device-list.component.scss'],
+  selector: 'ngx-device-profile-list',
+  templateUrl: './device-profile-list.component.html',
+  styleUrls: ['./device-profile-list.component.scss'],
 })
-export class DeviceListComponent implements OnInit {
+export class DeviceProfileListComponent implements OnInit {
 
-  displayedColumns = ['device_label', 'device_address', 'device_vendor', 'device_model', 'device_enabled', 'operations'];
-
-  formatMac(mac: string): string {
-    if (!mac) return '';
-    const m = mac.replace(/[^a-fA-F0-9]/g, '').toLowerCase();
-    if (m.length !== 12) return mac;
-    return m.match(/.{2}/g).join(':');
-  }
-  dataSource: DeviceDataSource | null;
+  displayedColumns = ['device_profile_name', 'device_profile_enabled', 'operations'];
+  dataSource: DeviceProfileDataSource | null;
   length = 0;
   deleteUuid: string;
   private windowRef: NbWindowRef;
@@ -39,7 +32,7 @@ export class DeviceListComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   constructor(
-    private service: DeviceService,
+    private service: DeviceProfileService,
     private router: Router,
     private windowService: NbWindowService,
     private app_service: AppService,
@@ -55,7 +48,7 @@ export class DeviceListComponent implements OnInit {
   loadList() {
     this.service.getList(this.selectedTenant).then(data => {
       this.length = data.length;
-      this.dataSource = new DeviceDataSource(new DeviceDatabase(data), this.sort, this.paginator);
+      this.dataSource = new DeviceProfileDataSource(new DeviceProfileDatabase(data), this.sort, this.paginator);
     });
   }
 

@@ -466,8 +466,8 @@
                 <label for="tenant_id">{{ 'Tenant.title' | translate}}</label>
                 <select class="form-control" name="tenant_id" (change)="onTenantChange($event.target.value)"
                   [(ngModel)]="user.tenant_id" [ngModelOptions]="{standalone: true}">
-                  <option value="0">— New Tenant —</option>
-                  <option *ngFor="let tenant of tenants" value="{{tenant.tenant_id}}">
+                  <option value="">— Select Tenant —</option>
+                  <option *ngFor="let tenant of filteredTenants" value="{{tenant.tenant_id}}">
                     {{tenant.company}} <ng-template [ngIf]="tenant.first_name">- {{tenant.first_name}}
                       {{tenant.last_name}}</ng-template>
                   </option>

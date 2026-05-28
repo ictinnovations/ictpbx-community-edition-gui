@@ -14,7 +14,7 @@
           <label class="col-sm-3 col-form-label">MAC Address *</label>
           <div class="col-sm-9">
             <input nbInput fullWidth [(ngModel)]="device.device_address" placeholder="00:0B:82:01:FC:42" required>
-            <small class="text-muted">Format: XX:XX:XX:XX:XX:XX</small>
+            <small class="text-muted">Any format accepted (colons/dashes stripped automatically)</small>
           </div>
         </div>
         <div class="form-group row">
@@ -26,28 +26,54 @@
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Vendor</label>
           <div class="col-sm-9">
-            <select nbSelect fullWidth [(ngModel)]="device.device_vendor">
-              <option value="">-- Select Vendor --</option>
-              <option *ngFor="let v of vendors" [value]="v">{{ v }}</option>
-            </select>
+            <nb-select fullWidth [selected]="device.device_vendor" (selectedChange)="onVendorChange($event)" placeholder="-- Select Vendor --">
+              <nb-option [value]="null">-- Select Vendor --</nb-option>
+              <nb-option *ngFor="let v of vendorList" [value]="v.name">{{ v.name | titlecase }}</nb-option>
+            </nb-select>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Model</label>
           <div class="col-sm-9">
-            <input nbInput fullWidth [(ngModel)]="device.device_model" placeholder="T46U">
+            <nb-select fullWidth [selected]="device.device_model" (selectedChange)="onModelChange($event)" placeholder="-- Select Model --" [disabled]="!device.device_vendor">
+              <nb-option [value]="null">-- Select Model --</nb-option>
+              <nb-option *ngFor="let m of modelList" [value]="m">{{ m | uppercase }}</nb-option>
+            </nb-select>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Template</label>
           <div class="col-sm-9">
-            <input nbInput fullWidth [(ngModel)]="device.device_template" placeholder="yealink/T46U.xml">
+            <input nbInput fullWidth [(ngModel)]="device.device_template" placeholder="yealink/t46s">
+            <small class="text-muted">Auto-filled on model select. Edit manually if needed.</small>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Firmware Version</label>
           <div class="col-sm-9">
             <input nbInput fullWidth [(ngModel)]="device.device_firmware_version" placeholder="2.13.0.150">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Serial Number</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="device.device_serial_number" placeholder="SN123456789">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Device Profile</label>
+          <div class="col-sm-9">
+            <nb-select fullWidth [(selected)]="device.device_profile_uuid" placeholder="-- No Profile --">
+              <nb-option [value]="null">-- No Profile --</nb-option>
+              <nb-option *ngFor="let p of profiles" [value]="p.device_profile_uuid">{{ p.device_profile_name }}</nb-option>
+            </nb-select>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="provisioningUrl">
+          <label class="col-sm-3 col-form-label">Provisioning URL</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [value]="provisioningUrl" readonly>
+            <small class="text-muted">Point the device to this URL for auto-provisioning</small>
           </div>
         </div>
         <div class="form-group row">
@@ -79,6 +105,63 @@
           <div class="col-sm-9">
             <nb-checkbox [(ngModel)]="device.device_enabled">Active</nb-checkbox>
           </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        SIP Lines
+        <button nbButton size="tiny" status="primary" (click)="addLine()" style="float:right">
+          <nb-icon icon="plus-outline"></nb-icon> Add Line
+        </button>
+      </nb-card-header>
+      <nb-card-body>
+        <p *ngIf="lines.length === 0" class="text-muted">No lines configured. Add a line to enable provisioning.</p>
+        <div *ngIf="lines.length > 0" style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left">#</th>
+                <th style="padding:6px 8px;text-align:left">Extension</th>
+                <th style="padding:6px 8px;text-align:left">Display Name</th>
+                <th style="padding:6px 8px;text-align:left">Server</th>
+                <th style="padding:6px 8px;text-align:left">Transport</th>
+                <th style="padding:6px 8px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let line of lines; let i = index">
+                <td style="padding:6px 8px">{{ i + 1 }}</td>
+                <td style="padding:6px 8px">
+                  <nb-select [selected]="getExtOption(line.extension_uuid)"
+                             (selectedChange)="onExtensionSelect(i, $event)"
+                             placeholder="-- Pick extension --" style="min-width:140px">
+                    <nb-option [value]="null">--</nb-option>
+                    <nb-option *ngFor="let e of extensions" [value]="e">{{ e.label }}</nb-option>
+                  </nb-select>
+                </td>
+                <td style="padding:6px 8px">
+                  <input nbInput [(ngModel)]="line.display_name" placeholder="John Smith" style="width:130px">
+                </td>
+                <td style="padding:6px 8px">
+                  <input nbInput [(ngModel)]="line.server_address" placeholder="demo.ictpbx.com" style="width:160px">
+                </td>
+                <td style="padding:6px 8px">
+                  <nb-select [(selected)]="line.sip_transport" style="min-width:80px">
+                    <nb-option value="udp">UDP</nb-option>
+                    <nb-option value="tcp">TCP</nb-option>
+                    <nb-option value="tls">TLS</nb-option>
+                  </nb-select>
+                </td>
+                <td style="padding:6px 8px">
+                  <button nbButton ghost size="small" (click)="removeLine(i)">
+                    <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </nb-card-body>
     </nb-card>

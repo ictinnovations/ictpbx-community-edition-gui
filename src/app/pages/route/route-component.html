@@ -33,14 +33,14 @@
               {{route.provider}}</mat-cell>
           </ng-container>
 
-          <!-- <ng-container cdkColumnDef="operations">
+          <ng-container matColumnDef="operations">
             <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
             <mat-cell *matCellDef="let route">
-              <button mat-icon-button color="primary" style= "font-size:20px">
-                <mat-icon style="color: red" (click)="showStaticModal(route.name, route.route_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
+              <button mat-icon-button color="primary" style="font-size:20px">
+                <mat-icon style="color: red" (click)="showStaticModal(route.destination, route.route_id)"><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
               </button>
             </mat-cell>
-          </ng-container> -->
+          </ng-container>
 
           <!--
           <ng-container matColumnDef="type">

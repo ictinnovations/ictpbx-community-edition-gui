@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ThemeModule } from '../../@theme/theme.module';
 import { DevicesRoutingModule, routedComponents } from './devices-routing.module';
 import { DeviceService } from './device.service';
+import { DeviceProfileService } from './device-profile.service';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -43,6 +44,6 @@ import {
     NbWindowModule.forChild(),
   ],
   declarations: [...routedComponents],
-  providers: [DeviceService],
+  providers: [DeviceService, DeviceProfileService],
 })
 export class DevicesModule {}

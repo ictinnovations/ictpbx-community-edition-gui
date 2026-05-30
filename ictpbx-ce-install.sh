@@ -216,6 +216,15 @@ cat > "$APACHE_CONF" <<'VHOST'
         Require all granted
     </Directory>
 
+    # PWA service-worker control files must never be cached, or browsers keep
+    # serving a stale app shell after a deploy (ngsw-worker.js / ngsw.json gate
+    # all SW updates; index.html is the entry point).
+    <FilesMatch "^(ngsw-worker\.js|ngsw\.json|safety-worker\.js|worker-basic\.min\.js|index\.html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
     # ICTCore REST API
     Alias /api /usr/ictcore/wwwroot
     <Directory /usr/ictcore/wwwroot>

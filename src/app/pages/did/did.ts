@@ -18,4 +18,6 @@ export class DID {
   user_id: any;
   service: any;
   name: any;
+  routingLabel?: string;   // computed client-side: 'Fax-to-email' or 'Voice → <target>'
+  routingIsVoice?: boolean;
 }

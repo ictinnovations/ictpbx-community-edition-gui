@@ -45,7 +45,7 @@ export class FormsDIDComponent implements OnInit {
   is_admin: any = 0;
   users: User[] = [];
 
-  displayedColumns = ['phone', 'first_name', 'assigned_to', 'Operations'];
+  displayedColumns = ['phone', 'first_name', 'assigned_to', 'routing', 'Operations'];
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -147,7 +147,33 @@ export class FormsDIDComponent implements OnInit {
     })
 
     Promise.all(requests).then(() => {
-      this.aDID = new DIDDataSource(new DIDDatabase(data), this.sort, this.paginator);
+      this.applyRouting(data).then(() => {
+        this.aDID = new DIDDataSource(new DIDDatabase(data), this.sort, this.paginator);
+      });
+    });
+  }
+
+  applyRouting(data): Promise<void> {
+    return this.did_service.get_InboundRoutes().then(routes => {
+      const byNumber = new Map<string, any>();
+      (routes || []).forEach(r => {
+        const n = String(r.destination_number || '').replace(/^\+/, '');
+        if (n) byNumber.set(n, r);
+      });
+      data.forEach(did => {
+        const n = String(did.phone || '').replace(/^\+/, '');
+        const route = byNumber.get(n);
+        if (route) {
+          const target = String(route.destination_data || '').split(' ')[0] || '';
+          did.routingIsVoice = true;
+          did.routingLabel = target ? `Voice → ${target}` : 'Voice route';
+        } else {
+          did.routingIsVoice = false;
+          did.routingLabel = 'Fax-to-email';
+        }
+      });
+    }).catch(() => {
+      data.forEach(did => { did.routingLabel = ''; did.routingIsVoice = undefined; });
     });
   }
 

@@ -38,6 +38,13 @@ export class DIDService {
     return this.http.get(getUrl, options).toPromise()
       .then(response => response.json()).catch(response => this.app_service.handleError(response));
   }
+  get_InboundRoutes(): Promise<any[]> {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers });
+    return this.http.get(this.app_service.apiUrlInboundRoutes, options).toPromise()
+      .then(response => response.json() as any[]).catch(response => this.app_service.handleError(response));
+  }
   get_didList(tenant = 0): Promise<DID[]> {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);

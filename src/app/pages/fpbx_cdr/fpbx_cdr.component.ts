@@ -46,8 +46,13 @@ export class FpbxCdrComponent implements OnInit, OnDestroy {
       .then(data => {
         this.rows  = data.rows  || [];
         this.total = data.total || 0;
+        this.loading = false;
       })
-      .finally(() => { this.loading = false; });
+      .catch(() => {
+        this.rows  = [];
+        this.total = 0;
+        this.loading = false;
+      });
   }
 
   applyFilter() {

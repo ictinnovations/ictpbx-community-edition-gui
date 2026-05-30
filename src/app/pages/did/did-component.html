@@ -60,6 +60,20 @@
           <mat-cell *matCellDef="let did" style="text-align:left">
             {{did.name}}</mat-cell>
         </ng-container>
+        <ng-container matColumnDef="routing">
+          <mat-header-cell *matHeaderCellDef>Routing</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            <span *ngIf="did.routingLabel"
+                  [ngStyle]="{
+                    'padding': '2px 8px',
+                    'border-radius': '12px',
+                    'font-size': '0.78rem',
+                    'white-space': 'nowrap',
+                    'background': did.routingIsVoice ? '#d4f5dd' : '#eceef2',
+                    'color': did.routingIsVoice ? '#1a7d3c' : '#5a5f6a'
+                  }">{{ did.routingLabel }}</span>
+          </mat-cell>
+        </ng-container>
         <ng-container cdkColumnDef="Operations">
           <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate }}</mat-header-cell>
           <mat-cell *matCellDef="let did">

@@ -223,11 +223,6 @@ const routes: Routes = [{
         .then(m => m.AgentDashboardModule),
     },
     {
-      path: 'dids',
-      loadChildren: () => import('./dids/dids.module')
-        .then(m => m.DidsModule),
-    },
-    {
       path: 'my-account',
       loadChildren: () => import('./my-account/my-account.module')
         .then(m => m.MyAccountModule),

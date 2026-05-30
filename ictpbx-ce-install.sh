@@ -244,6 +244,26 @@ HTA
 
 ok "Apache vhost written: $APACHE_CONF"
 
+# Localhost-only VirtualHost so mod_xml_cdr can POST CDR to FusionPBX import script
+cat >> "$APACHE_CONF" <<'LOCALVHOST'
+
+<VirtualHost 127.0.0.1:80>
+    ServerName localhost
+    Alias /app/xml_cdr /var/www/fusionpbx/app/xml_cdr
+    <Directory /var/www/fusionpbx/app/xml_cdr>
+        Options -Indexes
+        AllowOverride All
+        Require local
+    </Directory>
+    <Directory /var/www/fusionpbx>
+        Options -Indexes
+        AllowOverride All
+        Require local
+    </Directory>
+</VirtualHost>
+LOCALVHOST
+ok "localhost xml_cdr VirtualHost appended"
+
 # #29 — On EL9 minimal images mod_rewrite.so may be missing from base httpd RPM.
 if [[ ! -f /etc/httpd/modules/mod_rewrite.so ]]; then
     info "mod_rewrite.so missing — pulling httpd sub-packages..."

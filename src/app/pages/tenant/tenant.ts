@@ -15,6 +15,8 @@ export class Tenant {
   active: number;
   daily_limit: number = 50;
   monthly_limit: number = 500;
+  credit_alert_threshold: number = 0;
+  max_concurrent_calls: number = 0;
   permissions: any;
   min_retention: number = 1;
   max_retention: number = 7;

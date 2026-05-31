@@ -188,16 +188,20 @@ export class ImportDIDComponent implements OnInit {
     this.successCount = 0;
     this.totalCount = 0;
     this.failedRows = [];
+    // Only assign to a user when one was explicitly chosen; otherwise the DID
+    // is created against the selected tenant (row.tenant_id) only.
+    const assignUserId = (typeof this.assign === 'string' && this.assign !== '' && this.assign !== '0') ? this.assign : null;
     try {
       for (const row of this.setmapped) {
         this.totalCount++;
         try {
-          await this.did_service.add_DID(row).then(data =>
-            this.did_service.assign_Imported_DID(data, this.assign)
-          );
+          const account = await this.did_service.add_DID(row);
+          if (assignUserId) {
+            await this.did_service.assign_Imported_DID(account, assignUserId);
+          }
           this.successCount++;
         } catch (err) {
-          this.failedRows.push(row);
+          this.failedRows.push({ ...row, __reason: this.extractError(err) });
           this.failedCount++;
           console.error("Row failed:", row, err);
         }
@@ -234,6 +238,25 @@ export class ImportDIDComponent implements OnInit {
         return !this.headers.every(key => rowKeys.includes(key) && row[key] === key);
       });
     }
+  }
+
+  // Parse the API error so the failed-rows CSV explains *why* each row failed
+  // (e.g. 409 "phone number already in use"). The backend returns
+  // { error: { code, message } } in the response body.
+  extractError(err: any): string {
+    try {
+      if (err && err._body) {
+        const parsed = JSON.parse(err._body);
+        if (parsed && parsed.error && parsed.error.message) {
+          const code = parsed.error.code ? parsed.error.code + ': ' : '';
+          return code + parsed.error.message;
+        }
+      }
+      if (err && err.status) {
+        return 'HTTP ' + err.status + (err.statusText ? ' ' + err.statusText : '');
+      }
+    } catch (e) { /* fall through */ }
+    return typeof err === 'string' ? err : 'Unknown error';
   }
 
   clearMsg() {

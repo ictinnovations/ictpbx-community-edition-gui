@@ -25,22 +25,10 @@
         </select>
       </div>
 
-      <div class="field">
-        <select class="form-control" name="user" (change)="onUserSelect($event.target.value)">
-          <option value="0">All User</option>
-          <option *ngFor="let user of users" value="{{ user.user_id }}">
-            {{ user.first_name }} {{ user.last_name }}
-          </option>
-        </select>
-      </div>
-      
       <div class="field" >
-        <select class="form-control"  (change)="onExtesionSelect($event.target.value)">
-          <option value="0">All Domains</option>
-          <option *ngFor="let extension of extensions" value="{{ extension.domain }}">
-            {{extension.domain}} 
-          </option>
-        </select>
+        <input class="form-control" type="text" name="extension"
+               placeholder="Extension (caller / destination)"
+               [(ngModel)]="extension" />
       </div>
 
       <div class="field" >

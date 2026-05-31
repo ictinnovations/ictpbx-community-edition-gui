@@ -27,6 +27,30 @@
 </div>
 
 <nb-card>
+  <nb-card-header>Click to Call</nb-card-header>
+  <nb-card-body>
+    <div class="row" style="align-items:flex-end">
+      <div class="col-md-4">
+        <label>From extension</label>
+        <input nbInput fullWidth type="text" [(ngModel)]="c2cFrom" [ngModelOptions]="{standalone:true}" placeholder="e.g. 1001"/>
+      </div>
+      <div class="col-md-4">
+        <label>To number</label>
+        <input nbInput fullWidth type="text" [(ngModel)]="c2cTo" [ngModelOptions]="{standalone:true}" placeholder="e.g. 1002 or 0300..."/>
+      </div>
+      <div class="col-md-4">
+        <button nbButton status="primary" [disabled]="c2cLoading" (click)="clickToCall()">
+          {{ c2cLoading ? 'Calling...' : 'Call' }}
+        </button>
+      </div>
+    </div>
+    <div *ngIf="c2cMessage" style="margin-top:10px" [style.color]="c2cError ? '#c0392b' : '#2e7d32'">
+      {{ c2cMessage }}
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
   <nb-card-header>Active Channels</nb-card-header>
   <nb-card-body>
     <table class="table table-bordered table-sm" *ngIf="channels.length > 0">

@@ -4,6 +4,17 @@
 /.tmp
 /out-tsc
 
+# E2E local credentials — never commit (copy test-secrets.example.ts)
+e2e/test-secrets.ts
+
+# stray local junk
+'
+*.php.tmp
+*.conf.tmp
+UsersSuper*
+.backend-work/
+tutorial-logs/
+
 # dependencies
 /node_modules
 

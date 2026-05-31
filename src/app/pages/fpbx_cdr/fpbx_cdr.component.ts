@@ -9,6 +9,7 @@ import 'rxjs/add/operator/toPromise';
 @Component({
   selector: 'ngx-fpbx-cdr',
   templateUrl: './fpbx_cdr.component.html',
+  styleUrls: ['./fpbx_cdr.component.scss'],
 })
 export class FpbxCdrComponent implements OnInit, OnDestroy {
 
@@ -19,6 +20,17 @@ export class FpbxCdrComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   filter: string = '';
   direction: string = '';
+
+  displayedColumns: string[] = [
+    'Time',
+    'Domain',
+    'Direction',
+    'Caller',
+    'Destination',
+    'Duration',
+    'Billed',
+    'HangupCause',
+  ];
 
   etlStatus: any = null;
   etlTriggering: boolean = false;
@@ -55,6 +67,8 @@ export class FpbxCdrComponent implements OnInit, OnDestroy {
       });
   }
 
+  onDirectionSelect(value: string) { this.direction = value || ''; }
+
   applyFilter() {
     this.filter = '';
     if (this.range.value.start)
@@ -75,11 +89,11 @@ export class FpbxCdrComponent implements OnInit, OnDestroy {
     this.load();
   }
 
-  prevPage() { if (this.pageIndex > 0) { this.pageIndex--; this.load(); } }
-  nextPage() { if ((this.pageIndex + 1) * this.pageSize < this.total) { this.pageIndex++; this.load(); } }
-
-  get pageStart() { return this.total === 0 ? 0 : this.pageIndex * this.pageSize + 1; }
-  get pageEnd()   { return Math.min((this.pageIndex + 1) * this.pageSize, this.total); }
+  onPage(event: any) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.load();
+  }
 
   private authOptions(): RequestOptions {
     const headers = new Headers();

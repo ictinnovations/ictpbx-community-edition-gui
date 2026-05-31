@@ -23,6 +23,12 @@ export class RealtimeComponent implements OnInit, OnDestroy {
   transferUuid: string = null;
   transferDest: string = '';
 
+  c2cFrom: string = '';
+  c2cTo: string = '';
+  c2cLoading = false;
+  c2cMessage: string = '';
+  c2cError = false;
+
   constructor(private http: Http, private app_service: AppService) {}
 
   ngOnInit() {
@@ -77,5 +83,40 @@ export class RealtimeComponent implements OnInit, OnDestroy {
 
   isHeld(ch: any): boolean {
     return (ch.callstate || '').toUpperCase() === 'HELD';
+  }
+
+  clickToCall() {
+    const from = (this.c2cFrom || '').trim();
+    const to   = (this.c2cTo || '').trim();
+    if (!from || !to) {
+      this.c2cError = true;
+      this.c2cMessage = 'Both extension and destination are required.';
+      return;
+    }
+    this.c2cLoading = true;
+    this.c2cError = false;
+    this.c2cMessage = '';
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers });
+    const body = JSON.stringify({ from_ext: from, to_number: to });
+    this.http.post(this.app_service.apiUrlCallOriginate, body, options).toPromise()
+      .then(() => {
+        this.c2cMessage = 'Call initiated: extension ' + from + ' is ringing.';
+        this.c2cError = false;
+        setTimeout(() => this.poll(), 800);
+      })
+      .catch((err) => {
+        this.c2cError = true;
+        let msg = 'Failed to start call.';
+        try {
+          if (err && err._body) {
+            const parsed = JSON.parse(err._body);
+            if (parsed && parsed.error && parsed.error.message) { msg = parsed.error.message; }
+          }
+        } catch (e) { /* keep default */ }
+        this.c2cMessage = msg;
+      })
+      .then(() => { this.c2cLoading = false; });
   }
 }

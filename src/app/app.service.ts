@@ -117,6 +117,7 @@ export class AppService {
   apiUrlTimeConditions = `${this.apiUrl}/time_conditions`;
   apiUrlMusicOnHold    = `${this.apiUrl}/music_on_hold`;
   apiUrlRealtime       = `${this.apiUrl}/realtime`;
+  apiUrlCallOriginate  = `${this.apiUrl}/call/originate`;
   apiUrlFpbxCdr        = `${this.apiUrl}/fpbx_cdr`;
   apiUrlCdrEtl         = `${this.apiUrl}/cdr_etl`;
   apiUrlDialplans      = `${this.apiUrl}/dialplans`;

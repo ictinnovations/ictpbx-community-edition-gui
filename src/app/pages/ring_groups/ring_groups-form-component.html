@@ -1,0 +1,144 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Ring Group' : 'Add Ring Group' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Ring group saved successfully.</div>
+
+    <!-- Basic Settings -->
+    <nb-card>
+      <nb-card-header>Basic Settings</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Name *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="ringGroup.ring_group_name" placeholder="Sales Team" required>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Extension *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="ringGroup.ring_group_extension" placeholder="600" required
+                   (blur)="checkExtension(ringGroup.ring_group_extension)">
+            <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Strategy</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="ringGroup.ring_group_strategy">
+              <option *ngFor="let s of strategies" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Call Timeout (sec)</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="number" [(ngModel)]="ringGroup.ring_group_call_timeout" placeholder="30">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Caller ID Name</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="ringGroup.ring_group_caller_id_name" placeholder="Override caller ID name">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Caller ID Number</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="ringGroup.ring_group_caller_id_number" placeholder="Override caller ID number">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Timeout Destination</label>
+          <div class="col-sm-9">
+            <div class="d-flex" style="gap:8px">
+              <select nbSelect [(ngModel)]="timeoutDestType" (ngModelChange)="onTimeoutTypeChange()" style="width:140px">
+                <option value="extension">Extension</option>
+                <option value="ring_group">Ring Group</option>
+                <option value="ivr">IVR Menu</option>
+                <option value="voicemail">Voicemail</option>
+              </select>
+              <select nbSelect fullWidth [(ngModel)]="ringGroup.ring_group_timeout_data">
+                <option value="">— None —</option>
+                <option *ngFor="let o of timeoutDestList" [value]="o.extension">{{ o.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="ringGroup.ring_group_description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="ringGroup.ring_group_enabled">Active</nb-checkbox>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- Destinations -->
+    <nb-card>
+      <nb-card-header>
+        Destinations
+        <button nbButton size="small" status="primary" (click)="addDestination()" style="float:right">
+          <nb-icon icon="plus-outline"></nb-icon> Add Destination
+        </button>
+      </nb-card-header>
+      <nb-card-body>
+        <div *ngIf="!ringGroup.destinations || ringGroup.destinations.length === 0" class="text-muted">
+          No destinations added yet. Click "Add Destination" to add ring targets.
+        </div>
+        <table class="table table-bordered" *ngIf="ringGroup.destinations && ringGroup.destinations.length > 0">
+          <thead>
+            <tr>
+              <th>Number / Extension</th>
+              <th>Delay (s)</th>
+              <th>Timeout (s)</th>
+              <th>Order</th>
+              <th>Enabled</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let dest of ringGroup.destinations; let i = index">
+              <td>
+                <ng-container *ngIf="!isExternalDest(i)">
+                  <select nbSelect [(ngModel)]="dest.destination_number" style="width:180px">
+                    <option value="">— Select extension —</option>
+                    <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                  </select>
+                  <a href="javascript:void(0)" (click)="toggleExternal(i)" style="margin-left:6px;font-size:12px">External?</a>
+                </ng-container>
+                <ng-container *ngIf="isExternalDest(i)">
+                  <input nbInput [(ngModel)]="dest.destination_number" placeholder="+12125551234" style="width:160px">
+                  <a href="javascript:void(0)" (click)="toggleExternal(i)" style="margin-left:6px;font-size:12px">Pick extension</a>
+                </ng-container>
+              </td>
+              <td><input nbInput type="number" [(ngModel)]="dest.destination_delay" style="width:70px"></td>
+              <td><input nbInput type="number" [(ngModel)]="dest.destination_timeout" style="width:70px"></td>
+              <td><input nbInput type="number" [(ngModel)]="dest.destination_order" style="width:60px"></td>
+              <td><nb-checkbox [(ngModel)]="dest.destination_enabled"></nb-checkbox></td>
+              <td>
+                <button nbButton ghost size="small" (click)="removeDestination(i)">
+                  <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['../']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

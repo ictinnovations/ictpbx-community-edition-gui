@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "http://66.42.114.181",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

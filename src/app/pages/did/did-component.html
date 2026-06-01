@@ -1,0 +1,130 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'dids.list' | translate }}
+  </nb-card-header>
+
+  <nb-card-body>
+
+    <ng-template #searchTemplate_Did let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'dids.search' | translate }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="text" [(ngModel)]="search" placeholder="Search DID" />
+        <select [(ngModel)]="key" class="form-control mt-2">
+          <option value="" disabled hidden>Select Type Search</option>
+          <option value="phone">DID Number</option>
+          <option value="first_name">Title</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-2" mat-raised-button color="primary" style="font-size:15px;"
+          (click)="resetsearch(modal)"> Reset</button>
+        <button type="button" mat-raised-button color="primary" (click)="searchDID(modal)">Search</button>
+
+      </div>
+    </ng-template>
+
+    <!--
+    <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/did/did/import']">Import DID List</button>
+    !-->
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      [routerLink]="['/pages/did/did/new']"><i class="fa fa-plus"></i>{{ 'dids.add' | translate
+      }}</button>&nbsp;&nbsp;
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      [routerLink]="['/pages/did/did/batch']">{{ 'dids.add_in_batch' | translate }}</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      (click)="openSearchModal(searchTemplate_Did)"><i class="fa fa-search"></i> Search</button>
+    <button type="button" *ngIf="is_admin" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      [routerLink]="['/pages/did/did/import']"><i class="fa fa-arrow-down"></i> Import CSV Data</button>
+    <br>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aDID" matSort>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'dids.number' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did">
+            {{did.phone}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'my_dids.title' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            {{did.first_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="assigned_to">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'dids.assigned_to' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            {{did.name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="routing">
+          <mat-header-cell *matHeaderCellDef>Routing</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            <span *ngIf="did.routingLabel"
+                  [ngStyle]="{
+                    'padding': '2px 8px',
+                    'border-radius': '12px',
+                    'font-size': '0.78rem',
+                    'white-space': 'nowrap',
+                    'background': did.routingIsVoice ? '#d4f5dd' : '#eceef2',
+                    'color': did.routingIsVoice ? '#1a7d3c' : '#5a5f6a'
+                  }">{{ did.routingLabel }}</span>
+          </mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did">
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/did/did/{{did.account_id}}" title="Edit"><nb-icon
+                    icon="edit-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/did/did/{{did.account_id}}/assign" title="Assign"><i
+                    class="ion-forward"></i></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/incoming_number/incoming_number/{{did.account_id}}/forward" title="Forward"><nb-icon
+                    icon="navigation-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon style="color:red" (click)="showStaticModal(deleteTemplate, did.account_id)"><nb-icon
+                  icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTemplate let-data>
+  <div class="delete-dialog">
+
+    <div class="delete-header">
+      <nb-icon icon="alert-triangle-outline"></nb-icon>
+      <h4>{{ 'transmission.delete_title' | translate }}</h4>
+    </div>
+
+    <p class="delete-message">
+      {{ 'transmission.delete' | translate }}
+    </p>
+
+    <div class="delete-actions gap-2">
+      <button nbButton status="primary" size="medium" class="mr-4" (click)="deleteDID(data.account_id)">
+        {{ 'transmission.yes' | translate }}
+      </button>
+
+      <button nbButton status="basic" size="medium" (click)="onclose()">
+        {{ 'transmission.no' | translate }}
+      </button>
+    </div>
+
+  </div>
+</ng-template>

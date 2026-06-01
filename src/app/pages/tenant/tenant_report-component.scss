@@ -1,0 +1,110 @@
+@import '../../@theme/styles/themes';
+@import '~bootstrap/scss/mixins/breakpoints';
+@import '~@nebular/theme/styles/global/breakpoints';
+
+@include nb-install-component() {
+  .solar-card nb-card-header {
+    border: none;
+    padding-bottom: 0;
+  }
+
+  @include media-breakpoint-down(sm) {
+    ngx-traffic {
+      display: none;
+    }
+  }
+
+  @include media-breakpoint-down(is) {
+    ::ng-deep nb-card.large-card {
+      height: nb-theme(card-height-medium);
+    }
+  }
+}
+
+.processing {
+  color: purple;
+  font-weight: bold;
+}
+
+.failed {
+  color: red;
+  font-weight: bold;
+}
+
+.completed {
+  color: green;
+  font-weight: bold;
+}
+
+.pending {
+  color: purple;
+  font-weight: bold;
+}
+
+.pending_retry {
+  color: purple;
+  font-weight: bold;
+}
+
+.initializing {
+  color: purple;
+  font-weight: bold;
+}
+
+.done {
+  color: purple;
+  font-weight: bold;
+}
+
+.invalid {
+  color: purple;
+  font-weight: bold;
+}
+
+.inbound {
+  color: purple;
+  font-weight: bold;
+}
+
+.outbound {
+  color: purple;
+  font-weight: bold;
+}
+
+.card-item {
+  cursor: default;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
+}
+.card-item.moveable{
+  cursor: move;
+}
+.close-outline {
+  position: absolute;
+  top: 5px;
+  right: 20px;
+}
+.dash-header {
+  position: relative;
+}
+.customiza-btn {
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+  background: none;
+}
+.customiza-btn .icon {
+  font-size: 30px;
+  color: rgba(0, 0, 0, 0.5);
+}
+.customiza-btn:focus{
+  border: none;
+  outline: none;
+}

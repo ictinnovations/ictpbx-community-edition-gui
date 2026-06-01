@@ -1,0 +1,112 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit' : 'Add' }} Time Condition</nb-card-header>
+  <nb-card-body>
+    <nb-alert *ngIf="isError" status="danger" closable (close)="isError=false">
+      <p *ngFor="let e of errorText">{{ e }}</p>
+    </nb-alert>
+    <nb-alert *ngIf="isSuccess" status="success">Saved successfully.</nb-alert>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Name <span style="color:red">*</span></label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.tc_name" placeholder="e.g. Business Hours"></div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Context</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.tc_context" placeholder="Leave blank for default domain context"></div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Description</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.tc_description" placeholder="Optional description"></div>
+    </div>
+
+    <hr>
+    <h6 style="margin:12px 0 8px">Business Hours Schedule</h6>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Time of Day</label>
+      <div class="col-sm-9" style="display:flex;gap:8px;align-items:center">
+        <input nbInput [(ngModel)]="item.tc_time_start" placeholder="08:00" style="width:90px">
+        <span>to</span>
+        <input nbInput [(ngModel)]="item.tc_time_stop" placeholder="17:00" style="width:90px">
+        <small class="text-muted">HH:MM (24h)</small>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Day of Week</label>
+      <div class="col-sm-9" style="display:flex;gap:8px;align-items:center">
+        <nb-select [(ngModel)]="item.tc_wday_start" style="width:110px">
+          <nb-option value="sun">Sunday</nb-option>
+          <nb-option value="mon">Monday</nb-option>
+          <nb-option value="tue">Tuesday</nb-option>
+          <nb-option value="wed">Wednesday</nb-option>
+          <nb-option value="thu">Thursday</nb-option>
+          <nb-option value="fri">Friday</nb-option>
+          <nb-option value="sat">Saturday</nb-option>
+        </nb-select>
+        <span>to</span>
+        <nb-select [(ngModel)]="item.tc_wday_stop" style="width:110px">
+          <nb-option value="sun">Sunday</nb-option>
+          <nb-option value="mon">Monday</nb-option>
+          <nb-option value="tue">Tuesday</nb-option>
+          <nb-option value="wed">Wednesday</nb-option>
+          <nb-option value="thu">Thursday</nb-option>
+          <nb-option value="fri">Friday</nb-option>
+          <nb-option value="sat">Saturday</nb-option>
+        </nb-select>
+      </div>
+    </div>
+
+    <hr>
+    <h6 style="margin:12px 0 8px">Destinations</h6>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Open Destination</label>
+      <div class="col-sm-9">
+        <div class="d-flex" style="gap:8px">
+          <select nbSelect [(ngModel)]="openDestType" (ngModelChange)="onOpenTypeChange()" style="width:140px">
+            <option value="extension">Extension</option>
+            <option value="ring_group">Ring Group</option>
+            <option value="ivr">IVR Menu</option>
+            <option value="voicemail">Voicemail</option>
+          </select>
+          <select nbSelect fullWidth [(ngModel)]="item.tc_open_destination">
+            <option value="">— None —</option>
+            <option *ngFor="let o of destList(openDestType)" [value]="openDestType === 'extension' ? o.extension : o.uuid">{{ o.label }}</option>
+          </select>
+        </div>
+        <small class="text-muted">Where to send calls during open hours</small>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Closed Destination</label>
+      <div class="col-sm-9">
+        <div class="d-flex" style="gap:8px">
+          <select nbSelect [(ngModel)]="closedDestType" (ngModelChange)="onClosedTypeChange()" style="width:140px">
+            <option value="extension">Extension</option>
+            <option value="ring_group">Ring Group</option>
+            <option value="ivr">IVR Menu</option>
+            <option value="voicemail">Voicemail</option>
+          </select>
+          <select nbSelect fullWidth [(ngModel)]="item.tc_closed_destination">
+            <option value="">— None —</option>
+            <option *ngFor="let o of destList(closedDestType)" [value]="closedDestType === 'extension' ? o.extension : o.uuid">{{ o.label }}</option>
+          </select>
+        </div>
+        <small class="text-muted">Where to send calls outside open hours</small>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Enabled</label>
+      <div class="col-sm-9"><nb-checkbox [(ngModel)]="item.tc_enabled">Active</nb-checkbox></div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">Save</button>
+    <button nbButton ghost [routerLink]="['/pages/time_conditions/time_conditions']" style="margin-left:8px">Cancel</button>
+  </nb-card-footer>
+</nb-card>

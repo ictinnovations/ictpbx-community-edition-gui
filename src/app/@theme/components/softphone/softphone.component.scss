@@ -137,6 +137,57 @@
   padding: 12px 10px;
 }
 
+/* ── External-softphone notice (insecure context) ── */
+.sp-notice {
+  text-align: center;
+
+  .notice-icon {
+    font-size: 1.8rem;
+    color: #ffaa00;
+  }
+
+  .notice-title {
+    font-weight: 600;
+    margin: 4px 0 6px;
+  }
+
+  .notice-text {
+    font-size: 0.78rem;
+    color: #8f9bb3;
+    margin: 0 0 8px;
+    line-height: 1.35;
+  }
+
+  .notice-foot {
+    margin-top: 8px;
+  }
+
+  .notice-creds {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    text-align: left;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(143, 155, 179, 0.2);
+      font-size: 0.78rem;
+
+      span { color: #8f9bb3; }
+      code {
+        font-family: monospace;
+        color: inherit;
+        background: rgba(143, 155, 179, 0.15);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+    }
+  }
+}
+
 /* ── Incoming call ── */
 .incoming-call {
   text-align: center;
@@ -383,6 +434,11 @@
     margin-top: 4px;
   }
 
+  .sp-hint {
+    font-weight: 400;
+    color: #8f9bb3;
+  }
+
   .sp-input {
     width: 100%;
     padding: 6px 8px;
@@ -393,6 +449,12 @@
     box-sizing: border-box;
 
     &:focus { border-color: #3366ff; }
+
+    &[readonly] {
+      background: #f3f5fa;
+      color: #8f9bb3;
+      cursor: not-allowed;
+    }
   }
 
   .btn-save {

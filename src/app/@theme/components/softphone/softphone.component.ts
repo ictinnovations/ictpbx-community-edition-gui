@@ -28,11 +28,20 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
   constructor(public phone: SoftphoneService) {}
 
   ngOnInit() {
+    // Browser WebRTC needs a secure context (HTTPS or localhost). On a bare-IP /
+    // HTTP install getUserMedia + ws:// are blocked, so the in-app dialer can't
+    // work — skip registration and show the external-softphone notice instead.
+    if (!this.secureContext) {
+      return;
+    }
+
     const saved = this.phone.loadConfig();
     if (saved) {
       this.cfg = { ...saved };
-      this.phone.register(saved);
+      this.cfg.domain = this.phone.defaultDomain();
+      this.phone.register(this.cfg);
     } else {
+      this.cfg.domain = this.phone.defaultDomain();
       this.cfg.wsUri = this.phone.defaultWsUri();
     }
 
@@ -46,6 +55,9 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subs.forEach(s => s.unsubscribe());
   }
+
+  get secureContext(): boolean { return window.isSecureContext; }
+  get serverHost(): string { return window.location.hostname; }
 
   toggle() { this.open = !this.open; }
 
@@ -83,7 +95,7 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
   disconnect() {
     this.phone.unregister();
     this.phone.clearConfig();
-    this.cfg = { user: '', password: '', domain: '', wsUri: this.phone.defaultWsUri() };
+    this.cfg = { user: '', password: '', domain: this.phone.defaultDomain(), wsUri: this.phone.defaultWsUri() };
   }
 
   get statusClass(): string {

@@ -15,14 +15,36 @@
       <button class="sp-close" (click)="toggle()">&#x2715;</button>
     </div>
 
+    <!-- ── Browser webphone unavailable (insecure context) ── -->
+    <div *ngIf="!secureContext" class="sp-body sp-notice">
+      <nb-icon icon="alert-triangle-outline" class="notice-icon"></nb-icon>
+      <p class="notice-title">In-browser phone unavailable</p>
+      <p class="notice-text">
+        The built-in dialer needs a secure connection (HTTPS with a domain).
+        On this server it can't access your microphone. Use an external SIP
+        softphone such as <strong>Zoiper</strong> or <strong>Linphone</strong>:
+      </p>
+      <ul class="notice-creds">
+        <li><span>Server</span><code>{{ serverHost }}</code></li>
+        <li><span>Port</span><code>5080</code></li>
+        <li><span>Transport</span><code>UDP</code></li>
+        <li><span>Username</span><code>your extension (e.g. 1001)</code></li>
+        <li><span>Password</span><code>your SIP password</code></li>
+      </ul>
+      <p class="notice-text notice-foot">
+        Ask your administrator to set up a domain + SSL to enable the in-browser
+        phone.
+      </p>
+    </div>
+
     <!-- Tabs -->
-    <div class="sp-tabs">
+    <div class="sp-tabs" *ngIf="secureContext">
       <button [class.active]="activeTab === 'dialer'" (click)="activeTab = 'dialer'">Dialer</button>
       <button [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">Settings</button>
     </div>
 
     <!-- ── DIALER TAB ── -->
-    <div *ngIf="activeTab === 'dialer'" class="sp-body">
+    <div *ngIf="secureContext && activeTab === 'dialer'" class="sp-body">
 
       <!-- Incoming call UI -->
       <div class="incoming-call" *ngIf="callState === 'ringing'">
@@ -90,15 +112,15 @@
     </div>
 
     <!-- ── SETTINGS TAB ── -->
-    <div *ngIf="activeTab === 'settings'" class="sp-body sp-settings">
+    <div *ngIf="secureContext && activeTab === 'settings'" class="sp-body sp-settings">
       <label>Extension / Username</label>
       <input type="text" [(ngModel)]="cfg.user" placeholder="e.g. 1001" class="sp-input" />
 
       <label>SIP Password</label>
       <input type="password" [(ngModel)]="cfg.password" placeholder="SIP password" class="sp-input" />
 
-      <label>Domain</label>
-      <input type="text" [(ngModel)]="cfg.domain" placeholder="e.g. pbx.example.com" class="sp-input" />
+      <label>Domain <span class="sp-hint">(auto — matches this server)</span></label>
+      <input type="text" [(ngModel)]="cfg.domain" class="sp-input" readonly />
 
       <label>WebSocket URI</label>
       <input type="text" [(ngModel)]="cfg.wsUri" placeholder="wss://host:7443" class="sp-input" />

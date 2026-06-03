@@ -50,6 +50,7 @@ export class AddProviderComponent implements OnInit {
         this.provider.caller_id_in_from = 'false';
         this.provider.supress_cng = 'false';
         this.provider.sip_cid_type = 'none';
+        this.provider.outbound_caller_id = '';
         this.provider.extension_in_contact = 'false';
         this.provider.contact_in_ping = 'false';
         this.fax_support = false;

@@ -38,6 +38,7 @@ export class Provider {
   caller_id_in_from: string;
   supress_cng: string;
   sip_cid_type: string;
+  outbound_caller_id: string;
   codec_prefs: string;
   extension_in_contact: string;
   ping: string;

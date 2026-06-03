@@ -102,12 +102,18 @@ export class AddCallQueueComponent implements OnInit {
       : 'hangup:';
   }
 
+  // mod_callcenter resolves agent contacts (user/<ext>@<domain>) against the
+  // FreeSWITCH directory domain — which is always the web host (public domain on
+  // TLS installs, server IP otherwise), matching force-register-domain and the
+  // softphone's registration domain. The old user_context fallback resolved to
+  // "default", a domain the directory never declares, so the callback never rang.
+  private agentDomain(): string {
+    return window.location.hostname;
+  }
+
   onAgentExtChange(i: number) {
     const ext = this.agentExtension[i] || '';
-    const domain = this.extensions.length > 0
-      ? (this.extensions.find(e => e.extension === ext) as any)?.user_context || 'default'
-      : 'default';
-    this.queue.agents[i].agent_contact = ext ? `user/${ext}@${domain}` : '';
+    this.queue.agents[i].agent_contact = ext ? `user/${ext}@${this.agentDomain()}` : '';
   }
 
   addAgent() {
@@ -132,6 +138,14 @@ export class AddCallQueueComponent implements OnInit {
     if (!this.queue.queue_extension) { this.errorText.push('Extension is required'); }
     if (this.extensionConflict) { this.errorText.push(this.extensionConflict); }
     if (this.errorText.length > 0) { this.isError = true; return; }
+
+    // Recompose every agent contact from its selected extension + the web-host
+    // domain so any agent previously saved with a stale "@default" contact
+    // self-heals on this save (matches the directory domain mod_callcenter rings).
+    (this.queue.agents || []).forEach((a, i) => {
+      const ext = this.agentExtension[i] || this.parseAgentExt(a.agent_contact);
+      if (ext) { a.agent_contact = `user/${ext}@${this.agentDomain()}`; }
+    });
 
     const action = this.isEdit
       ? this.service.update_CallQueue(this.queue)

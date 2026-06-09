@@ -69,6 +69,7 @@ export class InFaxComponent implements OnInit {
   }
 
   aInFax: InFaxDataSource | null;
+  dateFormat: string = 'yyyy-MM-dd HH:mm:ss';
   length: number = 0;
   document_id: any;
   lastpage: number;

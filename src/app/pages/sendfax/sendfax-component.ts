@@ -75,6 +75,7 @@ export class FormsSendFaxComponent implements OnInit {
   private timerSubscription: any;
 
   displayedColumns = ['ID', 'phone', 'Timestamp', 'username', 'title', 'status', 'Operations'];
+  dateFormat: string = 'yyyy-MM-dd HH:mm:ss';
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -407,7 +408,24 @@ export class FormsSendFaxComponent implements OnInit {
     this.document_service.get_Documentdownload(document_id, transmission_id);
   }
   deletedocument(transmission_id) {
-    this.sendfax_service.delete_Document(transmission_id);
+    const activeModal = this.modalService.open(ModalComponent, {
+      size: 'sm',
+      container: 'nb-layout',
+    });
+    activeModal.componentInstance.modalHeader = 'Alert';
+    activeModal.componentInstance.modalContent = 'Are you sure you want to delete this fax?';
+    activeModal.result.then((result) => {
+      if (result === 'yes_click') {
+        this.sendfax_service.delete_Document(transmission_id).then(() => {
+          this.app_service.success_message = 'Fax deleted successfully';
+          this.clearMsg();
+          this.refreshPageAfterDelay();
+        }).catch(() => {
+          this.app_service.errors = 'Error while deleting fax';
+          this.clearMsg();
+        });
+      }
+    }, () => { });
   }
 
 

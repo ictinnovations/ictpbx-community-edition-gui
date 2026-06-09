@@ -8,7 +8,7 @@ export class DeviceLine {
   auth_id: string = '';
   password: string = '';
   display_name: string = '';
-  sip_port: string = '5060';
+  sip_port: string = '5080';
   sip_transport: string = 'udp';
   register_expires: string = '3600';
   enabled: boolean = true;

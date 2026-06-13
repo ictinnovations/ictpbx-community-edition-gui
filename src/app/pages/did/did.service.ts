@@ -130,7 +130,7 @@ export class DIDService {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);
     const options = new RequestOptions({ headers: headers });
-    const deleteUrl = `${this.app_service.apiUrlAccounts}/${account_id}`;
+    const deleteUrl = `${this.app_service.apiUrlDid}/${account_id}`;
     return this.http.delete(deleteUrl, options).toPromise().then(response => response.json() as DID)
       .catch(err => this.app_service.handleError(err));
   }

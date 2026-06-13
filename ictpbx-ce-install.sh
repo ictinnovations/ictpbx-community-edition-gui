@@ -154,6 +154,22 @@ NODE_OPTIONS='--max_old_space_size=3072' ng build \
 ok "Build complete — dist/ ready (Community Edition)"
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# STEP 5b — Prune dev/test/doc artifacts from the node
+# Only dist/ is served; tests, docs and dev tooling have no runtime role.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo ""
+echo "── Step 5b: Prune dev/test files ────────────────────────────"
+for _p in CLAUDE.md e2e internal-docs tools deploy.sh ng-serve \
+          playwright.config.ts playwright.enduser-fax.config.ts \
+          playwright.enduser-w2w.config.ts .git .github; do
+    if [[ -e "$FRONTEND_DIR/$_p" ]]; then
+        rm -rf "${FRONTEND_DIR:?}/$_p"
+    fi
+done
+rm -f "$FRONTEND_DIR"/playwright*.config.ts "$FRONTEND_DIR"/e2e/test-secrets.ts 2>/dev/null || true
+ok "Dev/test/doc artifacts removed from $FRONTEND_DIR"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # STEP 6 — Port 80 check
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo ""

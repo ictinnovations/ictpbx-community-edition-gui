@@ -1,0 +1,146 @@
+<nb-card>
+  <nb-card-header>
+    {{ "cdr.title" | translate }}
+  </nb-card-header>
+
+  <nb-card-body>
+    <div class="example-container cdr_filter">
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="openSearchModal(searchTemplate)">
+        <i class="fa fa-filter"></i> {{ "cdr.filter_report" | translate }}
+      </button>
+
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="exportCDR()">
+        <i class="fa fa-file" title="CSV File download"></i>
+        {{ "cdr.export_to_csv" | translate }}
+      </button>
+    </div>
+    <br /><br />
+
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aCdr" matSort>
+
+        <ng-container matColumnDef="start_time">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Time</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.start_time }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="direction">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Dir</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            <i *ngIf="cdr.direction === 'inbound'"  class="fa fa-arrow-down" title="Inbound"  style="color:#27ae60"></i>
+            <i *ngIf="cdr.direction === 'outbound'" class="fa fa-arrow-up"   title="Outbound" style="color:#2980b9"></i>
+            <i *ngIf="!cdr.direction"                class="fa fa-minus"      title="Unknown"  style="color:#999"></i>
+            &nbsp;{{ cdr.direction }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="call_type">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            <i *ngIf="cdr.call_type === 'voice'"     class="fa fa-phone"            title="Voice"     style="color:#2980b9"></i>
+            <i *ngIf="cdr.call_type === 'fax'"       class="fa fa-fax"              title="Fax"       style="color:#8e44ad"></i>
+            <i *ngIf="cdr.call_type === 'conf'"      class="fa fa-users"            title="Conference" style="color:#16a085"></i>
+            <i *ngIf="cdr.call_type === 'voicemail'" class="fa fa-envelope"         title="Voicemail" style="color:#d35400"></i>
+            <i *ngIf="!cdr.call_type"                 class="fa fa-question-circle"  title="Unknown"   style="color:#999"></i>
+            &nbsp;{{ cdr.call_type }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="caller_number">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Caller</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.caller_number }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="destination">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Destination</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.destination }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="duration">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Duration (s)</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.duration }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="billsec">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Billsec</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.billsec }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="hangup_cause">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Hangup Cause</mat-header-cell>
+          <mat-cell *matCellDef="let cdr"
+            style="text-align: left; font-weight: bold"
+            [style.color]="cdr.hangup_cause === 'NORMAL_CLEARING' ? 'green' : '#c0392b'">
+            {{ cdr.hangup_cause }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="remote_ip">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>IP</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">{{ cdr.remote_ip }}</mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [length]="length" [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+
+<ng-template #searchTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'cdr.search' | translate }}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="example-container cdr_filter">
+    <div class="modal-body">
+      <form [formGroup]="range">
+        <div class="form-group">
+          <label for="start">Start Date:</label>
+          <input type="date" formControlName="start" class="form-control" id="start">
+        </div>
+        <div class="form-group">
+          <label for="end">End Date:</label>
+          <input type="date" formControlName="end" class="form-control" id="end">
+        </div>
+        <div class="form-group">
+          <label>Direction:</label>
+          <select class="form-control" name="direction" (change)="onDirectionSelect2($event.target.value)">
+            <option value="">All</option>
+            <option value="inbound">Inbound</option>
+            <option value="outbound">Outbound</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type:</label>
+          <select class="form-control" name="call_type" (change)="onTypeSelect($event.target.value)">
+            <option value="">All</option>
+            <option value="voice">Voice</option>
+            <option value="fax">Fax</option>
+            <option value="conf">Conference</option>
+            <option value="voicemail">Voicemail</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="hangup_cause">Hangup Cause:</label>
+          <select class="form-control" name="hangup_cause" (change)="onHangupSelect($event.target.value)">
+            <option value="">All</option>
+            <option value="NORMAL_CLEARING">NORMAL_CLEARING</option>
+            <option value="USER_BUSY">USER_BUSY</option>
+            <option value="NO_ROUTE_DESTINATION">NO_ROUTE_DESTINATION</option>
+            <option value="NORMAL_TEMPORARY_FAILURE">NORMAL_TEMPORARY_FAILURE</option>
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      (click)="filterList(modal)">Search</button>
+  </div>
+</ng-template>

@@ -1,0 +1,119 @@
+<h4>{{ 'my_dids.forward_did' | translate }}</h4>
+<br>
+<div class="col-lg-12">
+  <nb-card>
+    <nb-card-header>
+      {{ 'my_dids.did_info' | translate }}
+    </nb-card-header>
+    <nb-card-body>
+      <label for="phone">{{ 'my_dids.did_number' | translate }}</label>
+      <br>
+      <input [(ngModel)]="incomingNumber.phone" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="phone" disabled required/>
+    </nb-card-body>
+  </nb-card>
+  <nb-card>
+    <nb-card-header>
+      {{ 'User.user_info' | translate }}
+    </nb-card-header>
+    <nb-card-body>
+      <label>{{ 'my_dids.select_service' | translate }}</label><br>
+      <select class="form-control" [(ngModel)]= "incomingNumber.service_name" [ngModelOptions]="{standalone: true}">
+        <option value="" selected>{{'my_dids.select' | translate}}</option>
+        <option value="no_service">{{ 'my_dids.no_service' | translate }}</option>
+        <option value="faxtoemail">{{ 'my_dids.fax_to_email' | translate }}</option>
+        <option value="forwardtoext">{{ 'my_dids.forward_to_ext' | translate }}</option>
+        <option value="receivefax">Receive Fax</option>
+        <option value="ring_group">Forward to Ring Group</option>
+        <option value="ivr_menu">Forward to IVR Menu</option>
+        <option value="voicemail">Forward to Voicemail</option>
+      </select>
+      <div *ngIf="(incomingNumber.service_name === '')"><br>
+        <span style="color:red">{{ 'my_dids.please_select_service' | translate }}</span>
+      </div>
+      <div *ngIf="(incomingNumber.service_name === 'faxtoemail')"><br>
+        <label>{{ 'User.email' | translate }}:</label>
+        <input [(ngModel)]="incomingNumber.email" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="email" required/>
+        <nb-card-body>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <textarea [(ngModel)]="accounts" [ngModelOptions]="{standalone: true}" class="form-control" id="accounts" rows="7" required></textarea>
+                <p>List each email address on a separate line.</p>
+              </div>
+            </div>
+          </div>
+        </nb-card-body>
+      </div>
+    </nb-card-body>
+  </nb-card>
+
+  <div *ngIf="(incomingNumber.service_name === 'forwardtoext')">
+    <nb-card>
+      <nb-card-header>Extension</nb-card-header>
+      <nb-card-body>
+        <label>{{ 'my_dids.select_extension' | translate }}</label><br>
+        <select class="form-control" [(ngModel)]="incomingNumber.extension_id">
+          <option *ngFor="let ext of exts" [ngValue]="ext.account_id">
+            {{ext.username}} ({{ext.phone}})
+          </option>
+        </select><br>
+        <div *ngIf="incomingNumber.extension_id === undefined"><br>
+          <span style="color:red">{{ 'my_dids.please_select_extension' | translate }}</span>
+        </div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+  <div *ngIf="(incomingNumber.service_name === 'ring_group')">
+    <nb-card>
+      <nb-card-header>Ring Group</nb-card-header>
+      <nb-card-body>
+        <label>Select Ring Group</label><br>
+        <select class="form-control" [(ngModel)]="selectedRingGroup">
+          <option value="">-- Select Ring Group --</option>
+          <option *ngFor="let rg of ringGroups" [value]="rg.ring_group_extension">
+            {{rg.ring_group_name}} ({{rg.ring_group_extension}})
+          </option>
+        </select>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+  <div *ngIf="(incomingNumber.service_name === 'ivr_menu')">
+    <nb-card>
+      <nb-card-header>IVR Menu</nb-card-header>
+      <nb-card-body>
+        <label>Select IVR Menu</label><br>
+        <select class="form-control" [(ngModel)]="selectedIvrMenu">
+          <option value="">-- Select IVR Menu --</option>
+          <option *ngFor="let ivr of ivrMenus" [value]="ivr.ivr_menu_extension">
+            {{ivr.ivr_menu_name}} ({{ivr.ivr_menu_extension}})
+          </option>
+        </select>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+  <div *ngIf="(incomingNumber.service_name === 'voicemail')">
+    <nb-card>
+      <nb-card-header>Voicemail Box</nb-card-header>
+      <nb-card-body>
+        <label>Select Voicemail</label><br>
+        <select class="form-control" [(ngModel)]="selectedVoicemail">
+          <option value="">-- Select Voicemail --</option>
+          <option *ngFor="let vm of voicemails" [value]="vm.voicemail_id">
+            {{vm.voicemail_id}} <span *ngIf="vm.voicemail_description">({{vm.voicemail_description}})</span>
+          </option>
+        </select>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+  <button type="button" class="btn btn-primary"
+    [disabled]="(incomingNumber.service_name === '') ||
+                (incomingNumber.service_name === 'forwardtoext' && incomingNumber.extension_id === undefined) ||
+                (incomingNumber.service_name === 'ring_group' && !selectedRingGroup) ||
+                (incomingNumber.service_name === 'ivr_menu' && !selectedIvrMenu) ||
+                (incomingNumber.service_name === 'voicemail' && !selectedVoicemail)"
+    (click)="forwardDID()">{{'buttons.submit' | translate}}</button>
+</div>

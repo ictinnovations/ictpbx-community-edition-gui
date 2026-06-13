@@ -1,0 +1,55 @@
+<nb-card>
+    <nb-card-header>
+      {{ 'cover_page.heading' | translate}}
+    </nb-card-header>
+    
+    <nb-card-body>
+      <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/coverpage/coverpage/new']"><i class="fa fa-plus"></i> {{ 'cover_page.add' | translate}}</button>
+      <br>
+      <br>
+      <div class="example-container mat-elevation-z8">               
+        <mat-table #table [dataSource]="aCover" matSort>
+          <ng-container matColumnDef="coverpage_id">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'general.ID' | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let cover">
+              {{cover.coverpage_id}}
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="title">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{'cover_page.title' | translate }}</mat-header-cell>
+            <mat-cell *matCellDef="let cover">
+              {{cover.title}}
+            </mat-cell>
+          </ng-container>
+          <ng-container cdkColumnDef="operations">
+            <mat-header-cell *matHeaderCellDef>{{'general.operations' | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let cover">
+              <button mat-icon-button color="accent" style= "font-size:20px">
+                <mat-icon><a routerLink="/pages/coverpage/coverpage/{{cover.coverpage_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
+              </button>
+              <button mat-icon-button style="font-size:20px">
+                <mat-icon style="color:red" (click)="showStaticModal(deleteTemplate,cover.title, cover.coverpage_id)"><nb-icon icon="trash-2-outline"></nb-icon></mat-icon>&nbsp;
+              </button>
+            </mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+        </mat-table>
+          <mat-paginator #paginator
+          [length] = "length"
+          [pageIndex]="0"
+          [pageSize]="10"
+          [pageSizeOptions]="[5, 10, 25, 100]">
+        </mat-paginator>
+        
+  
+  </div>
+</nb-card-body>
+</nb-card>
+<ng-template #deleteTemplate let-data>
+  <div>
+    <p>{{'transmission.delete' | translate}}</p>
+    <button nbButton status="danger" (click)="deleteCoverpage(data.coverpage_id)">{{'transmission.yes' | translate}}</button>
+    <button nbButton (click)="onclose()">{{'transmission.no' | translate}}</button>
+  </div>
+</ng-template>

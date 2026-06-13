@@ -1,0 +1,264 @@
+<div *ngIf="isError" class="ict_error">
+  <p *ngFor="let err of errorText">{{err}}</p>
+</div>
+
+<nb-alert status="warning" *ngIf="app_service.faxProviderChecked && !app_service.hasFaxProvider">
+  No fax-enabled trunk found. Add a Provider with "Supports Fax (T.38 / G.711 pass-through)" enabled under Routings &rarr; Trunks before sending faxes.
+</nb-alert>
+
+<h3>{{'transmission.fax.program' | translate }}</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <div class="row bg-white">
+      <div class="col-6">
+        <nb-card>
+          <nb-card-header>
+            {{'transmission.title' | translate }}
+          </nb-card-header>
+          <nb-card-body>
+            <div class="form-group">
+              <label for="title"> {{'transmission.title' | translate }}:</label>
+              <input [(ngModel)]="sendfax.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+                id="title" required />
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </div>
+      <div class="col-6">
+        <nb-card>
+          <nb-card-header>
+            {{ 'transmission.fax.document' | translate }}
+          </nb-card-header>
+          <nb-card-body>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <!-- <div class="form-group">
+                  <label style="font-size: 10px; white-space: nowrap;">
+                    <strong>{{ 'document.upload_document' | translate }}</strong> -
+                    doc, docx, pdf, png, tiff, jpeg are supported only
+                  </label><br>
+                  <input type="file" accept=".pdf,.tif,.tiff,.png,.jpg,.jpeg,.doc,.docx" ng2FileSelect
+                    (change)="addDocument()" [uploader]="uploader" multiple hidden /><br />
+                </div> -->
+
+                <div class="form-group">
+                  <label class="info-label">
+                    <strong>{{ 'document.upload_document' | translate }}</strong> -
+                    doc, docx, pdf, png, tiff, jpeg are supported only
+                  </label>
+                  <input type="file" #fileInput accept=".pdf,.tif,.tiff,.png,.jpg,.jpeg,.doc,.docx" ng2FileSelect
+                    [uploader]="uploader" hidden multiple /> <br>
+                  <button type="button" class="upload-btn btn btn-primary" (click)="fileInput.click()">
+                    <i class="fa fa-upload"></i> Upload Document
+                  </button>
+                  <div *ngFor="let item of uploader.queue" class="row">
+                    <div class="col-sm-12">
+                      <br>
+                      <label>{{ item?.file?.name }}</label>
+                      <i *ngIf="(this.file_sending === false && this.file_sent === false)" class="nb-close smmmm"
+                        (click)="remove(item); item.remove()"></i>
+                      <i *ngIf="(this.file_sending === true && this.file_sent === false)" class="fa fa-cog cmmmm"></i>
+                      <i *ngIf="(this.file_sent === true && this.file_sending === false)"
+                        class="nb-checkmark gmmmm"></i>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+              <p [style.color]="file_attach_color">{{file_attach}}</p>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </div>
+    </div>
+
+    <div class="row bg-white mt-2">
+      <div class="col-6">
+        <nb-card>
+          <nb-card-header>
+            {{'transmission.caller_id' | translate}}
+          </nb-card-header>
+          <nb-card-body>
+            <label for="">Caller ID:</label>
+            <select class="form-control" name="account" (change)="onSelectAccount($event.target.value)">
+              <option *ngFor="let acc of accountArray; let i = index" [value]="acc.account_id"
+                [selected]="i===accountArray.length-1">
+                {{acc.phone}}
+              </option>
+            </select>
+          </nb-card-body>
+        </nb-card>
+      </div>
+
+      <div class="col-6">
+        <nb-card>
+          <nb-card-header>
+            {{ 'transmission.choose_contact' | translate }}
+          </nb-card-header>
+          <nb-card-body>
+            <label for="">Contact:</label>
+            <!-- Looks like normal select input -->
+            <div class="form-group position-relative">
+              <input type="text" class="form-control" placeholder="Select contact..." [(ngModel)]="searchText"
+                [ngModelOptions]="{standalone: true}" (input)="validateValue()" [matAutocomplete]="auto"
+                style="border: 1px solid #ced4da; border-radius: .25rem; height: 38px; padding: .375rem .75rem;" />
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let contact of filteredContacts" [value]="contact.first_name"
+                  (click)="onOptionSelected(contact)">
+                  {{ contact.first_name }} ({{ contact.phone }})
+                </mat-option>
+              </mat-autocomplete>
+            </div>
+
+          </nb-card-body>
+        </nb-card>
+      </div>
+
+
+    </div>
+
+    <div class="row">
+      <nb-card class="container-fluid">
+        <nb-card-header>
+          {{'transmission.permission' | translate }}
+        </nb-card-header>
+        <nb-card-body>
+          <div class="row">
+            <div class="col-3">
+              <div class="form-group">
+                <input type="checkbox" [(ngModel)]="retry" [ngModelOptions]="{standalone: true}" [checked]="retry">
+                Retry<br>
+              </div>
+              <div *ngIf="retry">
+                <div>
+                  <div class="form-group">
+                    <div>
+                      <select class="form-control" name="try_allowed" [(ngModel)]="sendfax.try_allowed"
+                        [ngModelOptions]="{standalone: true}">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-3">
+              <input type="checkbox" [(ngModel)]="sendfax.personalize_fax" [ngModelOptions]="{standalone: true}">
+              Personalized Fax
+            </div>
+
+            <div class="col-3">
+              <div class="form-group">
+                <input type="checkbox" [(ngModel)]="sendfax.sendcover" [ngModelOptions]="{standalone: true}"
+                  [checked]="sendfax.sendcover"> {{'fax_settings.cover' | translate}}<br>
+              </div>
+              <div *ngIf="sendfax.sendcover">
+                <select class="form-control" name="coverpage" [(ngModel)]="documentProgram.cover_id"
+                  (change)="onSelectcover($event.target.value)" [disabled]="disablesendcover">
+                  <option *ngIf="!sendcover" value="0">{{'cover_page.select_coverpage' | translate}}</option>
+                  <option *ngFor="let cov of coverArray; let i = index" [value]="cov.coverpage_id"
+                    [selected]="i===coverArray.length-1">
+                    {{cov.title}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- <div class="col-3">
+              <div class="form-group">
+                <input type="checkbox" [(ngModel)]="user.cover" [ngModelOptions]="{standalone: true}"
+                  [checked]="user.cover">
+                {{'fax_settings.header' | translate}}<br>
+              </div>
+            </div> -->
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+    <div>
+      <button type="button" class="btn btn-success mt-2 ml-4" (click)="sendnewFax()"
+        [disabled]="( sendfax.title === undefined || uploader.queue.length < 1 || sendfax.title === '' || sendfax.phone === undefined || sendfax.phone === '')">{{'transmission.fax.send_fax'
+        | translate }}</button>
+    </div>
+  </form>
+</div>
+
+<ng-template #contentTemplate let-modal>
+  <div class="modal-wrapper">
+    <div class="modal-body">
+      <div class="row">
+        <!-- First div with two input fields -->
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="name">
+              {{'document.document_name' | translate }}:
+            </label>
+            <input [(ngModel)]="document.name" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+              id="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="description">{{ 'document.description' | translate }}:</label>
+            <input [(ngModel)]="document.description" [ngModelOptions]="{standalone: true}" type="text"
+              class="form-control" id="description" required />
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label for="type">{{'document.fax_quality' | translate }}:</label>
+            <select class="form-control" name="quality" [(ngModel)]="document.quality"
+              [ngModelOptions]="{standalone: true}" [disabled]="(document_id>0)">
+              <option value="">{{'transmission.please_select_an_option_below' | translate }}</option>
+              <option value="standard">{{'transmission.standard' | translate }}</option>
+              <option value="fine">{{'transmission.fine' | translate }}</option>
+              <option value="super">{{'transmission.super' | translate }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label style="font-size: 10px; white-space: nowrap;">
+              <strong>{{ 'document.upload_document' | translate }}</strong> -
+              doc, docx, pdf, png, tiff, jpeg are supported only
+            </label> <br> 
+            <input type="file" accept=".pdf,.tif,.tiff,.png,.jpg,.jpeg,.doc,.docx" ng2FileSelect [uploader]="uploader"
+              multiple /><br />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="unsupportedErr" class="row">
+        <div class="col-sm-12">
+          <br>
+          <label style="color:red">{{ 'document.unsupported_file' | translate }}</label>
+        </div>
+      </div>
+
+      <div *ngFor="let item of uploader.queue" class="row">
+        <div class="col-sm-12">
+          <br>
+          <label>{{ item?.file?.name }}</label>
+          <i *ngIf="(this.file_sending === false && this.file_sent === false)" class="nb-close smmmm"
+            (click)="remove(item); item.remove()"></i>
+          <i *ngIf="(this.file_sending === true && this.file_sent === false)" class="fa fa-cog cmmmm"></i>
+          <i *ngIf="(this.file_sent === true && this.file_sending === false)" class="nb-checkmark gmmmm"></i>
+        </div>
+      </div>
+
+      <br><br>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <button type="button" class="btn btn-success" (click)="file_upload()"
+            [disabled]="(this.uploader.queue.length - 1 < 0 || (file === '' || document.name === undefined || document.name === '') || this.file_sending === true || this.file_sent === true)">
+            {{ 'document.upload_file' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,172 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Call Queue' : 'Add Call Queue' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Call queue saved successfully.</div>
+
+    <!-- Tab switcher -->
+    <div style="margin-bottom:16px">
+      <button nbButton [status]="activeTab === 'settings' ? 'primary' : 'basic'" size="small"
+              (click)="activeTab = 'settings'">Queue Settings</button>
+      <button nbButton [status]="activeTab === 'agents' ? 'primary' : 'basic'" size="small"
+              (click)="activeTab = 'agents'" style="margin-left:8px">
+        Agents ({{ queue.agents?.length || 0 }})
+      </button>
+    </div>
+
+    <!-- Queue Settings Tab -->
+    <nb-card *ngIf="activeTab === 'settings'">
+      <nb-card-header>Queue Settings</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Name *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_name" placeholder="Support Queue" required>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Extension *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_extension" placeholder="700" required
+                   (blur)="checkExtension(queue.queue_extension)">
+            <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Strategy</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="queue.queue_strategy">
+              <option *ngFor="let s of strategies" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Music on Hold</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_moh_sound" placeholder="local_stream://moh">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Max Wait Time (s)</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="number" [(ngModel)]="queue.queue_max_wait_time" placeholder="0 = unlimited">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Max Wait (no agent) (s)</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="number" [(ngModel)]="queue.queue_max_wait_time_with_no_agent">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Announce Frequency (s)</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="number" [(ngModel)]="queue.queue_announce_frequency" placeholder="0 = off">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">CID Prefix</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_cid_prefix" placeholder="[Queue]">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Timeout Action</label>
+          <div class="col-sm-9">
+            <div class="d-flex" style="gap:8px">
+              <select nbSelect [(ngModel)]="timeoutType" (ngModelChange)="onTimeoutTypeChange()" style="width:120px">
+                <option value="hangup">Hang Up</option>
+                <option value="transfer">Transfer to</option>
+              </select>
+              <select nbSelect fullWidth [(ngModel)]="timeoutTarget" (ngModelChange)="onTimeoutTargetChange()" *ngIf="timeoutType === 'transfer'">
+                <option value="">— Select extension —</option>
+                <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Agents Can Reject</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="queue.queue_agents_can_reject"></nb-checkbox>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="queue.queue_enabled">Active</nb-checkbox>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- Agents Tab -->
+    <nb-card *ngIf="activeTab === 'agents'">
+      <nb-card-header>
+        Agents
+        <button nbButton size="small" status="primary" (click)="addAgent()" style="float:right">
+          <nb-icon icon="plus-outline"></nb-icon> Add Agent
+        </button>
+      </nb-card-header>
+      <nb-card-body>
+        <div *ngIf="!queue.agents || queue.agents.length === 0" class="text-muted">
+          No agents assigned. Click "Add Agent" to assign agents to this queue.
+        </div>
+        <table class="table table-bordered" *ngIf="queue.agents && queue.agents.length > 0">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Contact</th>
+              <th>Call Timeout (s)</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let agent of queue.agents; let i = index">
+              <td><input nbInput [(ngModel)]="agent.agent_name" placeholder="Agent name or SIP user"></td>
+              <td>
+                <select nbSelect [(ngModel)]="agent.agent_type">
+                  <option *ngFor="let t of agentTypes" [value]="t">{{ t }}</option>
+                </select>
+              </td>
+              <td>
+                <select nbSelect [(ngModel)]="agentExtension[i]" (ngModelChange)="onAgentExtChange(i)">
+                  <option value="">— Select extension —</option>
+                  <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                </select>
+                <small *ngIf="agent.agent_contact" style="display:block;color:#888;font-size:11px">{{ agent.agent_contact }}</small>
+              </td>
+              <td><input nbInput type="number" [(ngModel)]="agent.agent_call_timeout" style="width:80px"></td>
+              <td>
+                <select nbSelect [(ngModel)]="agent.agent_status">
+                  <option *ngFor="let s of agentStatuses" [value]="s">{{ s }}</option>
+                </select>
+              </td>
+              <td>
+                <button nbButton ghost size="small" (click)="removeAgent(i)">
+                  <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/call_queues/call_queues']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

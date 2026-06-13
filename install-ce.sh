@@ -21,6 +21,8 @@
 
 set -euo pipefail
 
+# Release tag to install. Override for a pin/rollback, e.g. RELEASE_TAG=v1.0.0 bash install-ce.sh
+RELEASE_TAG="${RELEASE_TAG:-v1.0.2}"
 CE_FRONTEND_REPO_URL="https://github.com/ictinnovations/ictpbx-community-edition-gui.git"
 FRONTEND_DIR=/usr/ictpbxx
 LOG=/tmp/ictpbx-ce-full-install.log
@@ -76,15 +78,16 @@ export INSTALLER_AUTO=1
 [[ -n "${DOMAIN:-}"      ]] && export DOMAIN
 [[ -n "${TLS_EMAIL:-}"   ]] && export TLS_EMAIL
 [[ -n "${PUBLIC_HOST:-}" ]] && export PUBLIC_HOST
+export RELEASE_TAG
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Step 2 — Ensure CE frontend repo is present
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 hdr "Step 2: CE frontend repo"
 if [[ ! -f "$FRONTEND_DIR/package.json" ]]; then
-    info "Cloning CE frontend repo to $FRONTEND_DIR ..."
-    git clone "$CE_FRONTEND_REPO_URL" "$FRONTEND_DIR"
-    ok "Cloned to $FRONTEND_DIR"
+    info "Cloning CE frontend repo ($RELEASE_TAG) to $FRONTEND_DIR ..."
+    git clone --branch "$RELEASE_TAG" "$CE_FRONTEND_REPO_URL" "$FRONTEND_DIR"
+    ok "Cloned $RELEASE_TAG to $FRONTEND_DIR"
 else
     ok "CE frontend repo already present at $FRONTEND_DIR"
 fi

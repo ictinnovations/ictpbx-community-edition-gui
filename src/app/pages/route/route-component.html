@@ -1,0 +1,65 @@
+<nb-card>
+    <nb-card-header>
+      Routes List
+      <input style="float:right" class="form-control cc" type="text" #filter placeholder="Filter Routes">
+    </nb-card-header>
+  
+    <nb-card-body>
+        <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/route/new']"><i class="fa fa-plus"></i> Add Route</button>&nbsp;
+        <!-- <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/route/import']"><i class="fa fa-arrow-up" aria-hidden="true"></i> Import Route</button>&nbsp; -->
+        <!-- <button type="button" mat-raised-button color="primary" style="font-size:15px" (click)="getCSV()"><i class="fa fa-arrow-down" aria-hidden="true"></i> Export Routes</button> -->
+        <br>
+        <br>
+      <div class="example-container mat-elevation-z8">
+        <mat-table #table [dataSource]="aRoute" matSort>
+          <!-- <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Route Name</mat-header-cell>
+            <mat-cell *matCellDef="let route" style="text-align:left">
+              {{route.name}}</mat-cell>
+          </ng-container> -->
+          <ng-container matColumnDef="destination">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Destination</mat-header-cell>
+            <mat-cell *matCellDef="let route" style="text-align:left">
+              {{route.destination}} ( +{{route.prefix}} )</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="service">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Service</mat-header-cell>
+            <mat-cell *matCellDef="let route" style="text-align:left">
+              {{route.service}}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="provider">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Provider</mat-header-cell>
+            <mat-cell *matCellDef="let route">
+              {{route.provider}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="operations">
+            <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+            <mat-cell *matCellDef="let route">
+              <button mat-icon-button color="primary" style="font-size:20px">
+                <mat-icon style="color: red" (click)="showStaticModal(route.destination, route.route_id)"><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <!--
+          <ng-container matColumnDef="type">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+              <mat-cell *matCellDef="let route" style="text-align:left">
+                {{route.type}}</mat-cell>
+            </ng-container>
+            !-->
+          
+        <mat-header-row
+          *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator #paginator
+    [length] = "length"
+    [pageIndex]="0"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 25, 100]">
+  </mat-paginator>
+  </div>
+</nb-card-body>
+</nb-card>

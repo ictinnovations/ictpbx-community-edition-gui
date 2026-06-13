@@ -1,0 +1,19 @@
+::ng-deep .mat-column-user_id {
+    max-width: 100px; /* Adjust this value as needed */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  ::ng-deep .mat-column-username {
+    max-width: 150px; /* Adjust this value as needed */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  ::ng-deep .mat-column-ip_address {
+    max-width: 150px; /* Adjust this value as needed */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  

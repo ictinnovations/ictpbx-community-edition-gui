@@ -91,6 +91,7 @@
         "fpbx_cdr": "PBX CDR",
         "feature_codes": "Feature Codes",
         "ivr": "IVR",
+        "messaging": "Messaging",
         "activities": "System Activities",
         "stat_reports": "Statistics Report",
         "contacts": {
@@ -223,6 +224,11 @@
             "payment": "Payments",
             "billing_quota": "Quota",
             "billing_usage": "Usage"
+        },
+        "sms": {
+            "sms": "Messaging",
+            "messaging": "Inbox",
+            "campaigns": "Send SMS"
         },
         "csv_import": "CSV Import"
     },

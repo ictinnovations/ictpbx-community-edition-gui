@@ -78,6 +78,7 @@
       "fpbx_cdr": "PBX CDR",
       "feature_codes": "Codici di Funzione",
       "ivr": "IVR",
+      "messaging": "Messaggi",
       "contacts": {
           "contacts": "Contatti",
           "groups": "Gruppi"
@@ -181,6 +182,11 @@
          "payment": "Pagamenti",
          "billing_quota": "Quota",
          "billing_usage": "Utilizzo"
+     },
+     "sms": {
+         "sms": "Messaggi",
+         "messaging": "Posta in Arrivo",
+         "campaigns": "Invia SMS"
      }
   },
   "contact": {

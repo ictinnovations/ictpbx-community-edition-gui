@@ -81,7 +81,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Messaging',
     icon: 'message-square-outline',
-    key: 'messaging',
+    key: 'sms',
     children: [
       { title: 'Inbox',    icon: 'inbox-outline',       link: '/pages/messaging/messaging', key: 'messaging' },
       { title: 'Send SMS', icon: 'paper-plane-outline', link: '/pages/campaigns/sendsms',   key: 'campaigns' },
@@ -188,7 +188,7 @@ export const tenantMenuItems: MenuItem[] = [
   {
     title: 'Messaging',
     icon: 'message-square-outline',
-    key: 'messaging',
+    key: 'sms',
     children: [
       { title: 'Inbox',    icon: 'inbox-outline',       link: '/pages/messaging/messaging', key: 'messaging' },
       { title: 'Send SMS', icon: 'paper-plane-outline', link: '/pages/campaigns/sendsms',   key: 'campaigns' },
@@ -316,7 +316,7 @@ export const agentMenuItems: MenuItem[] = [
 
 // Community Edition: strip multi-tenant + billing + branding entries.
 if (environment.COMMUNITY_EDITION) {
-  const EE_KEYS = new Set(['tenants', 'branding', 'billing', 'messaging']);
+  const EE_KEYS = new Set(['tenants', 'branding', 'billing', 'sms', 'messaging']);
   const stripEE = (items: MenuItem[]): MenuItem[] =>
     items
       .filter(item => !EE_KEYS.has(item.key))

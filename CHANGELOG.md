@@ -2,6 +2,21 @@
 
 All notable changes to ICTPBX are documented here. This file is updated automatically by `npm run release`.
 
+# [1.2.0](https://github.com/ictvision/ictpbx-frontend/compare/v1.1.0...v1.2.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* **i18n:** render Messaging menu labels across locales ([de2bf4a](https://github.com/ictvision/ictpbx-frontend/commit/de2bf4a59e27f3c61f54f61fc1531ec97ec41f94))
+
+
+### Features
+
+* **install:** opt-in AI voice agent (*99) setup in orchestrator ([269330c](https://github.com/ictvision/ictpbx-frontend/commit/269330c0d1e8ba4556233f8f0db7c0f7e7238721))
+* **sms:** EE SMS frontend — 1:1 inbox + revived Send SMS campaign ([1218331](https://github.com/ictvision/ictpbx-frontend/commit/12183313f0418bfd93f35e7e74d8771fc8453840))
+
+
+
 # [1.1.0](https://github.com/ictvision/ictpbx-frontend/compare/v1.0.2...v1.1.0) (2026-06-28)
 
 

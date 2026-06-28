@@ -89,6 +89,7 @@
         "fpbx_cdr": "PBX CDR",
         "feature_codes": "機能コード",
         "ivr": "IVR",
+        "messaging": "メッセージ",
         "contacts": {
             "contacts": "連絡先",
             "groups": "グループ"
@@ -194,6 +195,11 @@
             "payment": "支払い",
             "billing_quota": "クォータ",
             "billing_usage": "使用状況"
+        },
+        "sms": {
+            "sms": "メッセージ",
+            "messaging": "受信トレイ",
+            "campaigns": "SMSを送信"
         }
     },
     "contact": {

@@ -76,6 +76,16 @@ export class CampaignService {
     .catch(response => this.app_service.handleError(response));
   }
 
+  add_sendsms(smsProgram: { text_id: any }): Promise<number> {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers });
+    const body = JSON.stringify(smsProgram);
+    const addSendSmsUrl = `${this.app_service.apiUrlPrograms}/sendsms`;
+    return this.http.post(addSendSmsUrl, body, options).toPromise().then(response => response.json() as Number)
+    .catch(response => this.app_service.handleError(response));
+  }
+
   start_campaign(campaign_id): Promise<Campaign> {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);

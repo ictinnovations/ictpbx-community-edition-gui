@@ -142,7 +142,7 @@ export class AddRouteComponent implements OnInit {
     this.services = [
       { "service_flag": "1", "name": "voice", "unit_id": "1" },
       { "service_flag": "2", "name": "fax", "unit_id": "1" },
-      // {"service_flag":"4","name":"sms","unit_id":"3"},
+      { "service_flag": "4", "name": "sms", "unit_id": "3" },
       // {"service_flag":"8","name":"email","unit_id":"4"},
       // {"service_flag":"16","name":"video","unit_id":"1"}
     ]

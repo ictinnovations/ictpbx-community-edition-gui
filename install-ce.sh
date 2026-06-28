@@ -22,7 +22,7 @@
 set -euo pipefail
 
 # Release tag to install. Override for a pin/rollback, e.g. RELEASE_TAG=v1.0.0 bash install-ce.sh
-RELEASE_TAG="${RELEASE_TAG:-v1.0.2}"
+RELEASE_TAG="${RELEASE_TAG:-v1.1.0}"
 CE_FRONTEND_REPO_URL="https://github.com/ictinnovations/ictpbx-community-edition-gui.git"
 FRONTEND_DIR=/usr/ictpbxx
 LOG=/tmp/ictpbx-ce-full-install.log

@@ -315,6 +315,13 @@ const routes: Routes = [{
         .then(m => m.RealtimeModule),
     },
     {
+      path: 'messaging',
+      loadChildren: () => import('./messaging/messaging.module')
+        .then(m => m.MessagingModule),
+      canLoad: [EditionGuard],
+      canActivate: [EditionGuard],
+    },
+    {
       path: 'billing-quota',
       loadChildren: () => import('./billing-quota/billing-quota.module')
         .then(m => m.BillingQuotaModule),

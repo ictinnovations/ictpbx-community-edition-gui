@@ -1,3 +1,16 @@
+# Changelog
+
+All notable changes to ICTPBX are documented here. This file is updated automatically by `npm run release`.
+
+# [1.1.0](https://github.com/ictvision/ictpbx-frontend/compare/v1.0.2...v1.1.0) (2026-06-28)
+
+
+### Features
+
+* **route:** add edit/update flow for outbound routes ([a37cf11](https://github.com/ictvision/ictpbx-frontend/commit/a37cf11edb05879543a86ba15b78f0bc6e02cb6d))
+
+
+
 #### 2019-02-04 Version 4.0
 
 * Angular based Application

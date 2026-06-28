@@ -20,6 +20,7 @@ import { ContactService } from '../pages/contact/contact.service';
 import { GroupService } from '../pages/contact/group/group.service';
 import { ExtensionService } from '../pages/extension/extension.service';
 import { DocumentService } from '../pages/message/document/document.service';
+import { TextService } from '../pages/message/text/text.service';
 import { AUserService } from '../pages/user/user.service';
 import { ProviderService } from '../pages/provider/provider.service';
 import { environment } from '../../environments/environment';
@@ -154,6 +155,7 @@ export const NB_CORE_PROVIDERS = [
   GroupService,
   ExtensionService,
   DocumentService,
+  TextService,
   AUserService,
   ProviderService,
   InFaxService,

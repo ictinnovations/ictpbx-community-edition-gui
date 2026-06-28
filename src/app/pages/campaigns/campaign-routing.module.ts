@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { CampaignComponent } from './campaign.component';
 import { FormsCampaignComponent } from './campaign-component';
 import { AddDocCampaignComponent } from './senddocument/campaign-document-component';
+import { FormsSmsCampaignComponent } from './sendsms/campaign-form-component';
 
 const routes: Routes = [{
   path: '',
@@ -17,6 +18,15 @@ const routes: Routes = [{
   }, {
     path: 'campaigns/sendfax/:id',
     component: AddDocCampaignComponent,
+  }, {
+    path: 'sendsms',
+    component: FormsSmsCampaignComponent,
+  }, {
+    path: 'sendsms/new',
+    component: FormsSmsCampaignComponent,
+  }, {
+    path: 'sendsms/:id',
+    component: FormsSmsCampaignComponent,
   }, {
     path: 'campaigns/:id/delete',
     component: FormsCampaignComponent,
@@ -39,4 +49,5 @@ export const routedComponents = [
   CampaignComponent,
   FormsCampaignComponent,
   AddDocCampaignComponent,
+  FormsSmsCampaignComponent,
 ];

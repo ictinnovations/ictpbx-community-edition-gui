@@ -41,6 +41,25 @@ export class RouteService {
     .then(response => response.json() as Route).catch(response => this.app_service.handleError(response));
   }
 
+  get_RouteById(route_id): Promise<any> {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({ headers: headers});
+    const url = `${this.app_service.apiUrlRoutes}?route_id=${route_id}`;
+    return this.http.get(url, options).toPromise()
+    .then(response => (response.json() || [])[0]).catch(response => this.app_service.handleError(response));
+  }
+
+  update_Route(route): Promise<any> {
+    const headers = new Headers();
+    this.app_service.createAuthorizationHeader(headers);
+    const options = new RequestOptions({headers: headers});
+    const body = JSON.stringify(route);
+    const updateUrl = `${this.app_service.apiUrlRoutes}/${route.route_id}`;
+    return this.http.put(updateUrl, body, options).toPromise().then(response => response)
+    .catch(response => this.app_service.handleError(response));
+  }
+
   add_Route(route: Route) {
     const headers = new Headers();
     this.app_service.createAuthorizationHeader(headers);

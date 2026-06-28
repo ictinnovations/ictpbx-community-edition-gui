@@ -23,6 +23,7 @@ export class AddRouteComponent implements OnInit {
 
   route: Route = new Route;
   route_id: any = null;
+  isEdit = false;
   region_id: string;
   country_id: number;
   service_flag: number = 2;
@@ -48,6 +49,13 @@ export class AddRouteComponent implements OnInit {
       const lastsegment = test_url[test_url.length - 1];
       if (lastsegment === 'new') {
         return null;
+      } else if (lastsegment === 'edit') {
+        this.isEdit = true;
+        return this.route_service.get_RouteById(this.route_id).then(data => {
+          this.route = data;
+          this.service_flag = Number(this.route.service_flag);
+          this.provider_id = Number(this.route.provider_id);
+        });
       } else {
         return this.route_service.get_RouteData(this.route_id).then(data => {
           this.route = data;
@@ -96,6 +104,36 @@ export class AddRouteComponent implements OnInit {
       }, 3000);
     } else {
       this.errorHandler(true, this.errorText);
+    }
+  }
+
+  async updateRoute() {
+    this.errorHandler(false, []);
+    if (!this.route.service_flag) this.errorText.push("Please select service.");
+    if (!this.route.provider_id) this.errorText.push("Please select provider.");
+    if (this.errorText.length > 0) {
+      this.errorHandler(true, this.errorText);
+      return;
+    }
+    this.isworking = true;
+    const payload = {
+      route_id: this.route.route_id,
+      name: this.route.name,
+      destination_id: this.route.destination_id,
+      provider_id: this.route.provider_id,
+      service_flag: this.route.service_flag,
+    };
+    try {
+      await this.route_service.update_Route(payload);
+      this.isworking = false;
+      this.isSuccess = true;
+      this.successText = 'Route updated.';
+      setTimeout(() => {
+        this.router.navigate(['../../route'], { relativeTo: this.routes });
+      }, 2000);
+    } catch (err) {
+      this.isworking = false;
+      this.errorHandler(true, ['Route update failed.']);
     }
   }
 

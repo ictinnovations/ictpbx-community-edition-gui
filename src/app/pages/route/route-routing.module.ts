@@ -19,6 +19,9 @@ const routes: Routes = [{
     path: 'import',
     component: ImportRouteComponent,
   }, {
+    path: ':id/edit',
+    component: AddRouteComponent,
+  }, {
     path: ':id/delete',
     component: AddRouteComponent,
   }],

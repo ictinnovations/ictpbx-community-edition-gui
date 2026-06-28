@@ -8,7 +8,7 @@
   <p>{{successText}}</p>
 </div>
 
-<h3>Add::Route</h3>
+<h3>{{ isEdit ? 'Edit::Route' : 'Add::Route' }}</h3>
 <div class="col-lg-12">
   <form id="form1" #f1="ngForm">
     <nb-card>
@@ -39,7 +39,15 @@
       </nb-card-body>
     </nb-card>
 
-    <nb-card>
+    <nb-card *ngIf="isEdit">
+      <nb-card-body>
+        <label>Destination:</label>
+        <p style="font-weight:bold;">{{ route.destination }} ( +{{ route.prefix }} )</p>
+        <small>To route this destination through a different prefix, delete and re-create the route.</small>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="!isEdit">
       <nb-card-body>
         <div class="row">
           <div class="col-sm-6">
@@ -107,6 +115,9 @@
 
     <div *ngIf="(!route_id)">
       <button type="button" class="btn btn-success" (click)="addRoute()">Submit</button>
+    </div>
+    <div *ngIf="isEdit">
+      <button type="button" class="btn btn-success" (click)="updateRoute()">Update</button>
     </div>
   </form>
 </div>

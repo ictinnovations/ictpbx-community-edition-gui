@@ -1,0 +1,96 @@
+<nb-card>
+  <nb-card-header>
+    {{'campaigns.list' | translate }}
+  </nb-card-header>
+  <nb-card-body>
+    <nb-alert status="warning" *ngIf="app_service.faxProviderChecked && !app_service.hasFaxProvider">
+      No fax-enabled trunk found. Add a Provider with "Supports Fax (T.38 / G.711 pass-through)" enabled under Routings &rarr; Trunks before running a fax campaign.
+    </nb-alert>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px" [routerLink]="['/pages/campaigns/campaigns/sendfax/new']"><i class="fa fa-plus"></i> {{'campaigns.fax_campaign.create' | translate }}</button>
+    <br><br>
+    <div class="row mb-3" *ngIf="isAdmin">
+      <div class="col-auto">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="getCampaignlist()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aCampaign" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header >{{'general.ID' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            {{campaign.campaign_id}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.program_name' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign" style="text-align:left">
+            {{campaign.program_type}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.status' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign" style="text-align:left">
+            {{campaign.status}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="total">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.total' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            {{campaign.contact_total}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="done">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.done' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            {{campaign.contact_done}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="successful">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.successful' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            {{campaign.successful}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="failed">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'campaigns.failed' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            {{campaign.failed}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{'general.operations' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let campaign">
+            <button mat-icon-button color="primary" style= "font-size:20px">
+              <mat-icon><a routerLink="/pages/campaigns/campaigns/{{campaign.program_type}}/{{campaign.campaign_id}}" title="Edit"><nb-icon icon="edit-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style= "font-size:20px">
+              <mat-icon (click)="startCampaign(campaign.campaign_id)"><nb-icon icon="play-circle-outline" title="Start"></nb-icon></mat-icon>
+            </button>
+            <br>
+            <button mat-icon-button color="primary" style= "font-size:20px">  
+              <mat-icon (click)="stopCampaign(campaign.campaign_id)" ><nb-icon icon="pause-circle-outline" title="Stop"></nb-icon></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style= "font-size:20px">  
+              <mat-icon style="color:red" (click)="showStaticModal(deleteTemplate, campaign.campaign_id)" ><nb-icon icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>                
+            </button>
+            <button mat-icon-button color="primary" style= "font-size:20px">  
+              <mat-icon (click)="cdr_report(campaign.campaign_id)" ><nb-icon icon="file-text-outline" title="CDR Report"></nb-icon></mat-icon>                  
+            </button>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTemplate let-data>
+  <div>
+    <p>{{'transmission.delete' | translate}}</p>
+    <button nbButton status="danger" (click)="deleteCampaign(data.campaign_id)">{{'transmission.yes' | translate}}</button>
+    <button nbButton (click)="closeModal()">{{'transmission.no' | translate}}</button>
+  </div>
+</ng-template>

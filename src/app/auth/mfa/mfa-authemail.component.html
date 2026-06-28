@@ -1,0 +1,63 @@
+<div class="form-control-group accept-group">
+  <p>{{ 'mfa.temail' | translate }}</p>
+</div>
+
+<form id="form1" #f1="ngForm" aria-labelledby="title">
+
+  <nb-card *ngIf="!mfa.vcode">
+    <nb-card-body>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="email">{{ 'mfa.email' | translate}}:</label>
+            <input [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" type="email" id="email" class="form-control" #email="ngModel" required readonly="true"/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="sendCode()">
+              {{ 'mfa.scode' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div> -->
+    </nb-card-body>
+  </nb-card>
+
+  <nb-card *ngIf="mfa.vcode">
+    <nb-card-body>
+      <div class="col-sm-12">
+        <div class="form-group">
+          <label for="description">{{ 'mfa.vcode' | translate}}:</label>
+          <input [(ngModel)]="mfa.verificationCode" name="verificationCode" type="text" class="form-control" id="verificationCode" required/>
+        </div>
+        <div *ngIf="mfa.verificationError" class="alert alert-danger">
+          {{ mfa.verificationError }}
+        </div>
+      </div>
+    </nb-card-body>
+
+    <div class="row">
+      <div class="col-sm-6"  style=" display: flex; justify-content: end;">
+        <div class="form-group">
+          <button id="MFAverify" type="button" class="btn btn-primary" (click)="onVerifyClick()">{{ 'buttons.verify' | translate}}</button>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <button id="MFAresend" type="button" class="btn btn-primary" (click)="onResendClick()">{{ 'mfa.rscode' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  </nb-card>    
+
+  <!-- <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="navigateToMFA()">
+      <i class="fa fa-arrow-left"></i> 
+      {{ 'mfa.back' | translate }}
+  </button> -->
+
+</form>
+

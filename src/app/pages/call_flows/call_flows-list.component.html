@@ -1,0 +1,70 @@
+<nb-card>
+  <nb-card-header>
+    <span>Call Flows (Day / Night)</span>
+    <button nbButton status="primary" size="small" [routerLink]="['/pages/call_flows/call_flows/new']" style="float:right">
+      <nb-icon icon="plus-outline"></nb-icon> Add Call Flow
+    </button>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row mb-3" *ngIf="isAdmin">
+      <div class="col-auto">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="loadList()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid #eee;text-align:left">
+          <th style="padding:8px">Name</th>
+          <th style="padding:8px">Extension</th>
+          <th style="padding:8px">Feature Code</th>
+          <th style="padding:8px">Status</th>
+          <th style="padding:8px">Enabled</th>
+          <th *ngIf="isAdmin" style="padding:8px">Tenant</th>
+          <th style="padding:8px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of items" style="border-bottom:1px solid #f5f5f5">
+          <td style="padding:8px">{{ row.call_flow_name }}</td>
+          <td style="padding:8px">{{ row.call_flow_extension }}</td>
+          <td style="padding:8px">{{ row.call_flow_feature_code }}</td>
+          <td style="padding:8px">
+            <span [style.color]="row.call_flow_status === 'true' ? 'green' : '#999'">
+              {{ row.call_flow_status === 'true' ? (row.call_flow_label || 'Open') : (row.call_flow_alternate_label || 'Closed') }}
+            </span>
+          </td>
+          <td style="padding:8px">
+            <nb-icon [icon]="row.call_flow_enabled === 'true' || row.call_flow_enabled === true ? 'checkmark-circle-2-outline' : 'close-circle-outline'"
+                     [status]="row.call_flow_enabled === 'true' || row.call_flow_enabled === true ? 'success' : 'danger'"></nb-icon>
+          </td>
+          <td *ngIf="isAdmin" style="padding:8px">{{ row.tenant_name || '—' }}</td>
+          <td style="padding:8px">
+            <button nbButton ghost size="small" [routerLink]="['/pages/call_flows/call_flows', row.call_flow_uuid]">
+              <nb-icon icon="edit-2-outline" status="primary"></nb-icon>
+            </button>
+            <button nbButton ghost size="small" (click)="openDeleteDialog(row.call_flow_uuid, deleteTmpl)">
+              <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="items.length === 0">
+          <td colspan="7" style="padding:16px;text-align:center;color:#aaa">No call flows found</td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTmpl let-data>
+  <nb-card>
+    <nb-card-header>Confirm Delete</nb-card-header>
+    <nb-card-body>Are you sure you want to delete this call flow?</nb-card-body>
+    <nb-card-footer>
+      <button nbButton status="danger" (click)="confirmDelete()">Delete</button>
+      <button nbButton ghost (click)="cancelDelete()">Cancel</button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

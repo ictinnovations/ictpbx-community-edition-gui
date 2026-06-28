@@ -1,0 +1,17 @@
+{
+  "preset": "angular",
+  "tagPrefix": "v",
+  "header": "# Changelog\n\nAll notable changes to ICTPBX are documented here. This file is updated automatically by `npm run release`.\n",
+  "types": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance" },
+    { "type": "refactor", "section": "Refactoring" },
+    { "type": "build", "section": "Build & Install" },
+    { "type": "docs", "section": "Documentation" },
+    { "type": "test", "hidden": true },
+    { "type": "chore", "hidden": true },
+    { "type": "style", "hidden": true },
+    { "type": "ci", "hidden": true }
+  ]
+}

@@ -1,0 +1,75 @@
+<nb-card class="messaging-card">
+  <nb-card-header class="d-flex justify-content-between align-items-center">
+    <span>Messaging</span>
+    <button nbButton size="small" status="primary" (click)="startNew()">
+      <nb-icon icon="plus-outline"></nb-icon> New Message
+    </button>
+  </nb-card-header>
+
+  <nb-card-body class="messaging-body">
+    <nb-alert *ngIf="error" status="danger" closable (close)="error = ''">{{ error }}</nb-alert>
+
+    <div class="messaging-layout">
+      <!-- Threads -->
+      <div class="thread-list">
+        <div *ngIf="loadingThreads" class="muted p-3">Loading…</div>
+        <div *ngIf="!loadingThreads && threads.length === 0" class="muted p-3">
+          No conversations yet.
+        </div>
+        <a *ngFor="let t of threads"
+           class="thread-item"
+           [class.active]="t.thread_key === activeThread"
+           (click)="openThread(t.thread_key)">
+          <div class="thread-top">
+            <span class="thread-number">{{ t.thread_key }}</span>
+            <span class="thread-time">{{ t.last_created }}</span>
+          </div>
+          <div class="thread-preview">
+            <nb-icon *ngIf="t.last_direction === 'out'" icon="arrow-upward-outline" pack="eva"></nb-icon>
+            <nb-icon *ngIf="t.last_direction === 'in'" icon="arrow-downward-outline" pack="eva"></nb-icon>
+            {{ t.last_body }}
+          </div>
+        </a>
+      </div>
+
+      <!-- Conversation -->
+      <div class="conversation">
+        <div *ngIf="showNew" class="new-bar">
+          <input nbInput fullWidth fieldSize="small" placeholder="Recipient number e.g. +1201…"
+                 [(ngModel)]="newNumber" />
+        </div>
+
+        <div *ngIf="!showNew && !activeThread" class="muted center-msg">
+          Select a conversation or start a new message.
+        </div>
+
+        <div *ngIf="activeThread || showNew" class="message-pane">
+          <div *ngIf="loadingMessages" class="muted p-3">Loading…</div>
+          <div *ngFor="let m of messages"
+               class="bubble-row"
+               [class.outbound]="m.direction === 'out'"
+               [class.inbound]="m.direction === 'in'">
+            <div class="bubble">
+              <div class="bubble-body">{{ m.body }}</div>
+              <div class="bubble-meta">
+                <span>{{ m.created }}</span>
+                <nb-badge *ngIf="m.direction === 'out'" [status]="statusBadge(m.status)"
+                          [text]="m.status" position="top right"></nb-badge>
+              </div>
+              <div *ngIf="m.error" class="bubble-error">{{ m.error }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeThread || showNew" class="composer">
+          <textarea nbInput fullWidth rows="2" placeholder="Type a message…"
+                    [(ngModel)]="composeBody" [disabled]="sending"></textarea>
+          <button nbButton status="primary" [disabled]="sending || !composeBody.trim()"
+                  (click)="send()">
+            <nb-icon icon="paper-plane-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

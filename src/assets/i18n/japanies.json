@@ -116,7 +116,8 @@
             "fax_setting": "ファックス設定",
             "cover_page": "表紙ページ",
             "announcement": "お知らせ",
-            "passwd_policy": "パスワードポリシー"
+            "passwd_policy": "パスワードポリシー",
+            "api_keys": "APIキー"
         },
         "fax": {
             "fax": "ファックス",

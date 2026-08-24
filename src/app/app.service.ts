@@ -142,6 +142,7 @@ export class AppService {
   apiUrlSms            = `${this.apiUrl}/sms`;
   apiUrlSmsThreads     = `${this.apiUrl}/sms/threads`;
   apiUrlSmsMessages    = `${this.apiUrl}/sms/messages`;
+  apiUrlApiKeys        = `${this.apiUrl}/api_keys`;
 
   createAuthorizationHeader(headers: Headers) {
     let copy_token = localStorage.getItem('copy_token');

@@ -322,6 +322,11 @@ const routes: Routes = [{
       canActivate: [EditionGuard],
     },
     {
+      path: 'api_keys',
+      loadChildren: () => import('./api-keys/api-keys.module')
+        .then(m => m.ApiKeysModule),
+    },
+    {
       path: 'billing-quota',
       loadChildren: () => import('./billing-quota/billing-quota.module')
         .then(m => m.BillingQuotaModule),

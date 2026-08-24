@@ -118,7 +118,8 @@
             "providers": "Providers / Trunks",
             "fax_setting": "Fax Settings",
             "cover_page": "Cover Page",
-            "announcement": "Announcement"
+            "announcement": "Announcement",
+            "api_keys": "API Keys"
         },
         "configuration": {
             "configuration": "Configuration",

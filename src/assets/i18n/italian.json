@@ -103,7 +103,8 @@
           "fax_accounts": "Account Fax",
           "extension": "Account Fax",
           "announcement": "Annuncio",
-          "passwd_policy": "Politica Password"
+          "passwd_policy": "Politica Password",
+          "api_keys": "Chiavi API"
       },
       "fax": {
           "fax": "Fax",

@@ -108,6 +108,7 @@ export const MENU_ITEMS: MenuItem[] = [
       { title: 'Branding',        icon: 'tv-outline',           link: '/pages/branding',        key: 'branding' },
       { title: 'Password Policy', icon: 'file-outline',         link: '/pages/password_policy', key: 'passwd_policy' },
       { title: 'Announcement',    icon: 'alert-circle-outline', link: '/pages/announcement',    key: 'announcement' },
+      { title: 'API Keys',        icon: 'lock-outline',         link: '/pages/api_keys',        key: 'api_keys' },
     ],
   },
   {
@@ -209,6 +210,7 @@ export const tenantMenuItems: MenuItem[] = [
     children: [
       { title: 'User Management', icon: 'person-done-outline',  link: '/pages/user/user',    key: 'user' },
       { title: 'Announcement',    icon: 'alert-circle-outline', link: '/pages/announcement', key: 'announcement' },
+      { title: 'API Keys',        icon: 'lock-outline',         link: '/pages/api_keys',     key: 'api_keys' },
     ],
   },
   {

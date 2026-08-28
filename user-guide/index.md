@@ -27,3 +27,5 @@
 | [6 — Fax Features](06-fax-features.md) | All users with fax permissions |
 | [7 — Reference](07-reference.md) | All roles |
 | [8 — Troubleshooting](08-troubleshooting.md) | Admins & support |
+| [9 — SMS & Messaging](09-sms-messaging.md) **(EE)** | Users with messaging access |
+| [10 — AI Voice Agent](10-ai-voice-agent.md) **(EE)** | All roles (voice-first) |

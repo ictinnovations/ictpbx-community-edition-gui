@@ -63,7 +63,7 @@
               </select>
               <select nbSelect fullWidth [(ngModel)]="ringGroup.ring_group_timeout_data">
                 <option value="">— None —</option>
-                <option *ngFor="let o of timeoutDestList" [value]="o.extension">{{ o.label }}</option>
+                <option *ngFor="let o of timeoutDestList" [value]="timeoutValue(o)">{{ o.label }}</option>
               </select>
             </div>
           </div>

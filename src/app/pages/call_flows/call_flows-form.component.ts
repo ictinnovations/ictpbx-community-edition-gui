@@ -75,6 +75,8 @@ export class CallFlowsFormComponent implements OnInit {
 
   private detectDestType(val: string): string {
     if (!val) return 'extension';
+    // Mailboxes are stored as the dialled *99<id>; older records hold the uuid.
+    if (this.pbxDest.isVoicemailDial(val)) return 'voicemail';
     if (this.ringGroups.some(r => r.uuid === val)) return 'ring_group';
     if (this.ivrMenus.some(r => r.uuid === val))   return 'ivr';
     if (this.voicemails.some(r => r.uuid === val)) return 'voicemail';
@@ -91,7 +93,11 @@ export class CallFlowsFormComponent implements OnInit {
   }
 
   destValue(type: string, opt: DestOption): string {
-    return type === 'extension' ? opt.extension : opt.uuid;
+    // Voicemail is dialled, not referenced by uuid — and it is reached at *99<mailbox>,
+    // not by its bare id.
+    return (type === 'extension' || type === 'voicemail')
+      ? this.pbxDest.dialValue(type, opt)
+      : opt.uuid;
   }
 
   onOpenTypeChange()  { this.item.call_flow_data           = ''; }

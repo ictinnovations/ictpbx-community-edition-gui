@@ -9,6 +9,9 @@ export interface DestOption {
   label:     string;
 }
 
+/** Feature-code prefix the voicemail dialplan answers on: `*99<mailbox id>`. */
+export const VOICEMAIL_PREFIX = '*99';
+
 @Injectable({ providedIn: 'root' })
 export class PbxDestinationService {
 
@@ -63,6 +66,29 @@ export class PbxDestinationService {
       extension: row.voicemail_id,
       label:     row.voicemail_id + (row.voicemail_mail_to ? ' – ' + row.voicemail_mail_to : ''),
     }));
+  }
+
+  /**
+   * The dial string that actually reaches a destination. Mailboxes are not dialled by
+   * their bare id — the generated dialplan only answers `*99<id>` (see
+   * Voicemail::sync_fs_dialplan) — so storing the bare number produced a destination no
+   * dialplan matched and "send to voicemail" silently went nowhere.
+   *
+   * Only for forms that store a raw dial string. Inbound routes keep a typed target and
+   * let InboundRoute.php apply the prefix, so they must not use this.
+   */
+  dialValue(type: string, opt: DestOption): string {
+    return type === 'voicemail' ? VOICEMAIL_PREFIX + opt.extension : opt.extension;
+  }
+
+  /**
+   * Whether a stored dial string targets a mailbox — the inverse of dialValue() used to
+   * resolve a saved destination back to its option on edit. The prefix is the only
+   * reliable signal: a mailbox may share a number with an extension, so matching on the
+   * bare id alone would read extension 1001 as mailbox 1001.
+   */
+  isVoicemailDial(value: string): boolean {
+    return !!value && value.indexOf(VOICEMAIL_PREFIX) === 0;
   }
 
   getConferences(): Promise<DestOption[]> {

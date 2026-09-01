@@ -74,7 +74,7 @@
           </select>
           <select nbSelect fullWidth [(ngModel)]="item.tc_open_destination">
             <option value="">— None —</option>
-            <option *ngFor="let o of destList(openDestType)" [value]="openDestType === 'extension' ? o.extension : o.uuid">{{ o.label }}</option>
+            <option *ngFor="let o of destList(openDestType)" [value]="destValue(openDestType, o)">{{ o.label }}</option>
           </select>
         </div>
         <small class="text-muted">Where to send calls during open hours</small>
@@ -93,7 +93,7 @@
           </select>
           <select nbSelect fullWidth [(ngModel)]="item.tc_closed_destination">
             <option value="">— None —</option>
-            <option *ngFor="let o of destList(closedDestType)" [value]="closedDestType === 'extension' ? o.extension : o.uuid">{{ o.label }}</option>
+            <option *ngFor="let o of destList(closedDestType)" [value]="destValue(closedDestType, o)">{{ o.label }}</option>
           </select>
         </div>
         <small class="text-muted">Where to send calls outside open hours</small>

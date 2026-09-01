@@ -91,11 +91,18 @@ export class AddRingGroupComponent implements OnInit {
     this.ringGroup.ring_group_timeout_data = '';
   }
 
+  /** The dial string stored for the timeout destination of the currently picked type. */
+  timeoutValue(opt: DestOption): string {
+    return this.pbxDest.dialValue(this.timeoutDestType, opt);
+  }
+
   private detectTimeoutType(val: string): string {
     if (!val) return 'extension';
+    // The *99 prefix is checked first and on its own: a mailbox may share a number with
+    // an extension, so matching on the bare id would read extension 1001 as mailbox 1001.
+    if (this.pbxDest.isVoicemailDial(val)) return 'voicemail';
     if (this.ringGroups.some(r => r.extension === val)) return 'ring_group';
     if (this.ivrMenus.some(r => r.extension === val))   return 'ivr';
-    if (this.voicemails.some(r => r.extension === val)) return 'voicemail';
     return 'extension';
   }
 

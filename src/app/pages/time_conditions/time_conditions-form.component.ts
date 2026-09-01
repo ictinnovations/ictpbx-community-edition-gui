@@ -70,10 +70,21 @@ export class TimeConditionsFormComponent implements OnInit {
 
   private detectDestType(val: string): string {
     if (!val) return 'extension';
+    // The *99 prefix is checked first and on its own: a mailbox may share a number with
+    // an extension, so matching on the bare id would read extension 1001 as mailbox 1001.
+    if (this.pbxDest.isVoicemailDial(val)) return 'voicemail';
     if (this.ringGroups.some(r => r.uuid === val || r.extension === val)) return 'ring_group';
     if (this.ivrMenus.some(r => r.uuid === val || r.extension === val))   return 'ivr';
-    if (this.voicemails.some(r => r.uuid === val || r.extension === val)) return 'voicemail';
+    if (this.voicemails.some(r => r.uuid === val)) return 'voicemail';
     return 'extension';
+  }
+
+  destValue(type: string, opt: DestOption): string {
+    // Voicemail is dialled, not referenced by uuid — and it is reached at *99<mailbox>,
+    // not by its bare id.
+    return (type === 'extension' || type === 'voicemail')
+      ? this.pbxDest.dialValue(type, opt)
+      : opt.uuid;
   }
 
   destList(type: string): DestOption[] {

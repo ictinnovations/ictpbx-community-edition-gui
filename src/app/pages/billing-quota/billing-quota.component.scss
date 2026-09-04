@@ -1,0 +1,10 @@
+.quota-stats {
+  div {
+    padding: 2px 0;
+    border-bottom: 1px solid var(--border-basic-color-3);
+    &:last-child { border-bottom: none; }
+  }
+}
+nb-card-header {
+  position: relative;
+}

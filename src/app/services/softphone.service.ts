@@ -1,0 +1,250 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import * as JsSIP from 'jssip';
+
+export type CallState = 'idle' | 'calling' | 'ringing' | 'active';
+
+export interface SipConfig {
+  user: string;
+  password: string;
+  domain: string;
+  wsUri: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class SoftphoneService {
+
+  registered$ = new BehaviorSubject<boolean>(false);
+  callState$  = new BehaviorSubject<CallState>('idle');
+  callerInfo$ = new BehaviorSubject<string>('');
+  muted$      = new BehaviorSubject<boolean>(false);
+  held$       = new BehaviorSubject<boolean>(false);
+
+  private ua: any = null;
+  private session: any = null;
+  private remoteAudio: HTMLAudioElement | null = null;
+  config: SipConfig | null = null;
+
+  // ── Config persistence ────────────────────────────────────────────────────
+
+  saveConfig(cfg: SipConfig) {
+    localStorage.setItem('sip_config', JSON.stringify(cfg));
+    this.config = cfg;
+  }
+
+  loadConfig(): SipConfig | null {
+    const raw = localStorage.getItem('sip_config');
+    if (!raw) return null;
+    try { this.config = JSON.parse(raw); return this.config; } catch { return null; }
+  }
+
+  clearConfig() {
+    localStorage.removeItem('sip_config');
+    this.config = null;
+  }
+
+  defaultWsUri(): string {
+    const host = window.location.hostname;
+    if (window.location.protocol === 'https:') {
+      return `wss://${host}/ws/`;
+    }
+    return `ws://${host}/ws/`;
+  }
+
+  // Each tenant now has its own FreeSWITCH <domain>, so the web host is only the right
+  // registration domain for the tenant whose domain happens to match it. The softphone
+  // panel resolves the extension's own domain and caches it here; the web host remains
+  // the fallback, which is correct for a single-tenant install.
+  defaultDomain(): string {
+    return localStorage.getItem('sip_domain') || window.location.hostname;
+  }
+
+  // ── UA lifecycle ──────────────────────────────────────────────────────────
+
+  register(cfg: SipConfig) {
+    this.unregister();
+    // Always bind to the web host — self-heals any stale/mistyped domain in saved
+    // localStorage config so registration lands in the domain the dialplan bridges to.
+    cfg.domain = this.defaultDomain();
+    if (window.location.protocol === 'https:' && cfg.wsUri.startsWith('ws://')) {
+      cfg.wsUri = cfg.wsUri.replace('ws://', 'wss://');
+    }
+    this.config = cfg;
+
+    const socket = new JsSIP.WebSocketInterface(cfg.wsUri);
+    this.ua = new JsSIP.UA({
+      sockets:    [socket],
+      uri:        `sip:${cfg.user}@${cfg.domain}`,
+      password:   cfg.password,
+      display_name: cfg.user,
+      register:   true,
+    });
+
+    this.ua.on('registered',   () => this.registered$.next(true));
+    this.ua.on('unregistered', () => this.registered$.next(false));
+    this.ua.on('registrationFailed', () => this.registered$.next(false));
+
+    this.ua.on('newRTCSession', (data: any) => {
+      const s = data.session;
+      if (data.originator === 'remote') {
+        this.session = s;
+        this.callerInfo$.next(s.remote_identity?.uri?.user || 'Unknown');
+        this.callState$.next('ringing');
+        s.on('ended',  () => this.onSessionEnd());
+        s.on('failed', () => this.onSessionEnd());
+        // Must be registered before answer() — peerconnection event fires during answer()
+        s.on('peerconnection', (data: any) => {
+          data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
+            const stream = ev.streams[0] || new MediaStream([ev.track]);
+            this.playRemoteStream(stream);
+          };
+        });
+        s.on('confirmed', () => {
+          this.callState$.next('active');
+          const pc = s.connection;
+          if (pc) {
+            pc.getReceivers().forEach((r: RTCRtpReceiver) => {
+              if (r.track) this.playRemoteStream(new MediaStream([r.track]));
+            });
+          }
+        });
+      }
+    });
+
+    this.ua.start();
+  }
+
+  unregister() {
+    if (this.ua) {
+      try { this.ua.stop(); } catch {}
+      this.ua = null;
+    }
+    this.registered$.next(false);
+    this.callState$.next('idle');
+  }
+
+  // ── Call control ──────────────────────────────────────────────────────────
+
+  call(target: string) {
+    if (!this.ua || !this.config) return;
+    const dest = target.includes('@') ? target : `sip:${target}@${this.config.domain}`;
+    this.callState$.next('calling');
+    this.callerInfo$.next(target);
+
+    const s = this.ua.call(dest, {
+      mediaConstraints: { audio: true, video: false },
+      pcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+    });
+    this.session = s;
+
+    s.on('progress', () => this.callState$.next('calling'));
+    s.on('confirmed', () => {
+      this.callState$.next('active');
+      const pc = s.connection;
+      if (pc) {
+        pc.getReceivers().forEach((r: RTCRtpReceiver) => {
+          if (r.track) this.playRemoteStream(new MediaStream([r.track]));
+        });
+      }
+    });
+    s.on('ended',  () => this.onSessionEnd());
+    s.on('failed', (data: any) => { console.error('[JsSIP] call failed:', data?.cause, data?.message || ''); this.onSessionEnd(); });
+
+    s.on('peerconnection', (data: any) => {
+      data.peerconnection.ontrack = (ev: RTCTrackEvent) => {
+        const stream = ev.streams[0] || new MediaStream([ev.track]);
+        this.playRemoteStream(stream);
+      };
+    });
+  }
+
+  answer() {
+    if (!this.session) return;
+    this.session.answer({
+      mediaConstraints: { audio: true, video: false },
+      pcConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+    });
+    this.callState$.next('active');
+  }
+
+  hangup() {
+    if (!this.session) return;
+    try {
+      if (this.callState$.value === 'ringing') this.session.terminate();
+      else this.session.terminate();
+    } catch {}
+    this.onSessionEnd();
+  }
+
+  reject() {
+    if (!this.session) return;
+    try { this.session.terminate({ status_code: 486 }); } catch {}
+    this.onSessionEnd();
+  }
+
+  toggleMute() {
+    if (!this.session) return;
+    if (this.muted$.value) { this.session.unmute({ audio: true }); this.muted$.next(false); }
+    else                   { this.session.mute({ audio: true });   this.muted$.next(true);  }
+  }
+
+  toggleHold() {
+    if (!this.session) return;
+    if (this.held$.value) {
+      this.session.unhold();
+      this.held$.next(false);
+    } else {
+      this.session.hold();
+      this.held$.next(true);
+    }
+  }
+
+  transfer(destination: string) {
+    if (!this.session || !this.config) return;
+    const target = destination.includes('@')
+      ? `sip:${destination}`
+      : `sip:${destination}@${this.config.domain}`;
+    try { this.session.refer(target); } catch {}
+    this.onSessionEnd();
+  }
+
+  sendDTMF(digit: string) {
+    if (!this.session) return;
+    try { this.session.sendDTMF(digit); } catch {}
+  }
+
+  // ── Internal helpers ──────────────────────────────────────────────────────
+
+  private playRemoteStream(stream: MediaStream) {
+    if (!this.remoteAudio) {
+      this.remoteAudio = document.createElement('audio');
+      this.remoteAudio.autoplay = true;
+      this.remoteAudio.style.display = 'none';
+      document.body.appendChild(this.remoteAudio);
+    }
+    if (this.remoteAudio.srcObject !== stream) {
+      this.remoteAudio.srcObject = stream;
+    }
+    this.remoteAudio.play().catch(() => {});
+  }
+
+  private attachRemoteAudio(conn: RTCPeerConnection) {
+    if (!conn) return;
+    conn.ontrack = (ev: RTCTrackEvent) => {
+      this.playRemoteStream(ev.streams[0]);
+    };
+  }
+
+  private onSessionEnd() {
+    this.session = null;
+    this.callState$.next('idle');
+    this.callerInfo$.next('');
+    this.muted$.next(false);
+    this.held$.next(false);
+    if (this.remoteAudio) {
+      this.remoteAudio.srcObject = null;
+      try { document.body.removeChild(this.remoteAudio); } catch {}
+      this.remoteAudio = null;
+    }
+  }
+}

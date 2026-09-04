@@ -1,0 +1,187 @@
+.example-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+}
+
+::ng-deep .mat-column-ID {
+  max-width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0.7;
+}
+
+::ng-deep .mat-column-username {
+  max-width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 3;
+  margin-right: 10px;
+}
+
+::ng-deep .mat-column-phone {
+  max-width: 15%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+::ng-deep .mat-column-status {
+  max-width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-left: 10px;
+}
+
+::ng-deep .mat-column-Timestamp {
+  max-width: 20%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 2;
+  margin-left: 15px;
+}
+
+.example-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 20px;
+}
+
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-header-cell .mat-sort-header-sorted {
+  color: black;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.example-button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+}
+
+a:hover {
+  color: rgb(10, 238, 10);
+}
+
+.fa-trash:hover {
+  color: rgb(138, 4, 4);
+}
+
+.fa-play-circle:hover {
+  color: darkblue;
+}
+
+.fa-stop:hover {
+  color: darkblue;
+}
+
+.mat-input-container {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+  margin-top: 8px;
+}
+
+.cc {
+  width: 40%;
+}
+
+.pagination {
+  display: block;
+}
+
+.pagination .prv-page {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  line-height: 15px;
+  border: 0;
+  background: none;
+  height: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  float: left;
+}
+
+.pagination .nxt-page {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  line-height: 15px;
+  border: 0;
+  background: none;
+  height: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  float: right;
+}
+
+.pagination .all-pages {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pdf-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20% 0;
+  text-align: center;
+  font-size: 16px;
+}
+
+.ng2-pdf-viewer-container[_ngcontent-yff-c423] {
+  overflow-x: hidden;
+}
+
+.modal-wrapper {
+  width: 400px;
+  height: 450px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-clip: padding-box;
+  outline: 0.3rem;
+  box-sizing: inherit;
+}
+
+.bold-text {
+  background: rgb(224, 220, 220);
+}
+
+::ng-deep .cdk-overlay-container {
+  z-index: 1200 !important;
+}
+
+.mat-datepicker-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  cursor: pointer;
+}

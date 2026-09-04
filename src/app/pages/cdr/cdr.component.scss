@@ -1,0 +1,91 @@
+.example-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  max-height: 500px;
+}
+  
+.example-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 20px;
+}
+  
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-sort-header-sorted {
+  color: black;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.example-button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 25px;
+}
+
+.mat-cell, .mat-header-cell {
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+mat-cell, .mat-cell {
+  display:block; // flex prevents padding from working
+  min-height:auto; // overrides the 'inherit' that set the min height of the row
+  padding: 12px 14px 12px 12px;
+}
+
+.mat-datepicker-toggle {
+  position: absolute;
+  top: -5px;
+  right: 0;
+}
+
+.cdr_filter {
+  display: block;
+  // flex-direction: row;
+}
+
+.cdr_filter .field {
+  margin-right: 2%;
+  margin-left: auto;
+  display: inline-block;
+  width: 23.5%;
+  // flex-grow: 1;
+}
+.cdr_filter .field:last-child{
+  margin-right: 0;
+}
+
+.cdr_filter .btn {
+  margin-right: 2%;
+  width: auto;
+  // display: flex;
+}
+
+.cdr_filter .btn.pull_right {
+  // align-items: flex-end;
+  position: absolute;
+  right: 0;
+}

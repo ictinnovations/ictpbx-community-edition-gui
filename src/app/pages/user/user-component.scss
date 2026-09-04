@@ -1,0 +1,155 @@
+.example-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  max-height: 500px;
+}
+
+::ng-deep .mat-column-ID {
+  max-width: 6%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0.5;
+}
+
+::ng-deep .mat-column-company {
+  max-width: 12%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 4;
+}
+
+::ng-deep .mat-column-status {
+  max-width: 7%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0.5;
+}
+
+::ng-deep .mat-column-email {
+  flex: 2;
+  max-width: 61%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 35px;
+  margin-right: 5px;
+  text-align: left;
+}
+
+::ng-deep .mat-column-operations {
+  flex: 0 0 auto;
+  max-width: 10%;
+  overflow: hidden;
+  text-align: right;
+  padding-right: 16px;
+  margin-left: auto;
+}
+
+::ng-deep .mat-column-first_name {
+  flex: 0 0 auto;
+  max-width: 10%;
+  overflow: hidden;
+  text-align: right;
+  padding-right: 16px;
+  margin-left: auto;
+}
+
+::ng-deep .mat-column-status,
+::ng-deep .mat-column-email,
+::ng-deep .mat-column-first_name,
+::ng-deep .mat-column-Account_status,
+::ng-deep .mat-column-user_role {
+  flex: 0.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.example-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 20px;
+}
+
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-sort-header-sorted {
+  color: black;
+}
+
+.active {
+  color: green;
+  font-weight: bold;
+}
+
+.login {
+  color: green;
+  font-weight: bold;
+}
+
+.inactive {
+  color: red;
+  font-weight: bold;
+}
+
+.logout {
+  color: red;
+  font-weight: bold;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.example-button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+}
+
+.mat-cell,
+.mat-header-cell {
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+a:hover {
+  color: rgb(10, 238, 10);
+}
+
+.fa-trash:hover {
+  color: rgb(138, 4, 4);
+}
+
+.mat-input-container {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+  margin-top: 8px;
+}
+
+.cc {
+  width: 40%;
+}
+
+table {
+  width: 100%;
+}

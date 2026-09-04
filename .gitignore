@@ -83,3 +83,6 @@ ConferenceParticipantApi.php
 FeatureCodeApi.php
 ictcore_dialplan.xml
 ictcore_dialplan_download.xml
+
+# local SIP credential for the click-to-call ring test
+e2e/.sipcred

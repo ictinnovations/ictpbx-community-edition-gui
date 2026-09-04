@@ -75,10 +75,11 @@ export class CallFlowsFormComponent implements OnInit {
 
   private detectDestType(val: string): string {
     if (!val) return 'extension';
-    // Mailboxes are stored as the dialled *99<id>; older records hold the uuid.
+    // Destinations are stored as the routing number; records written before that
+    // change hold the uuid, so both are matched.
     if (this.pbxDest.isVoicemailDial(val)) return 'voicemail';
-    if (this.ringGroups.some(r => r.uuid === val)) return 'ring_group';
-    if (this.ivrMenus.some(r => r.uuid === val))   return 'ivr';
+    if (this.ringGroups.some(r => r.uuid === val || r.extension === val)) return 'ring_group';
+    if (this.ivrMenus.some(r => r.uuid === val || r.extension === val))   return 'ivr';
     if (this.voicemails.some(r => r.uuid === val)) return 'voicemail';
     return 'extension';
   }
@@ -92,12 +93,13 @@ export class CallFlowsFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Every destination is stored as the number that routes it. The generated dialplan
+   * emits this value straight into `transfer <value> XML ictcore`, so a uuid — which is
+   * what ring group and IVR targets used to store — could never be dialled.
+   */
   destValue(type: string, opt: DestOption): string {
-    // Voicemail is dialled, not referenced by uuid — and it is reached at *99<mailbox>,
-    // not by its bare id.
-    return (type === 'extension' || type === 'voicemail')
-      ? this.pbxDest.dialValue(type, opt)
-      : opt.uuid;
+    return this.pbxDest.dialValue(type, opt);
   }
 
   onOpenTypeChange()  { this.item.call_flow_data           = ''; }

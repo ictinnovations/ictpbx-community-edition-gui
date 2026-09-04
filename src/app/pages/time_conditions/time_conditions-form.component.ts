@@ -79,12 +79,13 @@ export class TimeConditionsFormComponent implements OnInit {
     return 'extension';
   }
 
+  /**
+   * Every destination is stored as the number that routes it. The generated dialplan
+   * emits this value straight into `transfer <value> XML ictcore`, so a uuid — which is
+   * what ring group and IVR targets used to store — could never be dialled.
+   */
   destValue(type: string, opt: DestOption): string {
-    // Voicemail is dialled, not referenced by uuid — and it is reached at *99<mailbox>,
-    // not by its bare id.
-    return (type === 'extension' || type === 'voicemail')
-      ? this.pbxDest.dialValue(type, opt)
-      : opt.uuid;
+    return this.pbxDest.dialValue(type, opt);
   }
 
   destList(type: string): DestOption[] {

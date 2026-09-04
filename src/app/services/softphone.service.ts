@@ -51,12 +51,12 @@ export class SoftphoneService {
     return `ws://${host}/ws/`;
   }
 
-  // The SIP registration domain is always the web host: it matches the FreeSWITCH
-  // directory domain (the public domain on TLS installs, the server IP otherwise)
-  // and force-register-domain. Deriving it removes the hand-typed-domain typo that
-  // silently registers an extension under a domain the dialplan never looks up.
+  // Each tenant now has its own FreeSWITCH <domain>, so the web host is only the right
+  // registration domain for the tenant whose domain happens to match it. The softphone
+  // panel resolves the extension's own domain and caches it here; the web host remains
+  // the fallback, which is correct for a single-tenant install.
   defaultDomain(): string {
-    return window.location.hostname;
+    return localStorage.getItem('sip_domain') || window.location.hostname;
   }
 
   // ── UA lifecycle ──────────────────────────────────────────────────────────

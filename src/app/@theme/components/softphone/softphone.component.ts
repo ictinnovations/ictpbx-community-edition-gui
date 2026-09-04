@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { SoftphoneService, CallState, SipConfig } from '../../../services/softphone.service';
+import { AppService } from '../../../app.service';
 
 @Component({
   selector: 'ngx-softphone',
@@ -25,7 +27,30 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
 
   private subs: Subscription[] = [];
 
-  constructor(public phone: SoftphoneService) {}
+  constructor(
+    public phone: SoftphoneService,
+    private http: Http,
+    private app: AppService,
+  ) {}
+
+  /**
+   * Cache this user's own SIP domain. Tenants each have their own FreeSWITCH <domain>,
+   * so registering at the web host only works for the tenant whose domain matches it.
+   * Failure is non-fatal: defaultDomain() falls back to the web host.
+   */
+  private resolveSipDomain(): Promise<void> {
+    const headers = new Headers();
+    this.app.createAuthorizationHeader(headers);
+    return this.http.get(`${this.app.apiUrlAccounts}/my`, new RequestOptions({ headers })).toPromise()
+      .then(res => {
+        const rows = res.json();
+        const withDomain = Array.isArray(rows) ? rows.find((r: any) => r && r.pbx_domain) : null;
+        if (withDomain && withDomain.pbx_domain) {
+          localStorage.setItem('sip_domain', withDomain.pbx_domain);
+        }
+      })
+      .catch(() => { /* keep the web-host fallback */ });
+  }
 
   ngOnInit() {
     // Browser WebRTC needs a secure context (HTTPS or localhost). On a bare-IP /
@@ -35,15 +60,19 @@ export class SoftphoneComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const saved = this.phone.loadConfig();
-    if (saved) {
-      this.cfg = { ...saved };
-      this.cfg.domain = this.phone.defaultDomain();
-      this.phone.register(this.cfg);
-    } else {
-      this.cfg.domain = this.phone.defaultDomain();
-      this.cfg.wsUri = this.phone.defaultWsUri();
-    }
+    // Resolve the tenant's SIP domain before registering, so the REGISTER lands in the
+    // extension's own FreeSWITCH domain rather than whichever one the web host names.
+    this.resolveSipDomain().then(() => {
+      const saved = this.phone.loadConfig();
+      if (saved) {
+        this.cfg = { ...saved };
+        this.cfg.domain = this.phone.defaultDomain();
+        this.phone.register(this.cfg);
+      } else {
+        this.cfg.domain = this.phone.defaultDomain();
+        this.cfg.wsUri = this.phone.defaultWsUri();
+      }
+    });
 
     this.subs.push(this.phone.registered$.subscribe(v => this.registered = v));
     this.subs.push(this.phone.callState$.subscribe(v => { this.callState = v; if (v === 'ringing') this.open = true; if (v === 'idle') { this.showTransfer = false; this.transferDest = ''; } }));

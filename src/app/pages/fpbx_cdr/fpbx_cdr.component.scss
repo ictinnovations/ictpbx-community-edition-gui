@@ -1,0 +1,64 @@
+.example-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  max-height: 500px;
+}
+
+.example-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 20px;
+}
+
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.mat-sort-header-sorted {
+  color: black;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.mat-cell, .mat-header-cell {
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+mat-cell, .mat-cell {
+  display: block;
+  min-height: auto;
+  padding: 12px 14px 12px 12px;
+}
+
+.cdr_filter {
+  display: block;
+}
+
+.cdr_filter .field {
+  margin-right: 2%;
+  margin-left: auto;
+  display: inline-block;
+  width: 23.5%;
+}
+.cdr_filter .field:last-child {
+  margin-right: 0;
+}
+
+.cdr_filter .btn {
+  margin-right: 2%;
+  width: auto;
+}

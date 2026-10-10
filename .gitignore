@@ -1,0 +1,88 @@
+# compiled output
+/dist
+/tmp
+/.tmp
+/out-tsc
+
+# E2E local credentials — never commit (copy test-secrets.example.ts)
+e2e/test-secrets.ts
+
+# stray local junk
+'
+*.php.tmp
+*.conf.tmp
+UsersSuper*
+.backend-work/
+tutorial-logs/
+
+# dependencies
+/node_modules
+
+# IDEs and editors
+.angular
+/.angular
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+/docs
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Separate branch / project — not part of main frontend repo
+installer-modular/
+
+# Sensitive / local only
+git-token
+access.txt
+abc.txt
+internal-docs/git-plan.md
+internal-docs/demo.md
+internal-docs/future-plan.md
+.claude/
+.scratch/
+
+# Generated test artifacts
+/playwright-report/
+/playwright-report-*/
+/test-results/
+/e2e/screenshots/
+playwright-screenshots/
+proposal.md
+ictcore-install.sh
+
+# Server config/PHP files downloaded locally during testing — not part of frontend
+webrtc_users.xml
+00_local_ext.xml
+ConferenceParticipantApi.php
+FeatureCodeApi.php
+ictcore_dialplan.xml
+ictcore_dialplan_download.xml
+
+# local SIP credential for the click-to-call ring test
+e2e/.sipcred

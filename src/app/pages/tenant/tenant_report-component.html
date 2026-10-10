@@ -1,0 +1,257 @@
+
+<ng-template #deleteTemplate let-data>
+  <div>
+    <p>{{'transmission.delete' | translate}}</p>
+    <button nbButton status="danger" (click)="deleteUser(data.user_id)">{{'transmission.yes' | translate}}</button>
+    <button nbButton (click)="closeModal()">{{'transmission.no' | translate}}</button>
+  </div>
+</ng-template>
+
+<h3 style="text-align:center" class="tenant-header"></h3>
+  {{ 'Tenant.MainHeading' | translate }}
+
+  <ng-template [ngIf]="!isUser">
+    <button mat-icon-button class="customiza-btn" *ngIf="edit_cards; else elseButton">
+      <mat-icon (click)="saveCustomize()"><nb-icon icon="checkmark-outline" title="Save Customization" class="icon"></nb-icon></mat-icon>
+      &nbsp;&nbsp;<mat-icon (click)="doCustomize()"><nb-icon icon="close-outline" title="Cancel Customization" class="icon"></nb-icon></mat-icon>
+    </button>
+    <ng-template #elseButton>
+      <button mat-icon-button class="customiza-btn">
+        <mat-icon (click)="doCustomize()"><nb-icon icon="settings-2-outline" title="Customize Dashboard" class="icon"></nb-icon></mat-icon>
+      </button>
+    </ng-template>
+  </ng-template>
+<br>
+
+
+<div class="row" *ngIf="edit_cards; else elseBlock" cdkDropList (cdkDropListDropped)="drop($event)">
+  <div class="col-xxxl-6 col-md-6 card-item moveable" *ngFor="let cardItem of selectedCardItems; let i=index" cdkDragData="{{ cardItem.name }}" cdkDrag (click)="cardClick(cardItem.id)">
+    <ngx-status-card title="{{ cardItem.title | translate }}" type="{{ cardItem.type }}" >
+      <span style="font-size:30px"> {{ cardItem.total }}</span>
+    </ngx-status-card>
+    <nb-icon icon="close" class="close-outline" aria-label="close" (click)="deleteWidget(i)" type="button"></nb-icon>
+  </div>
+</div>
+<ng-template #elseBlock>
+  <div class="row">
+    <div class="col-xxxl-6 col-md-6 card-item" *ngFor="let cardItem of savedCardItems; let i=index" (click)="cardClick(cardItem.id)">
+      <ngx-status-card title="{{ cardItem.title | translate }}" type="{{ cardItem.type }}" >
+        <span style="font-size:30px"> {{ cardItem.total }}</span>
+      </ngx-status-card>
+    </div>
+  </div>
+</ng-template>
+<br>
+<br>
+
+
+
+<nb-card *ngIf="users" >
+  <nb-card-header>
+    {{ 'Tenant.list' | translate}}
+    <input style="float:right" class="form-control cc" type="text" #filter placeholder="{{ 'Tenant.filter' | translate}}">
+  </nb-card-header>
+
+  <nb-card-body>
+
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="user" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header >{{ 'general.ID' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            {{tenant.user_id}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.fname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.first_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="last_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.lname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.last_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="total_send">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.total_send' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.total_send}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="total_inbound">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.total_inbound' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.total_inbound}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="roles">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.roles' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.roles}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            <button mat-icon-button color="primary" style="font-size:20px" title="Edit">
+              <a [routerLink]="['/pages/user/user', user.user_id]">
+                <nb-icon icon="edit-2-outline"></nb-icon>
+              </a>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px" (click)="showStaticModal(deleteTemplate, user.first_name, user.user_id)" title="Delete">
+              <nb-icon icon="trash-2-outline" style="color: red;"></nb-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTemplate let-data>
+  <div>
+    <p>{{'tenant.delete' | translate}}</p>
+    <button nbButton status="danger" (click)="deleteUser(data.user_id)">{{'tenant.yes' | translate}}</button>
+    <button nbButton (click)="closeModal()">{{'tenant.no' | translate}}</button>
+  </div>
+</ng-template>
+
+<nb-card *ngIf="dids">
+  <nb-card-header>
+    {{ 'dids.list' | translate }}
+  </nb-card-header>
+
+  <nb-card-body>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aDID" matSort>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header >{{ 'dids.number' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did">
+            {{did.phone}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'my_dids.title' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            {{did.first_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="company">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'user.company' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            {{did.company}}</mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="did_displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:did_displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "did_length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="outfax">
+  <nb-card-header>
+    {{ 'outbound_fax.title' | translate }}
+  </nb-card-header>
+
+  <nb-card-body>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aSendFax" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'general.ID' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let sendfax">
+            {{sendfax.transmission_id}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.phone_num' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let sendfax">
+            {{sendfax.contact_phone}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Timestamp">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.date_time' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let sendfax">
+            {{sendfax.last_run * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="username">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.username' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let sendfax" style="text-align:left">
+            {{sendfax.username}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'transmission.status' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let sendfax" class="{{sendfax.status}}" style="text-align:left">
+            {{sendfax.status}}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="senfax_displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:senfax_displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "sendfax_length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card *ngIf="infax">
+  <nb-card-header>
+    {{ 'general.inbound_fax' | translate}}
+  </nb-card-header>
+
+  <nb-card-body>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aInFax" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'general.ID' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax">
+            {{infax.transmission_id}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.phone_num' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax" style="text-align:left">
+            {{infax.contact_phone}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'transmission.status' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax" style="text-align:left">
+            {{infax.status}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Timestamp">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.date_time' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax">
+            {{infax.last_run * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="infax_displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:infax_displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "infax_length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>

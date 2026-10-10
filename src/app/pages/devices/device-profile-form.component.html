@@ -1,0 +1,39 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Device Profile' : 'Add Device Profile' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Device Profile saved successfully.</div>
+
+    <nb-card>
+      <nb-card-header>Profile Information</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Profile Name *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="profile.device_profile_name" placeholder="Default Profile" required>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="profile.device_profile_description" placeholder="Profile description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="profile.device_profile_enabled">Active</nb-checkbox>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/devices/profiles']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

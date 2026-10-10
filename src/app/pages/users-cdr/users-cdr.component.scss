@@ -1,0 +1,28 @@
+.cdr_filter {
+  display: block;
+  // flex-direction: row;
+}
+
+.cdr_filter .field {
+  margin-right: 2%;
+  margin-left: auto;
+  display: inline-block;
+  width: 23.5%;
+  // flex-grow: 1;
+}
+
+.cdr_filter .field:last-child {
+  margin-right: 0;
+}
+
+.cdr_filter .btn {
+  margin-right: 2%;
+  width: auto;
+  // display: flex;
+}
+
+.cdr_filter .btn.pull_right {
+  // align-items: flex-end;
+  position: absolute;
+  right: 0;
+}

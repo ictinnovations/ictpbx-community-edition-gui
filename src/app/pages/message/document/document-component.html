@@ -1,0 +1,225 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'document.list' | translate}}
+  </nb-card-header>
+
+  <nb-card-body>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      [routerLink]="['/pages/message/document/new']"><i class="fa fa-plus"></i> {{ 'document.add' | translate}}</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      (click)="openSearchModal(searchTemplate_Doc)"><i class="fa fa-search"></i> Search</button>
+    &nbsp;&nbsp;
+    <br>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aDocument" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'general.ID' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let document">
+            {{document.document_id}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'document.document_name' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let document" style="text-align:left">
+            {{document.name}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let document">
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/message/document/{{document.document_id}}" title="Edit"><nb-icon
+                    icon="edit-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon (click)="showPDF(pdfViewerTemplate, document.document_id)"><nb-icon icon="eye-outline"
+                  title="View Document"></nb-icon></mat-icon>
+
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon (click)="downloadDocument(document.document_id)"><nb-icon icon="download-outline"
+                  title="Download"></nb-icon></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon style="color:red"
+                (click)="showStaticModal(deleteTemplate, document.name, document.document_id)"><nb-icon
+                  icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon (click)="open(content, document.document_id)"><nb-icon icon="paper-plane-outline"
+                  title="Send Fax"></nb-icon></mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+<ng-template #content let-modal>
+  <div class="modal-wrapper">
+    <div class="modal-body">
+      <div class="col-sm-16">
+        <div class="form-group">
+          <label for="title">{{ 'transmission.title' | translate}}:</label>
+          <input [(ngModel)]="sendfax.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+            id="title" required />
+        </div>
+      </div>
+
+      <div class="col-sm-16">
+        <div class="form-group">
+          <label for="phone">{{ 'transmission.phone_num_destination_contact' | translate}}:</label>
+          <ng2-completer [inputClass]="'form-control form-control-inline'" [(ngModel)]="sendfax.phone" name="phone"
+            [datasource]="dataService" (selected)="onSelected($event)" [minSearchLength]="0"></ng2-completer>
+        </div>
+      </div>
+
+
+
+      <div class="row">
+        <nb-card class="container-fluid">
+          <nb-card-header>
+            {{ 'transmission.permission' | translate }}
+          </nb-card-header>
+          <nb-card-body>
+            <div class="row">
+              <div class="col-6">
+                <input type="checkbox" [(ngModel)]="sendheader" [ngModelOptions]="{standalone:true}">
+                {{ 'fax_settings.header' | translate }}
+              </div>
+              <div class="col-6">
+                <input type="checkbox" [(ngModel)]="sendfax.personalize_fax" [ngModelOptions]="{standalone:true}">
+                Personalized Fax
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6">
+                <input type="checkbox" [(ngModel)]="sendcover" [ngModelOptions]="{standalone:true}">
+                {{ 'fax_settings.cover' | translate }}
+
+                <div *ngIf="sendcover" class="mt-2">
+                  <select class="form-control" [(ngModel)]="documentProgram.cover_id"
+                    [ngModelOptions]="{standalone:true}">
+                    <option value="0">
+                      {{ 'cover_page.select_coverpage' | translate }}
+                    </option>
+
+                    <option *ngFor="let cov of coverArray" [value]="cov.coverpage_id">
+                      {{ cov.title }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <input type="checkbox" [(ngModel)]="retry" [ngModelOptions]="{standalone:true}"> {{ 'transmission.retry'
+                | translate}}:
+                <div *ngIf="retry" class="mt-2">
+                  <select class="form-control" [(ngModel)]="sendfax.try_allowed" [ngModelOptions]="{standalone:true}">
+                    <option value="">{{ 'transmission.please_select_an_option_below' | translate}}</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+              </div>
+
+
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </div>
+
+
+
+      <br>
+      <div class="col-sm-6">
+        <button type="button" class="btn btn-success" (click)="addSendDocument()"
+          [disabled]="(this.sendfax.phone === undefined || this.sendfax.phone === '')">{{ 'transmission.fax.title' |
+          translate}}!</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<ng-template #pdfViewerTemplate>
+  <button class="btn btn-sm" (click)="zoomOut()"><nb-icon icon="minimize-outline" title="Zoom Out"
+      style="cursor: pointer;">
+    </nb-icon>
+  </button>
+  <button class="btn btn-sm" (click)="zoomIn()"><nb-icon icon="maximize-outline" title="Zoom In"
+      style="cursor: pointer;">
+    </nb-icon>
+  </button>
+  <div class="modal-wrapper">
+    <div class="modal-body">
+      <div class="pdf-loading">{{ 'transmission.loading_please_wait' | translate}}</div>
+      <ng-template [ngIf]="totalPages > 1">
+        <div class="pagination">
+          <button class="prv-page" (click)="previousPage()" [disabled]="page === 1">
+            < Previous </button>
+              <button class="nxt-page" (click)="nextPage()" [disabled]="totalPages === 1 || page === totalPages">
+                Next >
+              </button>
+              <p class="all-pages">Pages {{ page }} / {{ totalPages }}</p>
+        </div>
+      </ng-template>
+
+      <pdf-viewer [src]="faxDocumentURL" [zoom]="zoom" [render-text]="true" [original-size]="false" [show-all]="false"
+        [page]="page" (after-load-complete)="afterLoadComplete($event)"
+        style="width: 100%; height: 65vh; overflow-x: hidden!important;">
+      </pdf-viewer>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deleteTemplate let-data>
+  <div class="delete-dialog">
+
+    <div class="delete-header">
+      <nb-icon icon="alert-triangle-outline"></nb-icon>
+      <h4>{{ 'transmission.delete_title' | translate }}</h4>
+    </div>
+
+    <p class="delete-message">
+      {{ 'transmission.delete' | translate }}
+    </p>
+
+    <div class="delete-actions gap-2">
+      <button nbButton status="primary" size="medium" class="mr-4" (click)="deleteDocument(data.document_id)">
+        {{ 'transmission.yes' | translate }}
+      </button>
+
+      <button nbButton status="basic" size="medium" (click)="onclose()">
+        {{ 'transmission.no' | translate }}
+      </button>
+    </div>
+
+  </div>
+</ng-template>
+
+<ng-template #searchTemplate_Doc let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Document Filter</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="text" [(ngModel)]="value" class="form-control" placeholder="Filter Documents" />
+    <select [(ngModel)]="key" class="form-control mt-2">
+      <option value="" disabled hidden>Select Type Search</option>
+      <option value="name">File Name</option>
+      <option value="email">User Email</option>
+      <option value="username">Username</option>
+    </select>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="mr-2" mat-raised-button color="primary" style="font-size:15px;"
+      (click)="resetsearch(modal)"> Reset</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      (click)="searchDoc(modal)">Search</button>
+  </div>
+</ng-template>

@@ -1,0 +1,71 @@
+@import '../@theme/styles/themes';
+
+@include nb-install-component() {
+  ::ng-deep router-outlet + * {
+    display: block;
+    animation: fade 1s;
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.alert-btn{
+  position:fixed;
+  bottom : 0px;
+  z-index:10;
+  opacity:0.7;
+  right : 0px;
+}
+.announcement {
+  z-index:50;
+  position: fixed;
+  right: 0;
+  // background-color:white;
+  width:250px;
+  bottom: 0;
+  transform: translateY(100%); /* Start off the screen */
+  animation: slide-up 1s forwards;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%); /* Starting position (off screen) */
+    opacity:0;
+  }
+  to {
+    transform: translateY(0); /* Ending position (visible on screen) */
+    opacity:1;
+  }
+}
+
+.pmsg{
+  // background-color:rgb(231, 231, 231);
+  // color:black;
+  text-align:justify;
+}
+.no-bg {
+  background-color: transparent; /* Ensures no background color is applied */
+}
+
+.alertheader {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  height: 50px; /* Adjust height as needed */
+  // background: linear-gradient(to right, #6790db, #1b4ea7);
+  // background-color: #333; /* Background color for visibility */
+  position: relative;
+}
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}

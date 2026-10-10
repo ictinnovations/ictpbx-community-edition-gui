@@ -1,0 +1,23 @@
+<nb-card>
+    <nb-card-header>
+        Announcement
+    </nb-card-header>
+    <nb-card-body>
+<div class="form-group col-md-6">
+    <label for="title">Title:</label>
+    <input  type="text" class="form-control" id="title"  [(ngModel)]="announcement.title" [ngModelOptions]="{standalone: true}"
+    required/>
+</div>
+
+<div class="form-group col-md-6">
+    <label for="desc">Message</label>
+    <textarea class="form-control" id="desc" rows="5" [(ngModel)]="announcement.message" [ngModelOptions]="{standalone: true}"></textarea>
+  </div>
+
+
+</nb-card-body>
+</nb-card>
+
+<div>
+    <button class="btn btn-success" (click) = "addannouncement()" [disabled]="!announcement.title || !announcement.message">Submit</button>
+  </div>

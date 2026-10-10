@@ -1,0 +1,111 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit' : 'Add' }} Follow Me</nb-card-header>
+  <nb-card-body>
+    <nb-alert *ngIf="isError" status="danger" closable (close)="isError=false">
+      <p *ngFor="let e of errorText">{{ e }}</p>
+    </nb-alert>
+    <nb-alert *ngIf="isSuccess" status="success">Saved successfully.</nb-alert>
+
+    <nb-tabset>
+      <nb-tab tabTitle="Settings">
+        <div class="form-group row" style="margin-top:16px">
+          <label class="col-sm-3 label">Extension</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="item.extension_uuid">
+              <option value="">— Select extension —</option>
+              <option *ngFor="let o of extensions" [value]="o.uuid">{{ o.label }}</option>
+            </select>
+            <small class="text-muted">Select the extension this Follow Me rule applies to</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Caller ID Name Prefix</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.cid_name_prefix" placeholder="e.g. FM:"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Caller ID Number Prefix</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.cid_number_prefix" placeholder="e.g. 1"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Dial String</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="item.dial_string" placeholder="Optional custom dial string">
+            <small class="text-muted">Leave blank — destinations below build the dial string automatically</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Enabled</label>
+          <div class="col-sm-9"><nb-checkbox [(ngModel)]="item.follow_me_enabled">Enable Follow Me</nb-checkbox></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Ignore Busy</label>
+          <div class="col-sm-9"><nb-checkbox [(ngModel)]="item.follow_me_ignore_busy">Continue ringing if busy</nb-checkbox></div>
+        </div>
+      </nb-tab>
+
+      <nb-tab tabTitle="Destinations">
+        <div style="margin:16px 0">
+          <button nbButton size="small" status="primary" (click)="addDestination()">
+            <nb-icon icon="plus-outline"></nb-icon> Add Destination
+          </button>
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="border-bottom:1px solid #eee;text-align:left">
+              <th style="padding:6px">Destination</th>
+              <th style="padding:6px">Delay (s)</th>
+              <th style="padding:6px">Timeout (s)</th>
+              <th style="padding:6px">Prompt</th>
+              <th style="padding:6px">Order</th>
+              <th style="padding:6px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of item.destinations; let i = index" style="border-bottom:1px solid #f5f5f5">
+              <td style="padding:4px">
+                <ng-container *ngIf="!isExternalDest(i)">
+                  <select nbSelect [(ngModel)]="d.follow_me_destination" style="width:170px">
+                    <option value="">— Select extension —</option>
+                    <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                  </select>
+                  <a href="javascript:void(0)" (click)="toggleExternal(i)" style="display:block;font-size:11px;margin-top:2px">External number?</a>
+                </ng-container>
+                <ng-container *ngIf="isExternalDest(i)">
+                  <input nbInput [(ngModel)]="d.follow_me_destination" placeholder="+15551234567" style="width:160px">
+                  <a href="javascript:void(0)" (click)="toggleExternal(i)" style="display:block;font-size:11px;margin-top:2px">Pick extension</a>
+                </ng-container>
+              </td>
+              <td style="padding:4px">
+                <input nbInput type="number" [(ngModel)]="d.follow_me_delay" style="width:70px">
+              </td>
+              <td style="padding:4px">
+                <input nbInput type="number" [(ngModel)]="d.follow_me_timeout" style="width:70px">
+              </td>
+              <td style="padding:4px">
+                <nb-select [(ngModel)]="d.follow_me_prompt">
+                  <nb-option value="false">No</nb-option>
+                  <nb-option value="true">Yes</nb-option>
+                </nb-select>
+              </td>
+              <td style="padding:4px">
+                <input nbInput type="number" [(ngModel)]="d.follow_me_order" style="width:60px">
+              </td>
+              <td style="padding:4px">
+                <button nbButton ghost size="tiny" status="danger" (click)="removeDestination(i)">
+                  <nb-icon icon="trash-2-outline"></nb-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="item.destinations.length === 0">
+              <td colspan="6" style="padding:12px;text-align:center;color:#aaa">No destinations — click Add to create one</td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-tab>
+    </nb-tabset>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">Save</button>
+    <button nbButton ghost [routerLink]="['/pages/follow_me/follow_me']" style="margin-left:8px">Cancel</button>
+  </nb-card-footer>
+</nb-card>

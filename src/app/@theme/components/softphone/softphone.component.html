@@ -1,0 +1,133 @@
+<div class="softphone-wrapper">
+  <!-- Trigger button -->
+  <button class="phone-btn" (click)="toggle()" [class.has-incoming]="callState === 'ringing'" title="Softphone">
+    <nb-icon [icon]="callState === 'ringing' ? 'phone-call-outline' : 'phone-outline'"></nb-icon>
+    <span class="status-dot" [class]="statusClass"></span>
+  </button>
+
+  <!-- Floating panel -->
+  <div class="softphone-panel" *ngIf="open">
+
+    <!-- Header bar -->
+    <div class="sp-header">
+      <span class="sp-status" [class]="statusClass">{{ statusLabel }}</span>
+      <span *ngIf="cfg.user" class="sp-user">{{ cfg.user }}&#64;{{ cfg.domain }}</span>
+      <button class="sp-close" (click)="toggle()">&#x2715;</button>
+    </div>
+
+    <!-- ── Browser webphone unavailable (insecure context) ── -->
+    <div *ngIf="!secureContext" class="sp-body sp-notice">
+      <nb-icon icon="alert-triangle-outline" class="notice-icon"></nb-icon>
+      <p class="notice-title">In-browser phone unavailable</p>
+      <p class="notice-text">
+        The built-in dialer needs a secure connection (HTTPS with a domain).
+        On this server it can't access your microphone. Use an external SIP
+        softphone such as <strong>Zoiper</strong> or <strong>Linphone</strong>:
+      </p>
+      <ul class="notice-creds">
+        <li><span>Server</span><code>{{ serverHost }}</code></li>
+        <li><span>Port</span><code>5080</code></li>
+        <li><span>Transport</span><code>UDP</code></li>
+        <li><span>Username</span><code>your extension (e.g. 1001)</code></li>
+        <li><span>Password</span><code>your SIP password</code></li>
+      </ul>
+      <p class="notice-text notice-foot">
+        Ask your administrator to set up a domain + SSL to enable the in-browser
+        phone.
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sp-tabs" *ngIf="secureContext">
+      <button [class.active]="activeTab === 'dialer'" (click)="activeTab = 'dialer'">Dialer</button>
+      <button [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">Settings</button>
+    </div>
+
+    <!-- ── DIALER TAB ── -->
+    <div *ngIf="secureContext && activeTab === 'dialer'" class="sp-body">
+
+      <!-- Incoming call UI -->
+      <div class="incoming-call" *ngIf="callState === 'ringing'">
+        <nb-icon icon="phone-incoming-outline" class="ring-icon"></nb-icon>
+        <p class="caller-id">{{ callerInfo || 'Unknown' }}</p>
+        <div class="incoming-actions">
+          <button class="btn-answer" (click)="phone.answer()">
+            <nb-icon icon="phone-outline"></nb-icon>
+          </button>
+          <button class="btn-reject" (click)="phone.reject()">
+            <nb-icon icon="phone-off-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active call UI -->
+      <div class="active-call" *ngIf="callState === 'active' || callState === 'calling'">
+        <p class="caller-id">{{ callerInfo }}</p>
+        <p class="call-status">{{ callState === 'calling' ? 'Calling...' : (held ? 'On Hold' : 'Connected') }}</p>
+        <div class="call-actions">
+          <button class="btn-mute" [class.active-btn]="muted" (click)="phone.toggleMute()" title="Mute/Unmute">
+            <nb-icon [icon]="muted ? 'mic-off-outline' : 'mic-outline'"></nb-icon>
+          </button>
+          <button class="btn-hold" [class.active-btn]="held" (click)="phone.toggleHold()" [title]="held ? 'Unhold' : 'Hold'">
+            <nb-icon [icon]="held ? 'play-circle-outline' : 'pause-circle-outline'"></nb-icon>
+          </button>
+          <button class="btn-transfer" [class.active-btn]="showTransfer" (click)="startTransfer()" title="Transfer" [disabled]="callState === 'calling'">
+            <nb-icon icon="swap-outline"></nb-icon>
+          </button>
+          <button class="btn-hangup" (click)="phone.hangup()" title="Hangup">
+            <nb-icon icon="phone-off-outline"></nb-icon>
+          </button>
+        </div>
+        <!-- Transfer input row -->
+        <div class="transfer-row" *ngIf="showTransfer">
+          <input type="text" class="transfer-input" [(ngModel)]="transferDest"
+                 placeholder="Extension or number" (keyup.enter)="doTransfer()" autofocus>
+          <button class="btn-xfer-ok" (click)="doTransfer()" [disabled]="!transferDest.trim()" title="Send">
+            <nb-icon icon="checkmark-outline"></nb-icon>
+          </button>
+          <button class="btn-xfer-cancel" (click)="cancelTransfer()" title="Cancel">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dial input + pad (shown when idle or active for DTMF) -->
+      <div *ngIf="callState === 'idle' || callState === 'active'">
+        <div class="dial-display">
+          <input type="text" [(ngModel)]="dialInput" placeholder="Enter number" class="dial-input"
+            (keyup.enter)="makeCall()" />
+          <button class="btn-bs" (click)="backspace()">&#x232B;</button>
+        </div>
+
+        <div class="dialpad">
+          <button *ngFor="let d of ['1','2','3','4','5','6','7','8','9','*','0','#']"
+            class="pad-btn" (click)="pressDigit(d)">{{ d }}</button>
+        </div>
+
+        <button *ngIf="callState === 'idle'" class="btn-call" (click)="makeCall()" [disabled]="!dialInput.trim()">
+          <nb-icon icon="phone-outline"></nb-icon> Call
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div *ngIf="secureContext && activeTab === 'settings'" class="sp-body sp-settings">
+      <label>Extension / Username</label>
+      <input type="text" [(ngModel)]="cfg.user" placeholder="e.g. 1001" class="sp-input" />
+
+      <label>SIP Password</label>
+      <input type="password" [(ngModel)]="cfg.password" placeholder="SIP password" class="sp-input" />
+
+      <label>Domain <span class="sp-hint">(auto — matches this server)</span></label>
+      <input type="text" [(ngModel)]="cfg.domain" class="sp-input" readonly />
+
+      <label>WebSocket URI</label>
+      <input type="text" [(ngModel)]="cfg.wsUri" placeholder="wss://host:7443" class="sp-input" />
+
+      <button class="btn-save" (click)="saveSettings()">Connect</button>
+      <button class="btn-disconnect" (click)="disconnect()" *ngIf="registered">Disconnect</button>
+    </div>
+
+  </div>
+</div>

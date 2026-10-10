@@ -1,0 +1,82 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'my_dids.did_title' | translate}}
+  </nb-card-header>
+
+  <nb-card-body>
+
+    <button class="mb-3" type="button" mat-raised-button color="primary" style="font-size:15px; margin-right: 10px;" 
+    (click)="openSearchModal(searchTemplate_IncomingNumber)"><i class="fa fa-search"></i> Search</button>
+<ng-template #searchTemplate_IncomingNumber let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'dids.search' | translate }}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input
+    class="form-control"
+    type="text"
+    [(ngModel)]="search"
+    placeholder="Search DID"
+  />  
+      <select [(ngModel)]="key" class="form-control mt-2">  
+      <option value="" disabled hidden>Select Type Search</option>
+      <option value="phone">DID Number</option>
+      <option value="first_name">Title</option>
+    </select>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="mr-2" mat-raised-button color="primary" style="font-size:15px;" (click)="resetsearch(modal)"> Reset</button>
+    <button type="button" mat-raised-button color="primary" (click)="search_IncomingNumber(modal)">Search</button> 
+  </div>
+</ng-template>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aNumbers" matSort>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'my_dids.did_number' | translate}}:</mat-header-cell>
+          <mat-cell *matCellDef="let in_num" style="text-align:left">
+            {{in_num.phone}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'my_dids.title' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let in_num" style="text-align:left">
+            {{in_num.first_name}}</mat-cell>
+        </ng-container>  
+        <ng-container matColumnDef="assigned_to">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'dids.assigned_to' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let did" style="text-align:left">
+            {{did.name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="forward_to"> 
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'my_dids.For___ward_to' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let in_num" style="text-align:left">
+            {{in_num.email}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let in_num">
+            <button mat-icon-button color="primary" style= "font-size:20px" *ngIf="isAdmin || isTenant">
+              <mat-icon><a routerLink="/pages/incoming_number/incoming_number/{{in_num.account_id}}" title="Edit"><i class="ion-edit"></i></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style= "font-size:20px" *ngIf="isAdmin || isTenant">
+              <mat-icon><a routerLink="/pages/incoming_number/incoming_number/{{in_num.account_id}}/forward" title="Forward"><i class="ion-forward"></i></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style= "font-size:20px" *ngIf="isAdmin || isTenant">
+              <mat-icon><a routerLink="/pages/incoming_number/incoming_number/{{in_num.account_id}}/assign" title="Assign"><i class="ion-person"></i></a></mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>

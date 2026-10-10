@@ -1,0 +1,89 @@
+<nb-card>
+  <nb-card-header class="d-flex justify-content-between align-items-center">
+    <span>API Keys</span>
+    <button nbButton size="small" status="primary" (click)="startNew()" *ngIf="!showForm">
+      <nb-icon icon="plus-outline"></nb-icon> New API Key
+    </button>
+  </nb-card-header>
+
+  <nb-card-body>
+    <nb-alert *ngIf="error" status="danger" closable (close)="error = ''">{{ error }}</nb-alert>
+
+    <nb-alert *ngIf="createdKey" status="success" closable (close)="dismissKey()">
+      <strong>Copy this key now — it will not be shown again.</strong>
+      <div class="key-reveal">
+        <code>{{ createdKey }}</code>
+        <button nbButton size="tiny" status="basic" (click)="copyKey()">
+          {{ copied ? 'Copied' : 'Copy' }}
+        </button>
+      </div>
+      <div class="muted mt-2">
+        Send it as the <code>X-API-Key</code> header on any API request.
+      </div>
+    </nb-alert>
+
+    <div *ngIf="showForm" class="new-key-form">
+      <div class="row">
+        <div class="col-md-4 form-group">
+          <label class="label">Name</label>
+          <input nbInput fullWidth type="text" [(ngModel)]="newName" placeholder="e.g. Billing sync">
+        </div>
+        <div class="col-md-3 form-group">
+          <label class="label">Rate limit (requests/min, 0 = unlimited)</label>
+          <input nbInput fullWidth type="number" min="0" [(ngModel)]="newRateLimit">
+        </div>
+        <div class="col-md-3 form-group">
+          <label class="label">Expires (optional)</label>
+          <input nbInput fullWidth type="date" [(ngModel)]="newExpires">
+        </div>
+        <div class="col-md-2 form-group d-flex align-items-end">
+          <button nbButton status="primary" size="small" (click)="create()" [disabled]="saving">
+            {{ saving ? 'Creating…' : 'Create' }}
+          </button>
+          <button nbButton status="basic" size="small" class="ml-2" (click)="cancelNew()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="muted">Loading…</div>
+    <div *ngIf="!loading && keys.length === 0" class="muted">
+      No API keys yet. Create one to allow programmatic access to the REST API.
+    </div>
+
+    <table class="table" *ngIf="!loading && keys.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Key</th>
+          <th>Rate limit</th>
+          <th>Status</th>
+          <th>Expires</th>
+          <th>Last used</th>
+          <th>Created</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let key of keys">
+          <td>{{ key.name }}</td>
+          <td><code>{{ key.key_prefix }}…</code></td>
+          <td>{{ key.rate_limit === 0 ? 'Unlimited' : key.rate_limit + '/min' }}</td>
+          <td>
+            <span class="status-pill" [class.on]="isActive(key)">
+              {{ isActive(key) ? 'Active' : 'Disabled' }}
+            </span>
+          </td>
+          <td>{{ key.expires || '—' }}</td>
+          <td>{{ key.last_used || 'Never' }}</td>
+          <td>{{ key.created }}</td>
+          <td class="text-right">
+            <button nbButton size="tiny" status="basic" (click)="toggleActive(key)">
+              {{ isActive(key) ? 'Disable' : 'Enable' }}
+            </button>
+            <button nbButton size="tiny" status="danger" class="ml-2" (click)="remove(key)">Revoke</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+</nb-card>

@@ -1,0 +1,54 @@
+
+<div class="form-control-group accept-group">
+    <p>{{ 'mfa.gapp' | translate }}</p>
+</div>
+
+<form id="form1" #f1="ngForm" aria-labelledby="title">
+
+    <nb-card *ngIf="!(user?.appsecret)">
+        <nb-card-body>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="qrCode">Scan this QR code with Google Authenticator Or use the secret::</label>
+                    <img [src]="mfa.qrCodeUrl" alt="QR Code">
+                </div>
+                <div class="form-group" style="display: flex;">
+                    <input type="text" [value]="mfa.totpSecret" readonly class="form-control">
+                    <i class="fa fa-copy" (click)="copySecret()" 
+                        style="font-size: 200%; background-color: #80808038;">
+                    </i>
+                </div>
+            </div>
+        </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+        <nb-card-body>
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="description">{{ 'mfa.vcode' | translate }}:</label>
+                    <input [(ngModel)]="mfa.verificationCode" name="verificationCode" type="text" class="form-control"
+                        id="verificationCode" required />
+                </div>
+                <div *ngIf="mfa.verificationError" class="alert alert-danger">
+                    {{ mfa.verificationError }}
+                </div>
+            </div>
+        </nb-card-body>
+
+        <div class="row">
+            <div class="col-sm-6" style=" display: flex; justify-content: end;">
+                <div class="form-group">
+                    <button id="MFAverify" type="button" class="btn btn-primary" (click)="verifySecret()"
+                    >{{ 'buttons.verify' | translate}}</button>
+                </div>
+            </div>
+        </div>
+    </nb-card>
+
+    <!-- <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="navigateToMFA()">
+        <i class="fa fa-arrow-left"></i>
+        {{ 'mfa.back' | translate }}
+    </button> -->
+
+</form>

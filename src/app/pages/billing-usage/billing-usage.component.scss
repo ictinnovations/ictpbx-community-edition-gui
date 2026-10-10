@@ -1,0 +1,12 @@
+nb-card {
+  margin-bottom: 0;
+}
+table th, table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-basic-color-3);
+  white-space: nowrap;
+}
+table th {
+  font-weight: 600;
+  background: var(--background-basic-color-2);
+}

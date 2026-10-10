@@ -1,0 +1,53 @@
+<nb-card>
+  <nb-card-header>
+    <span>Music on Hold</span>
+    <button nbButton status="primary" size="small" [routerLink]="['/pages/music_on_hold/music_on_hold/new']" style="float:right">
+      <nb-icon icon="plus-outline"></nb-icon> Add Entry
+    </button>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row mb-3" *ngIf="isAdmin">
+      <div class="col-auto">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="loadList()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <table class="table table-bordered">
+      <thead>
+        <tr><th>Name</th><th>Path</th><th>Shuffle</th><th *ngIf="isAdmin">Tenant</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items">
+          <td>{{ item.music_on_hold_name }}</td>
+          <td>{{ item.music_on_hold_path }}</td>
+          <td>{{ item.music_on_hold_shuffle }}</td>
+          <td *ngIf="isAdmin">{{ item.tenant_name || '—' }}</td>
+          <td>
+            <button nbButton ghost size="small" [routerLink]="['/pages/music_on_hold/music_on_hold', item.music_on_hold_uuid]">
+              <nb-icon icon="edit-2-outline" status="primary"></nb-icon>
+            </button>
+            <button nbButton ghost size="small" (click)="openDeleteDialog(item.music_on_hold_uuid, deleteDialog)">
+              <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="items.length === 0">
+          <td colspan="4" class="text-center text-muted">No entries found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data>
+  <nb-card>
+    <nb-card-header>Confirm Delete</nb-card-header>
+    <nb-card-body>Delete this music on hold entry?</nb-card-body>
+    <nb-card-footer>
+      <button nbButton status="danger" (click)="confirmDelete()">Delete</button>
+      <button nbButton ghost (click)="cancelDelete()">Cancel</button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

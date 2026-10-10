@@ -1,0 +1,217 @@
+<nb-card>
+  <nb-card-header>
+    {{ "statisticreport.title" | translate }}
+    <!-- <input style="float:right" class="form-control cc" type="text" #tagfilter
+      placeholder="{{ 'tag.filter' | translate}}"> -->
+  </nb-card-header>
+
+  <nb-card-body>
+    <div class="example-container cdr_filter">
+      <mat-form-field class="field">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date" />
+          <input matEndDate formControlName="end" placeholder="End date" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <div class="field" *ngIf="is_admin === 1">
+        <select class="form-control" name="tenant_id" (change)="onTenantSelect($event.target.value)">
+          <option value="0">All Tenant</option>
+          <option *ngFor="let tenant of tenants" value="{{ tenant.tenant_id }}">
+            {{ tenant.company }}
+            <ng-template [ngIf]="tenant.first_name">- {{ tenant.first_name }} {{ tenant.last_name }}</ng-template>
+          </option>
+        </select>
+      </div>
+
+      <div class="field" *ngIf="is_admin == 1 || is_tenant === 1">
+        <select class="form-control" name="user" (change)="onUserSelect($event.target.value)">
+          <option value="0">All User</option>
+          <option *ngFor="let user of users" value="{{ user.user_id }}">
+            {{ user.first_name }} {{ user.last_name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- <div class="field" *ngIf="is_admin == 1 || is_tenant === 1">
+          <select class="form-control" name="tuuid" (change)="onUIDSelect($event.target.value)">
+            <option value="0">All UID</option>
+            <option *ngFor="let tuUID of tuUIDs" value="{{ tuUID.combined_unique_id }}">
+              {{ tuUID.combined_unique_id }}
+            </option>
+          </select>
+        </div> -->
+
+      <div class="field">
+        <select class="form-control" name="direction" (change)="onDirectionSelect($event.target.value)">
+          <option value="">All Direction</option>
+          <option value="outbound">Outbound</option>
+          <option value="inbound">Inbound</option>
+        </select>
+      </div>
+
+      <div class="field" *ngIf="direction === 'inbound'">
+        <select class="form-control" name="is_read" (change)="onIsReadSelect($event.target.value)" [ngModel]="is_read"
+          *ngIf="direction === 'inbound'">
+          <option value="">All</option>
+          <option value="1">Marked</option>
+          <option value="0">UnMarked</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <select class="form-control" name="status" (change)="onStatusSelect($event.target.value)">
+          <option value="">All Status</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+    </div>
+    <br>
+
+    <div class="example-container cdr_filter">
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="filterList()">
+        <i class="fa fa-filter"></i> Filter Report
+      </button>
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="exportCDR()">
+        <i class="fa fa-file" title="CSV File download"></i>
+        {{ "cdr.export_to_csv" | translate }}
+      </button>
+      <!-- <button type="button" class="btn" mat-raised-button color="primary" (click)="exportCDR(true)">
+          <i class="fa fa-file" title="CSV File download"></i>
+          {{ "cdr.export_to_csv_monthly" | translate }}
+        </button> -->
+    </div>
+    <br /><br />
+
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aStat" matSort>
+        <!-- <ng-container matColumnDef="time_start">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{'cdr.time_start' | translate }}</mat-header-cell>
+            <mat-cell *matCellDef="let cdr">
+              {{cdr.time_start * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+            </mat-cell>
+          </ng-container> -->
+
+        <ng-container matColumnDef="time_connect">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.time" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.time_start * 1000 | date : dateFormat : 'UTC' }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="time_end">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+              "cdr.time_end" | translate
+            }}</mat-header-cell>
+            <mat-cell *matCellDef="let cdr" style="text-align: left">
+              {{ cdr.time_end * 1000 | date : "yyyy-MM-dd HH:mm:ss a" }}
+            </mat-cell>
+          </ng-container> -->
+
+        <ng-container matColumnDef="company">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.company" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.company }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="username">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.username" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.username }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="contact_phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.contact_phone" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.contact_phone }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="direction">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "cdr.direction" | translate }}
+          </mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left; color: rgb(66, 86, 197); font-weight: bold">
+            {{ cdr.direction }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="codec">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.codec" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left; font-weight: bold;">
+            {{ cdr.codec }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="account_phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.account_phone" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.account_phone }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "cdr.status" | translate }}
+          </mat-header-cell>
+          <mat-cell *matCellDef="let cdr" [ngStyle]="{
+                'color': cdr.status === 'completed' ? 'green' : cdr.status === 'failed' ? 'red' : 'black',
+                'font-weight': 'bold',
+                'text-align': 'left'
+              }">
+            {{ cdr.status }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="mapped_response">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "cdr.mapped_response" | translate }}
+          </mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left; font-weight: bold"
+            [ngStyle]="{'color': getColor(cdr.mapped_response)}">
+            {{ cdr.mapped_response }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="cost">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{'cdr.cost' | translate }}</mat-header-cell>
+            <mat-cell *matCellDef="let cdr" style="text-align:left">
+              {{cdr.cost}} 
+            </mat-cell>
+          </ng-container>
+  
+          -->
+        <ng-container matColumnDef="pages">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{
+            "cdr.pages" | translate
+            }}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align: left">
+            {{ cdr.pages }}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>

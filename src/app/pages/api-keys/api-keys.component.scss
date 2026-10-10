@@ -1,0 +1,37 @@
+.muted {
+  color: var(--text-hint-color);
+}
+
+.new-key-form {
+  margin-bottom: 1.5rem;
+}
+
+.key-reveal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  code {
+    word-break: break-all;
+  }
+}
+
+.table {
+  width: 100%;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-basic-transparent-200);
+  color: var(--text-hint-color);
+
+  &.on {
+    background: var(--color-success-transparent-200);
+    color: var(--color-success-600);
+  }
+}

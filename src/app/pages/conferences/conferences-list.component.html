@@ -1,0 +1,125 @@
+<nb-card>
+  <nb-card-header>
+    <span>Conference Centers</span>
+    <button nbButton status="primary" size="small" [routerLink]="['/pages/conferences/conferences/new']" style="float:right">
+      <nb-icon icon="plus-outline"></nb-icon> Add Conference
+    </button>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row mb-3" *ngIf="isAdmin">
+      <div class="col-auto">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="loadList()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Extension</th>
+          <th>PIN Length</th>
+          <th>Enabled</th>
+          <th *ngIf="isAdmin">Tenant</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of items">
+          <tr>
+            <td>{{ item.conference_center_name }}</td>
+            <td>{{ item.conference_center_extension }}</td>
+            <td>{{ item.conference_center_pin_length }}</td>
+            <td>
+              <nb-icon [icon]="(item.conference_center_enabled === true || item.conference_center_enabled === 'true') ? 'checkmark-circle-2-outline' : 'close-circle-outline'"
+                       [status]="(item.conference_center_enabled === true || item.conference_center_enabled === 'true') ? 'success' : 'danger'"></nb-icon>
+            </td>
+            <td *ngIf="isAdmin">{{ item.tenant_name || '—' }}</td>
+            <td>
+              <button nbButton ghost size="small"
+                      [status]="liveUuid === item.conference_center_uuid ? 'warning' : 'basic'"
+                      (click)="toggleLive(item.conference_center_uuid)"
+                      nbTooltip="Live Participants">
+                <nb-icon icon="people-outline"></nb-icon>
+              </button>
+              <button nbButton ghost size="small" [routerLink]="['/pages/conferences/conferences', item.conference_center_uuid]">
+                <nb-icon icon="edit-2-outline" status="primary"></nb-icon>
+              </button>
+              <button nbButton ghost size="small" (click)="openDeleteDialog(item.conference_center_uuid, deleteDialog)">
+                <nb-icon icon="trash-2-outline" status="danger"></nb-icon>
+              </button>
+            </td>
+          </tr>
+          <!-- Live participants panel -->
+          <tr *ngIf="liveUuid === item.conference_center_uuid">
+            <td [attr.colspan]="isAdmin ? 6 : 5" style="background:#f7f9fc;padding:12px">
+              <div class="d-flex align-items-center mb-2">
+                <strong style="margin-right:8px">Live: {{ item.conference_center_extension }}</strong>
+                <span *ngIf="liveLoading" class="text-muted" style="font-size:0.85em">Refreshing…</span>
+                <button nbButton ghost size="tiny" (click)="loadParticipants()" style="margin-left:auto">
+                  <nb-icon icon="refresh-outline"></nb-icon>
+                </button>
+              </div>
+              <div class="alert alert-danger p-2" *ngIf="liveError">{{ liveError }}</div>
+              <table class="table table-sm table-bordered mb-0" *ngIf="liveMembers.length > 0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Caller ID Name</th>
+                    <th>Number</th>
+                    <th>Status</th>
+                    <th>Controls</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let m of liveMembers">
+                    <td>{{ m.member_id }}</td>
+                    <td>{{ m.caller_id_name }}</td>
+                    <td>{{ m.caller_id_number }}</td>
+                    <td>
+                      <nb-icon [icon]="isMuted(m) ? 'mic-off-outline' : 'mic-outline'"
+                               [status]="isMuted(m) ? 'danger' : 'success'"></nb-icon>
+                      {{ m.status }}
+                    </td>
+                    <td>
+                      <button nbButton size="tiny" [status]="isMuted(m) ? 'success' : 'warning'"
+                              [disabled]="pendingAction === (isMuted(m) ? 'unmute-' : 'mute-') + m.member_id"
+                              (click)="controlParticipant(isMuted(m) ? 'unmute' : 'mute', m.member_id)"
+                              style="margin-right:4px">
+                        {{ isMuted(m) ? 'Unmute' : 'Mute' }}
+                      </button>
+                      <button nbButton size="tiny" status="danger"
+                              [disabled]="pendingAction === 'kick-' + m.member_id"
+                              (click)="controlParticipant('kick', m.member_id)">
+                        Kick
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p *ngIf="liveMembers.length === 0 && !liveLoading" class="text-muted mb-0" style="font-size:0.9em">
+                No active participants. Conference room is empty.
+              </p>
+              <small class="text-muted">Auto-refreshes every 5 seconds.</small>
+            </td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="items.length === 0">
+          <td colspan="5" class="text-center text-muted">No conference centers found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteDialog let-data>
+  <nb-card>
+    <nb-card-header>Confirm Delete</nb-card-header>
+    <nb-card-body>Delete this conference center and all its rooms?</nb-card-body>
+    <nb-card-footer>
+      <button nbButton status="danger" (click)="confirmDelete()">Delete</button>
+      <button nbButton ghost (click)="cancelDelete()">Cancel</button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

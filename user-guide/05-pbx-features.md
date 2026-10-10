@@ -1,6 +1,11 @@
 # 5 — PBX Features
 
-All PBX features write directly to FusionPBX / FreeSWITCH and take effect immediately — no restart required. Each feature requires the corresponding permission to be enabled on your account.
+Saving any PBX object (extension, ring group, IVR, route, trunk, ...) updates the phone system immediately — no restart required. All PBX configuration is done in the ICTPBX portal. Each feature requires the corresponding permission to be enabled on your account.
+
+**SIP connection facts**
+
+- Phones, softphones and trunks connect on **port 5080** (UDP or TCP). Nothing listens on 5060.
+- Extension numbers are unique **within a tenant** — two tenants may both have extension `1001`.
 
 ---
 
@@ -8,7 +13,7 @@ All PBX features write directly to FusionPBX / FreeSWITCH and take effect immedi
 
 **Permission required:** `Extensions`
 
-Extensions are SIP endpoints (users/phones) registered in FreeSWITCH. Every device, ring group, queue agent, and voicemail box is associated with an extension.
+Extensions are SIP endpoints (users/phones). Devices, ring groups, queue agents and voicemail boxes all point at extensions.
 
 ### List
 
@@ -16,7 +21,7 @@ Go to **PBX → Extensions**.
 
 ![Extensions list](assets/screenshots/extensions-list.png)
 
-The list shows extension number, display name, and tenant. Use the search bar to filter.
+The list shows the extension number and caller ID name. Use the search bar to filter.
 
 ### Add / Edit Extension
 
@@ -24,18 +29,40 @@ Click **Add Extension** or the edit icon.
 
 ![Extension form](assets/screenshots/extension-form.png)
 
+**Basic tab**
+
 | Field | Required | Description |
 |-------|----------|-------------|
-| Extension | ✅ | The SIP extension number (e.g. `1001`) |
-| Password | ✅ | SIP registration password |
-| Display Name | | Name shown on caller ID |
-| Voicemail Password | | PIN for voicemail access (default = extension number) |
+| Extension Number | ✅ | The SIP extension number (e.g. `1001`) |
+| Password / SIP Auth | ✅ | SIP registration password |
+| Extension Type | | `Voice` (default) or `Fax` — see [Fax Features](06-fax-features.md) |
+| Fax Delivery Email | | Fax extensions only — received faxes are emailed here |
+| Assign to User | | Portal user who owns this extension (shown on their **My Extension** page) |
 | Enabled | | Whether the extension is active |
 
-After saving, provision a SIP phone or softphone with:
-- **SIP Server**: your ICTPBX server IP/hostname
-- **Username**: the extension number
-- **Password**: the SIP password set above
+**Other tabs**
+
+| Tab | What it holds |
+|-----|---------------|
+| Caller ID | Effective / Outbound / Emergency caller ID name and number (the name shown to callers is set here) |
+| Call Handling | Call Recording (`none`, `local`, `inbound`, `outbound`, `all`), Call Timeout, Do Not Disturb, Hold Music, Call Group, Toll Allow |
+| Forwarding | Forward All Calls, Forward on Busy, Forward on No Answer, Forward if Not Registered — each with its own destination |
+| Directory | First/Last Name, Show Extension in Directory |
+| Follow Me | Ring additional destinations when this extension is called (see [Follow Me](#follow-me)) |
+
+**Voicemail:** extensions have no voicemail fields. Create a box under **PBX → Voicemail** with Box Number = the extension number, then select it as the **No Answer Destination** / **Busy Destination** on the Forwarding tab.
+
+### Registering a phone or softphone
+
+| Setting | Value |
+|---------|-------|
+| Username | The extension number |
+| Password | The SIP password |
+| Domain / Realm | The tenant's SIP domain — shown on **My Extension → SIP Domain** (may differ from the portal hostname) |
+| Server / Proxy | The portal hostname |
+| Port | `5080` |
+
+The built-in browser softphone connects over `wss://<portal-host>/ws/` (port 443, HTTPS required). Enter the extension and SIP password and click **Connect** — Domain is filled in automatically and the WebSocket address is prefilled.
 
 ---
 
@@ -43,11 +70,11 @@ After saving, provision a SIP phone or softphone with:
 
 **Permission required:** `Devices`
 
-Devices are physical or software SIP phones registered against extensions.
+Devices are desk phones that auto-provision from ICTPBX.
 
 ### List
 
-Go to **PBX → Devices**.
+Go to **PBX → Devices** (end users: **My Devices**).
 
 ![Devices list](assets/screenshots/devices-list.png)
 
@@ -59,12 +86,15 @@ Click **Add Device** or the edit icon.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Device MAC | ✅ | MAC address of the physical phone (used for auto-provisioning) |
-| Username | ✅ | SIP username (usually the extension number) |
-| Template | | Auto-provisioning template (e.g. Yealink, Polycom) |
+| MAC Address | ✅ | Phone MAC in any format (`00:0B:82:01:FC:42`, `000b8201fc42`, ...) — stored as lowercase hex |
+| Vendor / Model | | Selecting a model fills in the provisioning Template automatically |
+| Device Profile | | Optional shared settings profile (**PBX → Device Profiles**) |
+| Label, Location, Serial Number, Description | | Informational |
 | Enabled | | Active/inactive |
 
-**Lines tab**: Assign the device to one or more extensions by selecting them in the Lines section.
+**SIP Lines:** after saving, click **Add Line** and pick an extension. Server address defaults to the portal host, port `5080`. A device with **no line has no SIP account** and the phone will not register.
+
+**Provisioning URL:** shown on the form as `https://<portal-host>/provision/<mac>` — enter it in the phone's auto-provisioning settings. The phone's web-admin password is set by provisioning; do not change it on the phone (it will be reverted on reboot).
 
 ---
 
@@ -72,7 +102,7 @@ Click **Add Device** or the edit icon.
 
 **Permission required:** `Ring Groups`
 
-Ring groups ring multiple extensions simultaneously or sequentially when a number is dialled.
+Ring groups ring several destinations when one number is dialled.
 
 ### List
 
@@ -86,10 +116,12 @@ Go to **PBX → Ring Groups**.
 |-------|----------|-------------|
 | Name | ✅ | Descriptive name |
 | Extension | ✅ | The number callers dial to reach this group |
-| Strategy | ✅ | `simultaneous` — all ring at once; `sequence` — one at a time |
-| Timeout | ✅ | Seconds to ring before going to timeout destination |
-| Timeout Destination | | Where to send the call if unanswered (voicemail, IVR, etc.) |
-| Members | ✅ | Extensions to include; each has its own ring timeout |
+| Strategy | | `simultaneous` (all at once), `sequence` (one at a time, in order), `random`, `rollover`, `enterprise` |
+| Call Timeout (sec) | | How long the group rings before giving up |
+| Timeout Destination | | Where unanswered calls go (extension, ring group, IVR menu, voicemail) |
+| Caller ID Name / Number | | Optional caller ID override |
+
+**Members:** click **Add Destination** and choose an extension or an external number, each with its own delay, timeout and order.
 
 ---
 
@@ -97,7 +129,7 @@ Go to **PBX → Ring Groups**.
 
 **Permission required:** `Call Queues`
 
-Call queues place callers in a waiting line, distributing them to available agents.
+Call queues hold callers in line and distribute them to available agents.
 
 ### List
 
@@ -111,12 +143,13 @@ Go to **PBX → Call Queues**.
 |-------|----------|-------------|
 | Name | ✅ | Queue name |
 | Extension | ✅ | Number callers dial to enter the queue |
-| Strategy | ✅ | `ring-all`, `longest-idle-agent`, `round-robin`, `top-down`, `agent-with-fewest-calls`, `random` |
-| Max Wait Time | | Seconds before caller is sent to timeout destination |
-| Max No-Answer | | Times an agent can miss before being removed from the queue |
-| Agents | ✅ | Extensions serving this queue; each can have a `tier level` and `tier position` |
-| MOH Sound | | Music on hold played while waiting |
-| Timeout Destination | | Where to route calls that exceed max wait time |
+| Strategy | | `ring-all`, `longest-idle-agent`, `round-robin`, `top-down`, `agent-with-least-talk-time`, `agent-with-fewest-calls`, `sequentially-by-agent-order`, `random` |
+| Music on Hold | | Free text, e.g. `local_stream://moh` |
+| Max Wait Time (s) | | Seconds before the timeout action runs (`0` = unlimited) |
+| Timeout Action | | `Hang Up` or `Transfer to` an extension |
+| Announce Frequency, CID Prefix, Agents Can Reject | | Optional tuning |
+
+**Agents tab:** click **Add Agent** — Contact = the agent's extension, plus Call Timeout and Status.
 
 ---
 
@@ -124,7 +157,7 @@ Go to **PBX → Call Queues**.
 
 **Permission required:** `IVR Menus`
 
-IVR (Interactive Voice Response) menus present callers with a recorded greeting and keypad options that route to other destinations.
+IVR menus play a greeting and route callers by keypad choice.
 
 ### List
 
@@ -134,23 +167,26 @@ Go to **PBX → IVR Menus**.
 
 ### Add / Edit IVR Menu
 
+**Settings tab**
+
 | Field | Required | Description |
 |-------|----------|-------------|
 | Name | ✅ | Menu name |
-| Greeting | ✅ | Audio file played when callers enter |
-| Invalid Sound | | Audio played on wrong key press |
-| Exit Sound | | Audio played on exit |
-| Timeout | ✅ | Seconds to wait for input before re-playing greeting |
-| Exit Action | | Destination if max retries exceeded |
-| Options | ✅ | Key → Destination mappings (e.g. `1` → Sales ring group, `2` → Support queue, `0` → Operator extension) |
+| Extension | ✅ | Number that reaches this menu |
+| Greeting (long) / Greeting (short) | | Played on entry / on repeat |
+| Invalid Sound / Exit Sound | | Played on a wrong key / on exit |
+| Timeout (ms) | | Wait for input, in **milliseconds** (e.g. `10000` = 10 s) |
+| Max Failures / Max Timeouts | | Attempts before the exit action |
+| Exit Action / Exit Destination | | Where to send callers who exhaust their attempts |
+| Direct Dial | | Let callers dial an extension number directly |
+
+**Options tab:** each option has **Digits**, **Action** and **Destination**. Destinations can be an extension, ring group or another IVR menu; actions also include voicemail, check voicemail, hangup, playback and directory.
 
 ---
 
 ## Voicemail
 
 **Permission required:** `Voicemail`
-
-Voicemail boxes store recorded messages left by callers. Each box is linked to an extension.
 
 ### List
 
@@ -162,13 +198,16 @@ Go to **PBX → Voicemail**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Extension | ✅ | The extension this mailbox belongs to |
-| Password | ✅ | PIN to retrieve messages |
-| Email | | Address to receive message notifications (with attachment) |
-| Greeting | | Custom greeting audio file |
+| Box Number | ✅ | Mailbox number — use the extension number for a user's personal box |
+| Password | ✅ | PIN (digits only) for retrieving messages |
+| Email (notifications) | | Address notified of new messages |
+| Voicemail File | | Whether/how the recording is attached to the email |
+| Keep local after email | | Keep the message on the server after emailing it |
 | Enabled | | Active/inactive |
 
-Callers reach voicemail when their call is not answered and the extension forwards to `voicemail` (configured in the extension's no-answer destination in FusionPBX).
+**Greetings:** after saving, open the box again to upload greetings (WAV, MP3 or OGG).
+
+Callers reach voicemail through an extension's **Forwarding** tab (No Answer / Busy destination), an inbound route, or an IVR option. To check messages, dial `*99` followed by the mailbox number (e.g. `*991001`).
 
 ---
 
@@ -176,7 +215,7 @@ Callers reach voicemail when their call is not answered and the extension forwar
 
 **Permission required:** `Conferences`
 
-Conference rooms allow multiple callers to join a shared audio bridge by dialling an extension.
+Conference rooms let several callers join a shared audio bridge by dialling an extension.
 
 ### List
 
@@ -190,10 +229,12 @@ Go to **PBX → Conferences**.
 |-------|----------|-------------|
 | Name | ✅ | Room name |
 | Extension | ✅ | Number callers dial to join |
-| PIN | | Optional entry PIN |
-| Admin PIN | | Moderator PIN (moderators can control the conference) |
-| Max Members | | Maximum simultaneous participants |
+| PIN Length | | Length of the entry PIN |
+| Greeting | | Optional greeting file |
+| Description | | Note |
 | Enabled | | Active/inactive |
+
+**Live participants:** click the Live Participants icon on a room in the list to **Mute/Unmute** or **Kick** callers.
 
 ---
 
@@ -201,7 +242,7 @@ Go to **PBX → Conferences**.
 
 **Permission required:** `Music on Hold`
 
-Music on Hold (MOH) categories hold audio files played to callers placed on hold or waiting in a queue.
+Music on Hold (MOH) plays to callers on hold or waiting in a queue. Default music is installed automatically.
 
 ### List
 
@@ -213,10 +254,13 @@ Go to **PBX → Music on Hold**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Name | ✅ | Category name (referenced by queues and ring groups) |
-| Rate | | Audio sample rate (8000 Hz default) |
+| Name | ✅ | Category name (referenced by queues and extensions) |
+| Path | | Server directory holding the audio files |
+| Rate (Hz) | | Audio sample rate |
 | Shuffle | | Play files in random order |
-| Files | | Upload `.wav` or `.mp3` audio files |
+| Channels, Interval (ms), Timer Name | | Advanced playback settings |
+
+Place the audio files (WAV or MP3) in that directory on the server — ask your administrator — then enter its path here.
 
 ---
 
@@ -224,11 +268,11 @@ Go to **PBX → Music on Hold**.
 
 **Permission required:** `Follow Me`
 
-Follow Me forwards calls from an extension to one or more destinations in sequence or simultaneously — useful for mobile workers.
+Follow Me also rings other phones (e.g. a mobile) when an extension is called.
 
 ### List
 
-Go to **PBX → Follow Me**.
+Go to **PBX → Follow Me** (or use the **Follow Me** tab on the extension).
 
 ![Follow me list](assets/screenshots/follow-me-list.png)
 
@@ -236,10 +280,12 @@ Go to **PBX → Follow Me**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Extension | ✅ | The source extension to forward from |
-| Destinations | ✅ | Phone numbers or extensions to forward to; each has a timeout and delay |
-| Strategy | | `simultaneous` or `sequence` |
-| Prompt | | Whether to ask the receiving party to accept the call |
+| Extension | ✅ | The extension being followed |
+| Enabled | | Turn Follow Me on/off |
+| Destinations | ✅ | **Add Destination** — an extension or external number, each with delay, timeout, order and an optional accept prompt |
+| Caller ID Name / Number Prefix, Ignore Busy | | Optional |
+
+Follow Me applies to direct calls, ring-group calls and IVR transfers to the extension. External numbers are dialled through your outbound routes and are billed as normal outbound calls.
 
 ---
 
@@ -247,7 +293,7 @@ Go to **PBX → Follow Me**.
 
 **Permission required:** `Call Flows`
 
-Call Flows are toggleable routing rules — a single extension can be switched between two destinations (e.g. normal hours → queue; after hours → voicemail). Useful for on/off-duty toggles.
+A call flow is a manual day/night switch: one number routes to the **Open (Day)** destination or the **Closed (Night)** destination, depending on its current status.
 
 ### List
 
@@ -260,12 +306,14 @@ Go to **PBX → Call Flows**.
 | Field | Required | Description |
 |-------|----------|-------------|
 | Name | ✅ | Descriptive name |
-| Extension | ✅ | The number that triggers this flow |
-| Status | | `Active` (routes to Active Destination) or `Inactive` (routes to Inactive Destination) |
-| Active Destination | ✅ | Where to route when the flow is active |
-| Inactive Destination | ✅ | Where to route when the flow is inactive |
+| Extension | ✅ | The number callers reach |
+| Feature Code | | Code staff dial to toggle the flow (e.g. `*5000`) |
+| PIN Number | | Optional PIN required to toggle |
+| Current Status | | Open (Day) or Closed (Night) |
+| Open (Day) tab | ✅ | Label, destination and optional sound file for open mode |
+| Closed (Night) tab | ✅ | Label, destination and optional sound file for closed mode |
 
-Toggle the flow status between Active/Inactive to redirect calls on the fly.
+Change the status in the form, or dial the feature code to toggle. Call flows are manual; for automatic schedules use [Time Conditions](#time-conditions).
 
 ---
 
@@ -273,7 +321,7 @@ Toggle the flow status between Active/Inactive to redirect calls on the fly.
 
 **Permission required:** `Time Conditions`
 
-Time Conditions automatically route calls based on day/time, enabling business-hours routing without manual intervention.
+Time conditions route calls automatically by time of day and day of week.
 
 ### List
 
@@ -285,13 +333,14 @@ Go to **PBX → Time Conditions**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Name | ✅ | Descriptive name |
-| Extension | ✅ | The number this condition is applied to |
-| Match Destination | ✅ | Where to route when within the time window |
-| No-Match Destination | ✅ | Where to route outside the time window |
-| Time Rules | ✅ | One or more time windows: days of week, start time, end time |
+| Name | ✅ | Descriptive name (e.g. Business Hours) |
+| Extension | | Number that reaches this condition |
+| Time of Day | ✅ | Start and end time (e.g. `08:00`–`17:00`) |
+| Day of Week | ✅ | Days the window applies to |
+| Open Destination | ✅ | Where calls go inside the window |
+| Closed Destination | ✅ | Where calls go outside the window |
 
-Multiple time rules are OR-combined — the condition matches if any rule matches the current time.
+Holidays and date ranges are not supported. To use a time condition, point an inbound route or IVR option at its extension.
 
 ---
 
@@ -299,7 +348,7 @@ Multiple time rules are OR-combined — the condition matches if any rule matche
 
 **Permission required:** `Call Block`
 
-Call Block allows you to reject calls from specific numbers or number patterns.
+Call Block stops calls from or to specific numbers or patterns.
 
 ### List
 
@@ -311,10 +360,12 @@ Go to **PBX → Call Block**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Number | ✅ | The number to block (exact match or pattern) |
-| Action | ✅ | `Hangup`, `Busy`, or `Play message` |
-| Description | | Note about why this number is blocked |
-| Enabled | | Active/inactive |
+| Name | ✅ | Rule name |
+| Number / Pattern | ✅ | Exact number or a regular expression (e.g. `^\+44`) |
+| Direction | | `Inbound`, `Outbound` or `Both` |
+| Action | | `Reject (busy)`, `Hang Up` or `Hold` |
+| Country Code | | Optional country code |
+| Description, Enabled | | Note / active flag |
 
 ---
 
@@ -322,7 +373,7 @@ Go to **PBX → Call Block**.
 
 **Permission required:** `Inbound Routes`
 
-Inbound Routes map inbound DID numbers to internal destinations (extensions, ring groups, IVR menus, etc.). This is the first routing decision made when a call arrives from the carrier.
+Inbound routes send calls arriving on a DID to an internal destination.
 
 ### List
 
@@ -334,39 +385,56 @@ Go to **PBX → Inbound Routes**.
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| DID Number | ✅ | The inbound phone number from your carrier |
-| Caller ID Name | | Optional display name |
-| Destination | ✅ | Where to route this number (extension, IVR, ring group, etc.) |
-| Enabled | | Active/inactive |
+| DID Number | ✅ | The inbound number (e.g. `+12125551234` or `12125551234`) |
+| Destination Type | ✅ | `Extension`, `Ring Group`, `IVR Menu` or `Voicemail` |
+| Destination | ✅ | The specific target |
+| Order, Description, Enabled | | Optional |
 
-After saving, FreeSWITCH is automatically updated to route calls to that DID to the selected destination.
+- Only **one route per DID** — a duplicate is rejected. Changing a route's DID cleans up the old routing.
+- A DID is used for voice **or** fax. A voice inbound route takes priority over fax-to-email, so do not add an inbound route for a fax DID (see [Fax Features](06-fax-features.md)).
+- To reach a time condition or call flow, route the DID to an IVR option or extension that leads to it.
 
 ---
 
-## Gateways
+## Trunks and Outbound Routes
 
-Gateways (SIP Trunks) connect ICTPBX to your telecom carrier for outbound and inbound calls.
+**Trunks** (SIP connections to your carrier) are managed under **Routing → Trunks** (Super Admin only). Saving a trunk applies it immediately. Enable **Supports Fax (T.38 / G.711 pass-through)** on trunks that carry fax.
 
-### List
+**Outbound routes** are under **Routing → Routes**. Each route serves one service (Voice, Fax or SMS), uses one provider (trunk), and matches destinations by region/country. The outgoing caller ID comes from the trunk's **Outbound Caller ID**.
 
-Go to **PBX → Gateways**.
+The gateways screenshot below is from an earlier release; trunks now live under Routing → Trunks.
 
 ![Gateways list](assets/screenshots/gateways-list.png)
 
-### Add / Edit Gateway
+---
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| Name | ✅ | Unique gateway name (used in FreeSWITCH config) |
-| Username | ✅ | SIP username provided by your carrier |
-| Password | ✅ | SIP password |
-| Proxy / Realm | ✅ | Carrier SIP server address |
-| From Domain | | SIP domain in From header |
-| Register | | Whether to register with the carrier (`true` for most hosted trunks) |
-| Fax Support | | Enables T.38 fax codec negotiation on this trunk |
-| Enabled | | Active/inactive |
+## Realtime
 
-After saving, ICTPBX:
-1. Creates/updates the gateway record in FusionPBX
-2. Writes the SIP profile XML to disk (`/etc/freeswitch/sip_profiles/external/`)
-3. Reloads the FreeSWITCH external profile — the gateway goes REGED within seconds
+**PBX → Realtime** (admins and tenant admins) shows live activity, refreshed every 5 seconds:
+
+- **Counters** — active calls and registrations.
+- **Active Channels** — Direction, Caller ID, Destination, State, Call State, Codec, IP, with **Hangup**, **Hold/Unhold** and **Transfer** actions.
+- **Registrations** — currently registered phones.
+- **Click to Call** — enter a From extension and a number. The extension rings first; when answered, the number is dialled. The extension must be registered, otherwise the request is refused. Also available via API: `POST /api/call/originate` with `{"from_ext": "...", "to_number": "..."}`.
+
+---
+
+## Feature Codes
+
+**PBX → Feature Codes** lists the dial codes available on your system (read-only). Common codes:
+
+| Code | Purpose |
+|------|---------|
+| `*99<mailbox>` | Check voicemail (e.g. `*991001`) |
+| `*99` | AI Voice Agent (Service Provider Edition add-on) |
+| Call flow codes | Toggle a call flow (as set on the call flow, e.g. `*5000`) |
+
+---
+
+## PBX CDR
+
+**Reports → PBX CDR** (Super Admin) lists PBX call records.
+
+- Filter by date range and **Direction** (Inbound / Outbound / Local), then click **Apply**.
+- Columns: Date/Time, Domain, Direction, Caller, Destination, Duration, Billed, Hangup Cause.
+- CDR Sync runs hourly; click **Run ETL Now** to sync immediately.

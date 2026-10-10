@@ -1,22 +1,30 @@
 # 8 — Troubleshooting
 
+Server-side commands below assume shell access to the ICTPBX server as root. FreeSWITCH's event socket is password-protected with a random password generated at install. Load it once per shell session before using `fs_cli`:
+
+```bash
+ESL_PASS=$(awk -F'=' '/^\[freeswitch\]/{f=1;next} /^\[/{f=0} f && $1 ~ /^[ \t]*password[ \t]*$/ {gsub(/[ \t]/,"",$2); print $2; exit}' /usr/ictcore/etc/ictcore.conf)
+fs_cli -p "$ESL_PASS" -x 'status'
+```
+
+ICTPBX runs a single SIP profile named **`webrtc`** that serves desk phones, softphones, the browser softphone and trunks.
+
 ---
 
 ## Login Issues
 
 ### "Invalid username or password"
-- Verify you are using your email address as the username (not a display name).
+- Use the username your administrator created for you.
 - Passwords are case-sensitive.
-- If your account was locked due to too many failed attempts, contact your administrator to unlock it.
+- After too many failed attempts the account is temporarily locked — wait, or ask your administrator.
 
 ### "Password expired" (426 error)
 - Your password has reached the expiry period set in the Password Policy.
-- Go to the login page and use **Forgot Password** to reset, or ask an admin to reset it.
+- Use **Forgot Password** on the login page, or ask an admin to reset it.
 
 ### Blank screen after login
-- Clear browser cache and hard-refresh (`Ctrl+Shift+R`).
-- Ensure JavaScript is enabled.
-- Check that you are using a supported browser (Chrome, Firefox, Edge).
+- Clear the browser cache and hard-refresh (`Ctrl+Shift+R`).
+- Use a current Chrome, Firefox, or Edge with JavaScript enabled.
 
 ---
 
@@ -25,85 +33,107 @@
 ### Fax stays in "Pending" status
 - The background scheduler runs every minute. Wait 1–2 minutes.
 - If still pending after 5 minutes, check that the scheduler (cron) is running on the server.
-- Ensure the sending account is active and has a valid outbound gateway/route configured.
+- Make sure a fax route and a registered trunk exist (**Routing → Routes**, **Routing → Trunks**).
 
 ### "No route found" error on send
-- No outbound SIP gateway is configured, or no route matches the destination number prefix.
-- Go to **PBX → Gateways** and verify at least one gateway is in REGED status.
-- Check that a route exists for the dialled prefix in the route table.
+- No outbound route matches the destination number for the Fax service.
+- Go to **Routing → Trunks** and confirm at least one trunk is registered.
+- Go to **Routing → Routes** and confirm a Fax route covers the dialled prefix.
 
 ### Fax fails with "TIFF file cannot be opened"
 - The uploaded document could not be converted.
-- Ensure you upload PDF, TIFF, or a supported Word format.
-- Corrupt or password-protected files will fail — try re-exporting the document.
+- Upload PDF, TIFF, or a supported Office format. Corrupt or password-protected files fail — re-export the document.
 
 ### Fax sent but recipient reports not receiving
-- The transmission may show "Completed" but the far-end fax machine rejected silently.
-- Check the billsec in CDR — a very short call (< 5 s) usually indicates immediate rejection.
-- Try sending to a different number to isolate whether it is the destination or your setup.
+- A transmission can show "Completed" while the far-end machine rejected it.
+- Check the duration in **Reports → CDR Reports** — a very short call (under 5 s) usually means immediate rejection.
+- Send to a different number to isolate the problem.
 
 ---
 
 ## Fax — Receiving
 
-### Inbound fax call arrives but no file is saved
-The most common causes:
+### Inbound fax not arriving
+- The DID must be delivered to fax: on **Fax → My DIDs**, click **Forward** and send the number to a **Fax**-type extension (**Receive Fax** / **Forward to Extension**) or to **Fax to Email**.
+- A voice **Inbound Route** on the same DID takes priority. A DID is either voice or fax, not both — delete the voice inbound route if the number should receive faxes.
+- Confirm the call reaches the server at all: check **Reports → PBX CDR** for the inbound call.
 
-1. **`PrivateTmp=true` in php-fpm** — PHP-FPM runs in a private `/tmp/` namespace isolated from FreeSWITCH's `/tmp/`. Fix:
-   ```bash
-   mkdir -p /etc/systemd/system/php-fpm.service.d/
-   printf '[Service]\nPrivateTmp=false\n' > /etc/systemd/system/php-fpm.service.d/override.conf
-   systemctl daemon-reload && systemctl restart php-fpm
-   ```
+### Fax received but not saved (server administrators)
+If the call arrives but no file appears, check that PHP can read FreeSWITCH's temporary files:
 
-2. **`ictcore` not in `daemon` group** — FreeSWITCH creates TIFF files as `freeswitch:daemon 660`. PHP needs daemon group membership:
-   ```bash
-   usermod -a -G daemon ictcore && systemctl restart php-fpm
-   ```
-
-3. **No dialplan row for the DID** — Verify a dialplan entry exists in ICTCore for this inbound number.
-
-### "No recipient found" on inbound fax
-- The DID account must have `type = did`. If it is `type = account`, the fax authorization check will fail.
-- Check in **Fax → Fax Accounts** that the account for the inbound number shows type `did`.
+```bash
+# PHP-FPM must share /tmp with FreeSWITCH
+mkdir -p /etc/systemd/system/php-fpm.service.d/
+printf '[Service]\nPrivateTmp=false\n' > /etc/systemd/system/php-fpm.service.d/override.conf
+# The ictcore user must be in the daemon group
+usermod -a -G daemon ictcore
+systemctl daemon-reload && systemctl restart php-fpm
+```
 
 ### Fax-to-Email not delivering
-- Verify an SMTP provider is configured (a row in the provider table with `type = smtp`).
-- Confirm the extension account has an email address set and `Link DID` points to the correct DID.
-- Check server logs for SMTP connection errors.
+- Confirm an SMTP trunk is configured in **Routing → Trunks** (type SMTP).
+- Confirm the receiving fax extension has a delivery email address set.
+- Check the server mail log for SMTP connection errors.
 
 ---
 
 ## PBX — Extensions & Devices
 
-### SIP phone cannot register
-- Verify the extension number and password match exactly (case-sensitive password).
-- Confirm the SIP server address in the phone points to the ICTPBX server IP.
-- Ensure port 5060 (SIP) is not blocked by a firewall between the phone and the server.
-- Check FreeSWITCH is running: `systemctl status freeswitch`
+### Phone won't register
+- Use **Port 5080** (UDP or TCP). There is no SIP service on 5060.
+- Set **Domain / Realm** to your tenant's SIP domain (shown on **My Extension → SIP Domain**) and **Server / Proxy** to the portal host.
+- Check the extension number and password exactly (the password is case-sensitive).
+- For auto-provisioned phones, the device must have a **Line** bound to an extension (**PBX → Devices → Add Line**). A device with no line provisions an empty account.
+- Make sure no firewall blocks 5080 and UDP 16384–32768 between the phone and the server.
+- List current registrations:
+  ```bash
+  fs_cli -p "$ESL_PASS" -x 'sofia status profile webrtc reg'
+  ```
+
+### Browser softphone won't connect
+- The browser softphone requires **HTTPS**. On a plain-HTTP or bare-IP install, browsers block the microphone and the secure WebSocket.
+- Point a DNS name at the server first, then re-run the installer in upgrade mode with `DOMAIN=<your-domain>` and `TLS_EMAIL=<your-email>` to issue a certificate and enable secure WebSocket on port 443.
 
 ### Extension not ringing on inbound calls
-- Verify the inbound route is configured for the DID in **PBX → Inbound Routes**.
-- Confirm the destination (extension / ring group / IVR) exists and is enabled.
-- Check that the extension is registered: in FreeSWITCH run `sofia status profile internal` and look for the extension in the registration list.
+- Check the inbound route for the DID in **PBX → Inbound Routes**.
+- Confirm the destination (extension, ring group, IVR, etc.) exists and is enabled.
+- Confirm the extension is registered (see the command above).
 
 ### Changes to ring groups / IVR / queues not taking effect
-- FusionPBX automatically reloads XML when records are saved — allow 2–3 seconds.
-- If changes still do not apply, reload manually: `fs_cli -x 'reloadxml'`
+- ICTPBX regenerates the configuration and reloads FreeSWITCH automatically on every save. Re-save the item once if a change does not seem to apply.
+
+### Click-to-Call returns 409
+- The **from** extension is not registered. Register the phone or softphone for that extension and try again.
+
+### Inbound Route save returns 409
+- Another inbound route already uses that DID. Each DID can have only one inbound route — edit the existing route instead.
+
+### Voicemail and star codes
+- Check voicemail by dialling `*99<mailbox>` (for example `*991001`).
+- `*99` on its own reaches the AI Voice Agent (Service Provider Edition).
+- No other star codes are active.
+
+### Dialling `*99` gives busy or silence
+- The AI Voice Agent (Service Provider Edition, optional add-on) is not installed or not running on the server. Ask your administrator.
 
 ---
 
-## PBX — Gateways
+## Routing — Trunks
 
-### Gateway shows "NOREG" or "FAILED"
-- Verify the SIP credentials (username, password, proxy) with your carrier.
-- Check that FreeSWITCH can reach the carrier's SIP server: `ping <carrier-proxy>`
-- Ensure the gateway XML file exists on disk:
+### Trunk not registering
+- Open **Routing → Trunks**, verify the username, password, and host with your carrier, and **Save** again. Changes apply immediately.
+- Check that the server can reach the carrier's SIP host.
+- Check gateway status:
   ```bash
-  ls /etc/freeswitch/sip_profiles/external/<gateway-name>.xml
+  fs_cli -p "$ESL_PASS" -x 'sofia status gateway'
   ```
-  If missing, re-save the gateway in ICTPBX to regenerate it.
-- Reload the profile: `fs_cli -x 'sofia profile external rescan'`
+
+---
+
+## Security
+
+### Many failed SIP registrations in the log
+Internet-facing SIP servers are routinely scanned by brute-force bots. The installer does not configure fail2ban — set it up yourself with a FreeSWITCH jail that bans repeated authentication failures, and whitelist your own office IPs. Use strong extension passwords.
 
 ---
 
@@ -111,33 +141,27 @@ The most common causes:
 
 ### Menu item is missing after login
 - Your account may not have the required permission. Ask your admin to add it in the user edit form.
-- After permission changes, **log out and back in** — the JWT must be refreshed.
+- After permission changes, **log out and back in**.
 
 ### "403 Forbidden" from the API
-- Your account lacks the permission required for that action.
-- Confirm the permission is assigned and that you logged out/in after the change.
+- Your account lacks the permission required for that action. End Users cannot create or change PBX objects.
+- Confirm the permission is assigned and that you logged out and back in after the change.
 
-### Admin cannot save PBX quota above the pool size
-- Ensure the backend `UserApi.php` is at version `143800a` or later (the `!$callerIsAdmin` guard).
-- Clear the ICTCore route cache after any backend update: `rm -f /usr/ictcore/cache/*`
+### API returns 429
+- Your API key has hit its rate limit. Slow down requests and retry.
 
-### "PBX quota limit reached" error when creating an extension / device / ring group etc.
-- The user has consumed their full allocation for that resource type.
-- Go to **Administration → Users**, edit the user, and increase the quota for that resource in the **PBX Resource Allocation** card.
-- If the tenant pool itself is exhausted, the admin must increase the tenant's PBX quota in **Administration → Tenants → Edit**.
-- Note: the PBX Resource Allocation card only shows rows for permissions that are checked — enable the relevant PBX permission first if the row is not visible.
+### "Quota limit reached" when creating an extension, device, ring group, etc. (Service Provider Edition)
+- The tenant or user has used its full allocation for that resource.
+- Go to **Administration → User Management**, edit the user, and raise the quota in the **PBX Resource Allocation** card. The card only shows rows for permissions that are enabled.
+- If the tenant's package limit itself is exhausted, a Super Admin must assign a larger package in **Billing → Subscriptions** or raise the limit in **Billing → Packages**.
 
 ---
 
 ## Performance
 
-### Pages load slowly
-- The Angular service worker caches assets. After a deployment, force-refresh: `Ctrl+Shift+R`.
-- If the server is slow, check available memory: `free -h`. ICTCore needs at least 256 MB free.
-
-### Build / deploy issues
-- Angular build requires `NODE_OPTIONS='--max_old_space_size=3072'` on servers with limited RAM.
-- Always use `pscp.exe` (not plink heredoc) for file uploads > 2 KB — plink silently truncates large files.
+### Pages load slowly or show an old version
+- The portal caches its files in the browser. After an upgrade, accept the update prompt or hard-refresh (`Ctrl+Shift+R`).
+- Check free memory on the server: `free -h`.
 
 ---
 
@@ -145,7 +169,7 @@ The most common causes:
 
 If you encounter an issue not covered here:
 
-1. Check the ICTCore log at `/usr/ictcore/log/` on the server.
+1. Check the ICTCore log in `/usr/ictcore/log/`.
 2. Check the FreeSWITCH log: `tail -f /var/log/freeswitch/freeswitch.log`
-3. Check php-fpm error log: `journalctl -u php-fpm -n 100`
-4. Open an issue at the project GitHub repository.
+3. Check the PHP-FPM log: `journalctl -u php-fpm -n 100`
+4. Open an issue in the project's GitHub repository.

@@ -2,151 +2,181 @@
 
 ## Permission Reference
 
-The table below lists every permission key, the menu/feature it unlocks, and which edition supports it.
+The table below lists the permission keys that unlock menus and features. Super Admins see every menu; Tenant Admins and End Users see only the items their permissions allow.
 
 ### Fax Permissions
 
-| Permission Key | Display Name | Menu / Feature | EE | CE |
-|---------------|-------------|----------------|----|----|
-| `send_fax` | Send Fax | Fax → Send Fax | ✅ | ✅ |
-| `receive_fax` | Receive Fax | Fax → Inbox | ✅ | ✅ |
-| `fax_to_email` | Fax to Email | Automatic email on receive | ✅ | ✅ |
-| `email_to_fax` | Email to Fax | Inbound email → fax pipeline | ✅ | ✅ |
-| `personalize_fax` | Personalize Fax | Custom sender ID | ✅ | ✅ |
-| `campaigns` | Bulk Fax | Fax → Campaigns | ✅ | ✅ |
-| `cover_page` | Cover Page | Fax → Cover Page | ✅ | ✅ |
-| `resources.fax_documents` | Fax Documents | Fax → Fax Documents | ✅ | ✅ |
-| `fax_accounts` | Fax Accounts | Fax → Fax Accounts | ✅ | ✅ |
-| `fax_setting` | Fax Settings | Fax → Fax Settings | ✅ | ✅ |
+| Permission Key | Display Name | Menu / Feature |
+|---------------|-------------|----------------|
+| `send_fax` | Send Fax | Fax → Send Fax |
+| `receive_fax` | Receive Fax | Fax → Receive Fax |
+| `fax_to_email` | Fax to Email | Automatic email delivery of received faxes |
+| `email_to_fax` | Email to Fax | Send a fax by email |
+| `personalize_fax` | Personalize Fax | Custom sender details on outbound faxes |
+| `campaigns` | Bulk Fax | Fax → Bulk Fax |
+| `cover_page` | Cover Page | Fax → Cover Page |
+| `resources.fax_documents` | Fax Documents | Fax → Media Library → Fax Documents |
+| `fax_setting` | Fax Settings | Fax → Fax Settings |
+
+> Fax accounts no longer have their own menu. A fax line is an extension whose type is **Fax** (PBX → Extensions).
 
 ### Contacts Permissions
 
-| Permission Key | Display Name | Menu / Feature | EE | CE |
-|---------------|-------------|----------------|----|----|
-| `contacts` | Contacts | Contacts → Contacts | ✅ | ✅ |
-| `groups` | Contact Groups | Contacts → Groups | ✅ | ✅ |
-| `contact_dnc` | Contact DNC | Contacts → Do Not Call | ✅ | ✅ |
+| Permission Key | Display Name | Menu / Feature |
+|---------------|-------------|----------------|
+| `contacts` | Contacts | Fax → Contacts → Contacts |
+| `groups` | Contact Groups | Fax → Contacts → Contact Groups |
+| `contact_dnc` | Contact DNC | Fax → Contacts → Contact DNC |
 
 ### PBX Permissions
 
-| Permission Key | Display Name | Menu / Feature | EE | CE |
-|---------------|-------------|----------------|----|----|
-| `fpbx_extension` | Extensions | PBX → Extensions | ✅ | ✅ |
-| `devices` | Devices | PBX → Devices | ✅ | ✅ |
-| `ring_groups` | Ring Groups | PBX → Ring Groups | ✅ | ✅ |
-| `call_queues` | Call Queues | PBX → Call Queues | ✅ | ✅ |
-| `ivr_menus` | IVR Menus | PBX → IVR Menus | ✅ | ✅ |
-| `voicemails` | Voicemail | PBX → Voicemail | ✅ | ✅ |
-| `conferences` | Conferences | PBX → Conferences | ✅ | ✅ |
-| `time_conditions` | Time Conditions | PBX → Time Conditions | ✅ | ✅ |
-| `call_flows` | Call Flows | PBX → Call Flows | ✅ | ✅ |
-| `call_block` | Call Block | PBX → Call Block | ✅ | ✅ |
-| `follow_me` | Follow Me | PBX → Follow Me | ✅ | ✅ |
-| `music_on_hold` | Music on Hold | PBX → Music on Hold | ✅ | ✅ |
-| `inbound_routes` | Inbound Routes | PBX → Inbound Routes | ✅ | ✅ |
-| `realtime` | Realtime | PBX → Realtime | ✅ | ✅ |
+| Permission Key | Display Name | Menu / Feature |
+|---------------|-------------|----------------|
+| `fpbx_extension` | Extensions | PBX → Extensions |
+| `devices` | Devices | PBX → Devices (End Users: My Devices) |
+| `ring_groups` | Ring Groups | PBX → Ring Groups |
+| `call_queues` | Call Queues | PBX → Call Queues |
+| `ivr_menus` | IVR Menus | PBX → IVR Menus |
+| `voicemails` | Voicemail | PBX → Voicemail |
+| `conferences` | Conferences | PBX → Conferences |
+| `time_conditions` | Time Conditions | PBX → Time Conditions |
+| `call_flows` | Call Flows | PBX → Call Flows |
+| `call_block` | Call Block | PBX → Call Block |
+| `follow_me` | Follow Me | PBX → Follow Me |
+| `music_on_hold` | Music on Hold | PBX → Music on Hold |
+| `inbound_routes` | Inbound Routes | PBX → Inbound Routes |
+| `realtime` | Realtime | PBX → Realtime |
+| `feature_codes` | Feature Codes | PBX → Feature Codes |
 
-### Administration Permissions (system-level, admin only)
+End Users can view the PBX items they are granted, but cannot create PBX objects.
+
+### Messaging Permissions (Service Provider Edition)
+
+| Permission Key | Display Name | Menu / Feature |
+|---------------|-------------|----------------|
+| `messaging` | Messaging | Messaging → Inbox (End Users: Messaging) |
+| `campaigns` | Send SMS | Messaging → Send SMS |
+
+### Routing & Administration Permissions
 
 | Permission Key | Feature |
 |---------------|---------|
-| `user_admin` | Manage users (Administration → Users) |
-| `gateways` | Manage SIP gateways/trunks |
+| `providers` | Routing → Trunks |
+| `routes` | Routing → Routes |
+| `my_dids` | Routing → DID Numbers |
+| `cid_number` | Routing → CID Numbers |
+| `user_admin` | Manage users (Administration → User Management) |
+| `api_keys` | Administration → API Keys |
 | `super_admin` | Full system administration |
 
 ---
 
-## PBX Resource Types
+## Billing Resource Types (Service Provider Edition)
 
-| Resource ID | Resource | Permission Key | User form field |
-|-------------|----------|---------------|-----------------|
-| 15 | Extensions | `fpbx_extension` | `quota_extensions` |
-| 16 | Devices | `devices` | `quota_devices` |
-| 7 | Ring Groups | `ring_groups` | `quota_ring_groups` |
-| 8 | Call Queues | `call_queues` | `quota_call_queues` |
-| 17 | IVR Menus | `ivr_menus` | `quota_ivr_menus` |
-| 9 | Voicemail Boxes | `voicemails` | `quota_voicemail` |
-| 10 | Conferences | `conferences` | `quota_conference` |
-| 11 | Music on Hold | `music_on_hold` | `quota_music_on_hold` |
+Each package sets a limit per resource. **Slot limits** are hard caps on how many objects a tenant can create. **Monthly usage** resources are free units included each month; usage above the free amount is charged from the tenant's credit (billed hourly) and the counters reset at the start of each month.
+
+| Resource ID | Resource | Type | Related Permission |
+|-------------|----------|------|--------------------|
+| 7 | Ring Groups | Slot limit | `ring_groups` |
+| 8 | Call Queues | Slot limit | `call_queues` |
+| 9 | Voicemail Boxes | Slot limit | `voicemails` |
+| 10 | Conferences | Slot limit | `conferences` |
+| 11 | Music on Hold | Slot limit | `music_on_hold` |
+| 12 | Voice Minutes / month | Monthly usage | — |
+| 13 | Fax Pages / month | Monthly usage | — |
+| 14 | Conference Minutes / month | Monthly usage | — |
+| 15 | Extensions | Slot limit | `fpbx_extension` |
+| 16 | Devices | Slot limit | `devices` |
+| 17 | IVR Menus | Slot limit | `ivr_menus` |
+| 18 | SMS Messages / month | Monthly usage | `messaging` |
 
 ---
 
 ## User Roles
 
-| Role Name | Role ID (EE prod) | Capabilities |
-|-----------|-------------------|-------------|
-| User | 1 | End-user; access only to explicitly granted features |
-| Admin | 2 | Full system access; no permission filtering |
-| Tenant | 3 | Manages users within their tenant; permission-filtered |
+| Role | Role ID | Capabilities |
+|------|---------|-------------|
+| Super Admin | 2 | Full system access; no permission filtering |
+| Tenant Admin | 3 | Manages users and PBX objects within their own tenant; permission-filtered |
+| End User | 4 | Uses only the features explicitly granted; cannot create PBX objects |
 
-> **Note**: Role IDs differ per installation. Never hardcode them — ICTPBX always maps by name internally.
+There is no assignable Agent role.
 
 ---
 
 ## API Overview
 
-All ICTPBX functionality is exposed via a JSON REST API at `/api`.
-
-**Authentication**: `Authorization: Bearer <JWT>` (RS256, 1-year expiry)
+All ICTPBX functionality is exposed via a JSON REST API.
 
 **Base URL**: `https://<your-server>/api`
+
+### Authentication
+
+Use either method:
+
+- **JWT** — `POST /api/authenticate` with your username and password. Send the returned token on every request as `Authorization: Bearer <jwt>`.
+- **API key** — create one in **Administration → API Keys** and send it as `X-API-Key: <key>`. A key acts with the permissions of the user it belongs to, is rate-limited (HTTP `429` when exceeded), and cannot be used to create other API keys.
 
 ### Key Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/auth` | Login — returns JWT |
-| `GET` | `/users` | List users |
-| `POST` | `/users` | Create user |
-| `GET` | `/users/{id}` | Get user |
-| `PUT` | `/users/{id}` | Update user |
-| `DELETE` | `/users/{id}` | Delete user |
-| `GET` | `/tenants` | List tenants (admin only) |
-| `POST` | `/tenants` | Create tenant (admin only) |
-| `GET` | `/billing/quota` | PBX resource quota summary |
-| `GET` | `/fpbx_extension/extensions` | List extensions |
-| `POST` | `/fpbx_extension/extensions` | Create extension |
-| `GET` | `/devices/devices` | List devices |
-| `GET` | `/ring_groups/ring_groups` | List ring groups |
-| `GET` | `/call_queues/call_queues` | List call queues |
-| `GET` | `/ivr_menus/ivr_menus` | List IVR menus |
-| `GET` | `/voicemails/voicemails` | List voicemail boxes |
-| `GET` | `/transmission` | List fax transmissions |
-| `POST` | `/transmission` | Send a fax |
-| `GET` | `/accounts` | List fax accounts |
+| `POST` | `/authenticate` | Log in — returns a JWT |
+| `GET` / `POST` | `/users` | List / create users |
+| `GET` / `PUT` / `DELETE` | `/users/{id}` | Read / update / delete a user |
+| `GET` / `POST` | `/tenants` | List / create tenants (Super Admin, Service Provider Edition) |
+| `GET` / `POST` | `/fpbx_extensions` | List / create extensions |
+| `GET` | `/devices` | List devices |
+| `GET` | `/ring_groups` | List ring groups |
+| `GET` | `/call_queues` | List call queues |
+| `GET` | `/ivr_menus` | List IVR menus |
+| `GET` | `/voicemails` | List voicemail boxes |
+| `GET` | `/inbound_routes` | List inbound routes |
+| `GET` | `/providers` | List trunks |
+| `GET` | `/dids` | List DID numbers |
+| `POST` | `/call/originate` | Click-to-call (see below) |
+| `GET` | `/transmissions` | List fax transmissions |
 | `GET` | `/cdr` | Call detail records |
+| `GET` | `/fpbx_cdr` | PBX call detail records |
+| `GET` | `/billing/quota` | Resource quota summary (Service Provider Edition) |
+| `GET` | `/billing/usage` | Usage summary (Service Provider Edition) |
+| `GET` / `POST` | `/sms`, `/sms/threads`, `/sms/messages` | SMS messaging (Service Provider Edition) |
 
-All list endpoints support `?page=N&per_page=N&search=<term>` for pagination and filtering.
+### Click-to-call
 
----
+```http
+POST /api/call/originate
+Content-Type: application/json
 
-## localStorage Keys (Frontend)
+{"from_ext": "1001", "to_number": "+12015550123"}
+```
 
-These keys are written at login and read throughout the UI:
-
-| Key | Value | Used for |
-|-----|-------|---------|
-| `aid` | User ID | API calls |
-| `tid` | Tenant ID | Scoping requests |
-| `is_admin` | `1` or `0` | Admin vs non-admin UI branching |
-| `is_tenant` | `1` or `0` | Tenant admin detection |
-| `permission` | Comma-delimited string | User's own permissions |
-| `tenant_permissions` | Comma-delimited string | Tenant's permissions (used for what can be granted to sub-users) |
-| `tenant_daily_limit` | Number | Tenant fax daily cap |
-| `tenant_monthly_limit` | Number | Tenant fax monthly cap |
-| `tenant_assigned_daily` | Number | Already-assigned daily quota |
-| `tenant_assigned_monthly` | Number | Already-assigned monthly quota |
-| `theme_pref` | Theme name | UI theme preference |
+ICTPBX first rings extension `1001`; when it answers, the call is placed to `to_number`. The response is `{"status": "queued", "job_uuid": "..."}`. If `from_ext` is not currently registered, the API returns **409**.
 
 ---
 
-## Supported SIP Codecs
+## Network Ports
 
-| Codec | Voice | Fax |
-|-------|-------|-----|
-| G.722 | ✅ HD | ❌ |
-| G.711 PCMU | ✅ | ✅ (pass-through) |
-| G.711 PCMA | ✅ | ✅ (pass-through) |
-| T.38 | ❌ | ✅ (preferred, requires re-INVITE) |
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| 80 / 443 | TCP | Web portal and API (443 also carries the browser softphone) |
+| 5080 | UDP / TCP | SIP for desk phones, softphones and trunks — **there is no SIP on 5060** |
+| 16384–32768 | UDP | RTP voice/fax media |
+| 8021 | TCP | FreeSWITCH event socket — localhost only, never open it publicly |
 
-Fax calls negotiate T.38 first; fall back to G.711 PCMA pass-through if the far end rejects T.38.
+The browser softphone connects to `wss://<your-host>/ws/` over port 443 and requires HTTPS. Ports 5066/5067 are internal only and do not need to be opened.
+
+When registering a phone, use **Server/Proxy** = your portal host, **Port** = `5080`, and **Domain/Realm** = your tenant's SIP domain (shown on **My Extension → SIP Domain**).
+
+---
+
+## Supported Codecs
+
+| Codec | Used for |
+|-------|----------|
+| Opus | Browser softphone (preferred) |
+| G.711 PCMU / PCMA | Desk phones, softphones, trunks; fax pass-through fallback |
+| G.729 | Low-bandwidth phones and trunks |
+| T.38 | Fax (preferred) |
+
+Fax calls negotiate T.38 first and fall back to G.711 pass-through if the far end rejects T.38.

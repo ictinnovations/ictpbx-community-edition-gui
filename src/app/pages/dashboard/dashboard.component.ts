@@ -256,7 +256,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         { key: 'ivr_menus',   perm: 'ivr_menus',      title: 'IVR Menus',    type: 'primary' },
         { key: 'voicemails',  perm: 'voicemails',     title: 'Voicemails',   type: 'success' },
         { key: 'conferences', perm: 'conferences',    title: 'Conferences',  type: 'info' },
-        { key: 'gateways',    perm: 'gateways',       title: 'Gateways',     type: 'warning' },
+        { key: 'gateways',    perm: 'providers',      title: 'Trunks',       type: 'warning' },
       ];
       const permission = localStorage.getItem('permission') || '';
       const visible = this.isAdmin
@@ -497,7 +497,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       pbx_ivr_menus:  '/pages/ivr_menus/ivr_menus',
       pbx_voicemails: '/pages/voicemails/voicemails',
       pbx_conferences:'/pages/conferences/conferences',
-      pbx_gateways:   '/pages/gateways/gateways',
+      pbx_gateways:   '/pages/provider/provider',
     };
     if (pbxRoutes[a]) { this.router.navigate([pbxRoutes[a]]); return; }
     if (a == 'infax') {

@@ -1,6 +1,28 @@
 # 6 — Fax Features
 
-ICTPBX provides a full fax pipeline: send, receive, fax-to-email delivery, DID management, and account management.
+ICTPBX provides a full fax pipeline: send, receive, fax-to-email delivery, bulk fax and cover pages.
+
+Fax calls need a trunk with **Supports Fax (T.38 / G.711 pass-through)** enabled (**Routing → Trunks**) and an outbound route for the Fax service (**Routing → Routes**).
+
+---
+
+## Fax Lines (Fax Extensions)
+
+A fax line is an **extension with Extension Type = Fax**.
+
+1. Go to **PBX → Extensions → Add Extension**.
+2. Set **Extension Type** to `Fax` and enter a **Fax Delivery Email**.
+3. Optionally **Assign to User** so the user sees it under **Fax → My Fax Account**.
+
+---
+
+## Routing a DID to Fax
+
+1. Go to **Fax → My DIDs** (admins can also use **Routing → DID Numbers**).
+2. Click **Forward** on the DID.
+3. Choose **Forward to Extension** and pick the fax extension, or **Fax to Email** and enter an address.
+
+A DID is used for voice **or** fax. Do not create a voice inbound route (**PBX → Inbound Routes**) for a fax DID — a voice route takes priority and the fax will never arrive.
 
 ---
 
@@ -10,7 +32,7 @@ ICTPBX provides a full fax pipeline: send, receive, fax-to-email delivery, DID m
 
 ### How to Send a Fax
 
-1. Go to **Fax → Send Fax**.
+1. Go to **Fax → Send Fax** and click **New Outbound Fax**.
 
 ![Send fax](assets/screenshots/send-fax.png)
 
@@ -18,139 +40,52 @@ ICTPBX provides a full fax pipeline: send, receive, fax-to-email delivery, DID m
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| From Account | ✅ | The fax account to send from (your extension/DID) |
-| Destination Number | ✅ | The recipient's fax number |
-| Document | ✅ | PDF, TIFF, or Word document to transmit |
-| Subject | | Optional fax cover reference |
-| Scheduled Time | | Leave blank to send immediately; or set a future date/time |
+| Title | ✅ | Reference for this fax |
+| Document | ✅ | Upload a PDF, TIFF, image (PNG/JPG) or Word file, or pick one from Fax Documents |
+| Caller ID | ✅ | One of your own fax accounts |
+| Contact | ✅ | Recipient (choose a contact or enter a number) |
+| Fax quality | | Standard, Fine or Super |
+| Retry | | Retry automatically if the fax fails |
+| Send Cover page | | Prepend a cover page (choose one with **Select Cover Page**) |
+| Fax Header | | Print a header line on each page |
 
-3. Click **Send**. The fax is queued and sent within one minute by the background scheduler.
+3. Submit. The fax is queued and transmitted by the background scheduler.
 
 ### Fax Status
 
-After sending you can track status in **Fax → CDR** (call detail records). Status values:
-- **Pending** — queued, not yet sent
-- **Processing** — currently being transmitted
-- **Completed** — successfully delivered
-- **Failed** — transmission failed; retry manually
-
-### Retry a Failed Fax
-
-From the CDR view, click the retry icon on any failed transmission. A new send job is created immediately.
+The **Send Fax** list shows each fax with status **Processing**, **Completed** or **Failed**. Use the retry icon to resend a failed fax, or the download icon to get the document.
 
 ---
 
-## Fax Inbox
+## Receive Fax
 
 **Permission required:** `Receive Fax`
 
-Received faxes are stored in the inbox.
-
-1. Go to **Fax → Inbox**.
+Go to **Fax → Receive Fax**.
 
 ![Fax inbox](assets/screenshots/fax-inbox.png)
 
-The inbox lists received faxes with date, sender number, pages, and status. Click a row to view or download the TIFF/PDF.
+Received faxes are listed with date, caller ID and destination number. Search by username or phone number, filter by date, view or download a fax, or use **Bulk Fax Download**.
 
-### How Receiving Works
-
-1. A call arrives at your carrier → forwarded to your ICTPBX server via SIP
-2. FreeSWITCH answers the call and negotiates fax (T.38 or G.711 pass-through)
-3. The received TIFF is stored and attached to a transmission record
-4. If Fax-to-Email is configured, an email with the TIFF attached is sent to all linked accounts
+If the receiving extension has a Fax Delivery Email (or the DID uses Fax to Email), each received fax is also emailed as an attachment.
 
 ---
 
-## Fax to Email
+## My Fax Account (end users)
 
-**Permission required:** `Fax to Email`
-
-Fax-to-Email automatically delivers received faxes to one or more email addresses.
-
-### Setup
-
-1. Create a **DID account** (type = DID) with the inbound phone number.
-2. Create one or more **extension accounts** with `Link DID` pointing to that DID account, and set the `Email` field to the delivery address.
-
-Every extension account linked to a DID receives an email with the fax attached when a fax arrives on that DID.
-
-This enables **department fax distribution** — e.g. a single inbound number delivers to the entire sales team's inboxes.
+End users see **Fax → My Fax Account** with their fax delivery email and DID. **Fax → My DIDs** and **Fax → My CIDs** are read-only for end users.
 
 ---
 
-## Email to Fax
-
-**Permission required:** `Email to Fax`
-
-Email to Fax lets users send faxes by emailing a document to a special address. The system picks up the email and transmits it as a fax automatically.
-
-Configuration is done at the server level (SMTP polling). Contact your system administrator to set up the inbound email address for your account.
-
----
-
-## Personalize Fax
-
-**Permission required:** `Personalize Fax`
-
-Allows the user to set a custom sender ID on outbound faxes — overriding the system default with their own name or company name.
-
-Go to **Fax → Fax Settings** and set the **Sender Name** field.
-
----
-
-## Bulk Fax (Campaigns)
+## Bulk Fax
 
 **Permission required:** `Bulk Fax`
 
-Campaigns allow sending the same document to a large list of recipients in one operation.
+Bulk Fax sends the same document to many recipients.
 
-1. Go to **Fax → Campaigns**.
-2. Click **Add Campaign**.
-3. Upload your contact list (CSV) and select the document.
-4. Set a send schedule or send immediately.
-
-The system queues one transmission per recipient. Progress and results are tracked in the campaign detail view.
-
----
-
-## Fax Accounts
-
-**Permission required:** `Fax Accounts`
-
-Fax accounts represent lines — either a DID (inbound number) or an extension (outbound/inbound endpoint).
-
-### Account Types
-
-| Type | Role |
-|------|------|
-| `did` | Inbound DID number — the phone number callers dial to send a fax |
-| `account` | User extension — can send and receive; has SIP credentials and email delivery |
-| `child_account` | Extension linked to a DID (auto-set when Link DID is populated) |
-
-### List
-
-Go to **Fax → Fax Accounts**.
-
-![Fax accounts](assets/screenshots/fax-accounts.png)
-
-### Add / Edit Fax Account
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| Phone | ✅ | For DID: the inbound phone number. For extension: the extension number. |
-| Type | ✅ | `did`, `account`, or auto-set `child_account` |
-| Email | | Email address for fax-to-email delivery |
-| Link DID | | For extension accounts: select the DID this account receives faxes from |
-| Password | | SIP/account password |
-| Active | | Enabled/disabled |
-
-### Linking an Extension to a DID
-
-Set the **Link DID** field on an extension account to point at a DID account. This:
-- Sets the account type to `child_account` automatically
-- Adds this account's email to the notification list for faxes arriving on that DID
-
-Multiple extension accounts can link to the same DID — useful for distributing one inbound number to a team.
+1. Go to **Fax → Bulk Fax**.
+2. Create a new bulk fax, select a **Contact Group** (set up under **Fax → Contacts → Contact Groups**) and the document.
+3. Start it. One fax is queued per recipient; progress is shown in the list.
 
 ---
 
@@ -158,11 +93,7 @@ Multiple extension accounts can link to the same DID — useful for distributing
 
 **Permission required:** `Fax Documents`
 
-Fax Documents is a personal document library. Upload frequently used documents (letterheads, forms, templates) so they are available to select when sending a fax — without re-uploading each time.
-
-1. Go to **Fax → Fax Documents**.
-2. Click **Upload** and select a file.
-3. When sending a fax, choose from **My Documents** instead of uploading a new file.
+Go to **Fax → Media Library → Fax Documents** to upload frequently used documents (letterheads, forms) so they can be selected when sending a fax without re-uploading.
 
 ---
 
@@ -170,14 +101,13 @@ Fax Documents is a personal document library. Upload frequently used documents (
 
 **Permission required:** `Fax Settings`
 
-System-level fax configuration. Go to **Fax → Fax Settings**.
+Go to **Fax → Fax Settings**.
 
 | Setting | Description |
 |---------|-------------|
-| Sender Name | Default sender name printed on the fax header |
-| Sender Number | Default sender fax number |
-| Resolution | Standard (98 lpi) or Fine (196 lpi) |
-| Header | Custom text printed at the top of each fax page |
+| Send Cover page | Add your default cover page to outgoing faxes |
+| Send Email Body as page | When faxing by email, send the email text as a page |
+| Retry Fax Interval | Wait between retries (MM:SS) |
 
 ---
 
@@ -185,10 +115,19 @@ System-level fax configuration. Go to **Fax → Fax Settings**.
 
 **Permission required:** `Cover Page`
 
-Cover pages are automatically prepended to outgoing faxes. Go to **Fax → Cover Page** to configure the template.
+Go to **Fax → Cover Page** and click **Add CoverPage**. Enter a **Title** and the page body, and use **Set Default Cover Page** to make it the default.
 
-Fields on the cover page template:
-- Company name, logo
-- To/From fields (auto-filled from transmission metadata)
-- Comments / message field
-- Date and time stamp
+Available tokens (replaced when the fax is sent):
+
+| Token | Value |
+|-------|-------|
+| `[transmission:destination:first_name]`, `…:last_name`, `…:email`, `…:phone` | Recipient details |
+| `[transmission:source:first_name]`, `…:last_name`, `…:email`, `…:phone` | Sender details |
+| `[program:date]` | Date sent |
+| `[template:subject]`, `[template:body]` | Subject and message text |
+
+---
+
+## Fax Billing (Service Provider Edition)
+
+Each package includes a number of free fax pages per month. Pages beyond that are charged from the tenant's credit at the fax rate.

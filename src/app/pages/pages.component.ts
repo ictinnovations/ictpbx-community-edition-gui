@@ -170,6 +170,9 @@ export class PagesComponent {
     const is_tenant = Number(localStorage.getItem('is_tenant'));
     const permission = localStorage.getItem('permission') || '';
     const permTokens = permission ? permission.split(',').map((s: string) => s.trim()) : [];
+    // Menu keys double as i18n keys, so an entry that shares another entry's permission gets its own key here.
+    const permAlias: { [key: string]: string } = { sms_text: 'campaigns' };
+    const hasPerm = (key: string) => permTokens.includes(permAlias[key] || key);
 
     if (is_admin === this._lastIsAdmin && is_tenant === this._lastIsTenant && permission === this._lastPermission) {
       return;
@@ -194,7 +197,7 @@ export class PagesComponent {
           if (visibleChildren.length === 0) return null;
           return { ...item, children: visibleChildren };
         }
-        return permTokens.includes(item.key) ? item : null;
+        return hasPerm(item.key) ? item : null;
       };
       this.menu = tenantMenuItems.map(filterTenantItem).filter(Boolean) as MenuItem[];
     } else {
@@ -211,7 +214,7 @@ export class PagesComponent {
           if (visibleChildren.length === 0) return null;
           return { ...item, children: visibleChildren };
         }
-        return permTokens.includes(item.key) ? item : null;
+        return hasPerm(item.key) ? item : null;
       };
 
       this.menu = userMenuItems.map(filterItem).filter(Boolean) as MenuItem[];

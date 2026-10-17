@@ -8,16 +8,28 @@
       <label class="col-sm-3 col-form-label">Name *</label>
       <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.music_on_hold_name" placeholder="default"></div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" *ngIf="isEdit && item.music_on_hold_stream">
+      <label class="col-sm-3 col-form-label">Stream</label>
+      <div class="col-sm-9">
+        <code>local_stream://{{ item.music_on_hold_stream }}</code>
+        <small style="color:#8f9bb3; display:block; margin-top:4px">
+          Enter this in a Call Queue's Music on Hold field to play this category.
+        </small>
+      </div>
+    </div>
+    <div class="form-group row" *ngIf="isAdmin || (isEdit && !item.uses_uploads)">
       <label class="col-sm-3 col-form-label">Path</label>
       <div class="col-sm-9">
-        <input nbInput fullWidth [(ngModel)]="item.music_on_hold_path"
-               placeholder="/usr/share/freeswitch/sounds/music/default">
+        <input nbInput fullWidth [(ngModel)]="item.music_on_hold_path" [disabled]="!isAdmin"
+               placeholder="Leave empty to use uploaded files">
         <small style="color:#8f9bb3; display:block; margin-top:4px">
-          Server directory containing .wav/.mp3 audio files FreeSWITCH will play while callers wait.
-          Upload audio files to this directory on the server, then enter the path here.
-          Default: <code>/usr/share/freeswitch/sounds/music/default</code>
+          Leave empty to play the files you upload below. Admins can instead point this at a
+          server directory of .wav/.mp3 files, e.g. <code>/usr/share/freeswitch/sounds/music/default</code>.
         </small>
+        <button *ngIf="!isAdmin && isEdit && !item.uses_uploads" nbButton size="small" status="basic"
+                style="margin-top:6px" (click)="useUploads()">
+          Use uploaded files instead
+        </button>
       </div>
     </div>
     <div class="form-group row">
@@ -50,4 +62,48 @@
     <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
     <button nbButton ghost [routerLink]="['/pages/music_on_hold/music_on_hold']">Cancel</button>
   </nb-card-footer>
+</nb-card>
+
+<nb-card *ngIf="isEdit && item.music_on_hold_uuid">
+  <nb-card-header>Music Files</nb-card-header>
+  <nb-card-body>
+    <p *ngIf="!item.uses_uploads" class="text-muted">
+      This category plays from a server path, so uploads are off. {{ isAdmin ? 'Clear the Path above and save' : 'Choose "Use uploaded files instead" above' }} to upload your own music.
+    </p>
+    <ng-container *ngIf="item.uses_uploads">
+      <div class="alert alert-danger" *ngIf="fileError">{{ fileError }}</div>
+      <div class="alert alert-success" *ngIf="fileSuccess">{{ fileSuccess }}</div>
+
+      <table class="table table-bordered table-sm" *ngIf="files.length > 0">
+        <thead><tr><th>File</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let f of files">
+            <td>{{ f.name }}</td>
+            <td>{{ fileSize(f.size) }}</td>
+            <td>{{ f.modified }}</td>
+            <td>
+              <button nbButton size="tiny" status="danger" [disabled]="deletingId === f.file_id" (click)="deleteFile(f)">
+                <nb-icon icon="trash-2-outline"></nb-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="files.length === 0" class="text-muted">
+        No music yet. Callers on hold hear silence until you upload at least one file.
+      </p>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label">Audio file</label>
+        <div class="col-sm-9">
+          <input #fileInput type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" (change)="onFileSelected($event)">
+          <small style="color:#8f9bb3; display:block; margin-top:4px">WAV or MP3, up to 20 MB. Files play in turn (shuffled if Shuffle is on).</small>
+          <button nbButton status="primary" size="small" style="margin-top:8px"
+                  [disabled]="!selectedFile || uploading" (click)="upload(fileInput)">
+            <nb-icon icon="upload-outline"></nb-icon> {{ uploading ? 'Uploading...' : 'Upload' }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </nb-card-body>
 </nb-card>

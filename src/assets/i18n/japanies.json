@@ -200,7 +200,8 @@
         "sms": {
             "sms": "メッセージ",
             "messaging": "受信トレイ",
-            "campaigns": "SMSを送信"
+            "campaigns": "SMSを送信",
+            "sms_text": "テキストテンプレート"
         }
     },
     "contact": {

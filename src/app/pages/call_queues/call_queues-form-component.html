@@ -46,7 +46,9 @@
         <div class="form-group row">
           <label class="col-sm-3 col-form-label">Music on Hold</label>
           <div class="col-sm-9">
-            <input nbInput fullWidth [(ngModel)]="queue.queue_moh_sound" placeholder="local_stream://moh">
+            <input nbInput fullWidth [(ngModel)]="queue.queue_moh_sound" placeholder="local_stream://default" list="moh-streams">
+            <datalist id="moh-streams"><option *ngFor="let m of mohStreams" [value]="m"></option></datalist>
+            <small style="color:#8f9bb3; display:block; margin-top:4px">Pick a category created under Music on Hold.</small>
           </div>
         </div>
         <div class="form-group row">

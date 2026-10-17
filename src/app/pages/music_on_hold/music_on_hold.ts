@@ -11,4 +11,13 @@ export class MusicOnHold {
   music_on_hold_chime_list: string;
   music_on_hold_chime_freq: number = 0;
   music_on_hold_chime_max: number = 0;
+  music_on_hold_stream: string;
+  uses_uploads: boolean;
+}
+
+export class MusicOnHoldFile {
+  file_id: string;
+  name: string;
+  size: number;
+  modified: string;
 }

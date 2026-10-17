@@ -229,7 +229,8 @@
         "sms": {
             "sms": "Messaging",
             "messaging": "Inbox",
-            "campaigns": "Send SMS"
+            "campaigns": "Send SMS",
+            "sms_text": "Text Templates"
         },
         "csv_import": "CSV Import"
     },

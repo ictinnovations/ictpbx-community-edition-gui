@@ -12,27 +12,17 @@ import { PasswordPolicy } from './pages/password_policy/password_policy';
 export class AppService {
 
   constructor(private http: Http, private router: Router, private _location: Location, private activatedRoute: ActivatedRoute) {
-    // let copy_token = localStorage.getItem('copy_token');
-    // if (copy_token != null) {
-    //   this.upload_Header.push({name: 'Authorization', value: 'Bearer ' + localStorage.getItem('copy_token')});
-    // }
-    // else {
-    //   let token:any = localStorage.getItem('auth_app_token');
-    //   this.upload_Header.push({name: 'Authorization', value: 'Bearer ' + JSON.parse(token).value});
-    // }
-    if (localStorage.getItem('copy_token')) {
-      this.upload_Header.push({ name: 'Authorization', value: 'Bearer ' + localStorage.getItem('copy_token') });
-    }
-    else if (localStorage.getItem('auth_app_token')) {
-      let token: any = localStorage.getItem('auth_app_token');
-      this.upload_Header.push({ name: 'Authorization', value: 'Bearer ' + JSON.parse(token).value });
-    }
   }
-  // headers for uploading the file
-  upload_Header: Array<{
-    name: string;
-    value: string;
-  }> = [];
+
+  // Headers for uploading a file. Read on every use: this service outlives logins,
+  // so a token captured once at startup would be missing or stale.
+  get upload_Header(): Array<{ name: string; value: string; }> {
+    if (localStorage.getItem('copy_token')) {
+      return [{ name: 'Authorization', value: 'Bearer ' + localStorage.getItem('copy_token') }];
+    }
+    const token: any = localStorage.getItem('auth_app_token');
+    return token ? [{ name: 'Authorization', value: 'Bearer ' + JSON.parse(token).value }] : [];
+  }
 
   showMessages: any = {};
   public errors: string;

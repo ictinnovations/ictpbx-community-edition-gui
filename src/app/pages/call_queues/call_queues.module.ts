@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ThemeModule } from '../../@theme/theme.module';
 import { CallQueuesRoutingModule, routedComponents } from './call_queues-routing.module';
 import { CallQueueService } from './call_queues.service';
+import { MusicOnHoldService } from '../music_on_hold/music_on_hold.service';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -43,6 +44,6 @@ import {
     NbWindowModule.forChild(),
   ],
   declarations: [...routedComponents],
-  providers: [CallQueueService],
+  providers: [CallQueueService, MusicOnHoldService],
 })
 export class CallQueuesModule {}

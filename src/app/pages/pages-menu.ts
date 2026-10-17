@@ -85,6 +85,7 @@ export const MENU_ITEMS: MenuItem[] = [
     children: [
       { title: 'Inbox',    icon: 'inbox-outline',       link: '/pages/messaging/messaging', key: 'messaging' },
       { title: 'Send SMS', icon: 'paper-plane-outline', link: '/pages/campaigns/sendsms',   key: 'campaigns' },
+      { title: 'Text Templates', icon: 'file-text-outline', link: '/pages/message/text',   key: 'sms_text' },
     ],
   },
   {
@@ -193,6 +194,7 @@ export const tenantMenuItems: MenuItem[] = [
     children: [
       { title: 'Inbox',    icon: 'inbox-outline',       link: '/pages/messaging/messaging', key: 'messaging' },
       { title: 'Send SMS', icon: 'paper-plane-outline', link: '/pages/campaigns/sendsms',   key: 'campaigns' },
+      { title: 'Text Templates', icon: 'file-text-outline', link: '/pages/message/text',   key: 'sms_text' },
     ],
   },
   {

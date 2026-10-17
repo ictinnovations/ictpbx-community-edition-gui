@@ -16,12 +16,12 @@
     </div>
     <table class="table table-bordered">
       <thead>
-        <tr><th>Name</th><th>Path</th><th>Shuffle</th><th *ngIf="isAdmin">Tenant</th><th>Actions</th></tr>
+        <tr><th>Name</th><th>Stream</th><th>Shuffle</th><th *ngIf="isAdmin">Tenant</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of items">
           <td>{{ item.music_on_hold_name }}</td>
-          <td>{{ item.music_on_hold_path }}</td>
+          <td><code *ngIf="item.music_on_hold_stream">local_stream://{{ item.music_on_hold_stream }}</code></td>
           <td>{{ item.music_on_hold_shuffle }}</td>
           <td *ngIf="isAdmin">{{ item.tenant_name || '—' }}</td>
           <td>
@@ -34,7 +34,7 @@
           </td>
         </tr>
         <tr *ngIf="items.length === 0">
-          <td colspan="4" class="text-center text-muted">No entries found.</td>
+          <td [attr.colspan]="isAdmin ? 5 : 4" class="text-center text-muted">No entries found.</td>
         </tr>
       </tbody>
     </table>

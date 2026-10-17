@@ -4,6 +4,7 @@ import { CallQueueService } from './call_queues.service';
 import { CallQueue, CallQueueAgent } from './call_queues';
 import { ExtensionCheckService } from '../../services/extension-check.service';
 import { PbxDestinationService, DestOption } from '../../services/pbx-destination.service';
+import { MusicOnHoldService } from '../music_on_hold/music_on_hold.service';
 
 @Component({
   selector: 'ngx-call-queues-form',
@@ -35,6 +36,8 @@ export class AddCallQueueComponent implements OnInit {
   timeoutTarget = '';          // selected extension number for transfer
   // Per-agent: selected extension number (drives agent_contact composition)
   agentExtension: string[] = [];
+  // Music on Hold streams offered as suggestions; the field still takes any value
+  mohStreams: string[] = ['local_stream://default'];
 
   constructor(
     private service: CallQueueService,
@@ -42,6 +45,7 @@ export class AddCallQueueComponent implements OnInit {
     private route: ActivatedRoute,
     private extCheck: ExtensionCheckService,
     private pbxDest: PbxDestinationService,
+    private mohService: MusicOnHoldService,
   ) {}
 
   checkExtension(value: string) {
@@ -55,6 +59,10 @@ export class AddCallQueueComponent implements OnInit {
     this.pbxDest.getExtensions().then(exts => {
       this.extensions = exts;
     });
+    this.mohService.getList().then(list => {
+      (list || []).filter(m => m.music_on_hold_stream)
+        .forEach(m => this.mohStreams.push('local_stream://' + m.music_on_hold_stream));
+    }).catch(() => {});
 
     const uuid = this.route.snapshot.paramMap.get('id');
     if (!uuid) {

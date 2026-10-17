@@ -187,7 +187,8 @@
      "sms": {
          "sms": "Messaggi",
          "messaging": "Posta in Arrivo",
-         "campaigns": "Invia SMS"
+         "campaigns": "Invia SMS",
+         "sms_text": "Modelli di Testo"
      }
   },
   "contact": {

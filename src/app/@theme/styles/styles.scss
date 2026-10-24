@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+
+// themes - our custom or/and out of the box themes
+@import 'themes';
+
+// framework component themes (styles tied to theme variables)
+@import '~@nebular/theme/styles/globals';
+@import '~@nebular/auth/styles/all';
+
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/grid';
+
+// loading progress bar theme
+@import './pace.theme';
+
+@import './layout';
+@import './overrides';
+
+// Load the Angular Material stylesheet 
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+// install the framework and custom global styles
+@include nb-install() {
+
+  // framework global styles
+  @include nb-theme-global();
+  @include nb-auth-global();
+
+  @include ngx-layout();
+  // loading progress bar
+  @include ngx-pace-theme();
+
+  @include nb-overrides();
+};
+
+.ict_error{
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+  background: rgba(255, 0, 0, 0.7);
+  padding: 15px 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  z-index: 9999999;
+}
+.ict_error p{
+  color: white!important;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+.modal-header .close:focus{
+  outline: none;
+}

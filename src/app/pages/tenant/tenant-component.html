@@ -1,0 +1,102 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'Tenant.list' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <ng-template #searchTemplate_Tenant let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'Tenant.search' | translate }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="search" class="form-control" placeholder="{{ 'Tenant.filter' | translate }}" />
+        <select [(ngModel)]="key" class="form-control mt-2">
+          <option value="" disabled hidden>Select Type Search</option>
+          <option value="first_name">First Name</option>
+          <option value="last_name">Last Name</option>
+          <option value="company">Company</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" mat-raised-button color="primary" (click)="resetsearch(modal)">Reset</button>
+        <button type="button" mat-raised-button color="primary" (click)="searchTenant(modal)">Search</button>
+      </div>
+    </ng-template>
+
+
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      [routerLink]="['/pages/tenant/tenant/new']"><i class="fa fa-plus"></i> {{ 'Tenant.add' | translate}}</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      (click)="openSearchModal(searchTemplate_Tenant)"><i class="fa fa-search"></i> Search</button>
+    <button type="button" *ngIf="is_admin" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      [routerLink]="['/pages/tenant/tenant/import/csv/data']"><i class="fa fa-arrow-down"></i> Import CSV Data</button>
+    <br>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aTenant" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'general.ID' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            {{tenant.tenant_id}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="company">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.company' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.company}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.fname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.first_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="last_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.lname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.last_name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Tenant.email' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant" style="text-align:left">
+            {{tenant.email}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/tenant/tenant/{{tenant.tenant_id}}" title="Edit"><nb-icon
+                    icon="edit-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px"
+              *ngIf="+tenant.tenant_id !== 1">
+              <mat-icon style="color: red" (click)="showStaticModal(tenant.company , tenant.tenant_id)"><nb-icon
+                  icon="trash-2-outline" title="Delete"></nb-icon></mat-icon>
+            </button>
+            <a [routerLink]="['/pages/tenant/tenant_report', tenant.tenant_id]" style="text-decoration: none;">
+              <button mat-icon-button color="primary" style="font-size: 20px">
+                <mat-icon style="color: green">
+                  <nb-icon icon="pie-chart-outline" title="Report"></nb-icon>
+                </mat-icon>
+              </button>
+            </a>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [length]="length" [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTemplate let-data>
+  <div>
+    <p>{{'transmission.delete' | translate}}</p>
+    <button nbButton status="danger" (click)="deleteTenant(data.tenant_id)">{{'transmission.yes' | translate}}</button>
+    <button nbButton (click)="closeModal()">{{'transmission.no' | translate}}</button>
+  </div>
+</ng-template>

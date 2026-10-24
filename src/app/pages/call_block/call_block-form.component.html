@@ -1,0 +1,71 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit' : 'Add' }} Call Block Rule</nb-card-header>
+  <nb-card-body>
+    <nb-alert *ngIf="isError" status="danger" closable (close)="isError=false">
+      <p *ngFor="let e of errorText">{{ e }}</p>
+    </nb-alert>
+    <nb-alert *ngIf="isSuccess" status="success">Saved successfully.</nb-alert>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Name <span style="color:red">*</span></label>
+      <div class="col-sm-9">
+        <input nbInput fullWidth [(ngModel)]="item.call_block_name" placeholder="Rule name">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Number / Pattern <span style="color:red">*</span></label>
+      <div class="col-sm-9">
+        <input nbInput fullWidth [(ngModel)]="item.call_block_number" placeholder="e.g. 1800, ^1800, +1.*">
+        <small class="text-muted">Exact number or regex pattern</small>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Direction</label>
+      <div class="col-sm-9">
+        <nb-select [(ngModel)]="item.call_block_direction" fullWidth>
+          <nb-option value="inbound">Inbound</nb-option>
+          <nb-option value="outbound">Outbound</nb-option>
+          <nb-option value="both">Both</nb-option>
+        </nb-select>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Action</label>
+      <div class="col-sm-9">
+        <nb-select [(ngModel)]="item.call_block_action" fullWidth>
+          <nb-option value="reject">Reject (busy)</nb-option>
+          <nb-option value="hangup">Hang Up</nb-option>
+          <nb-option value="hold">Hold</nb-option>
+        </nb-select>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Country Code</label>
+      <div class="col-sm-9">
+        <input nbInput fullWidth [(ngModel)]="item.call_block_country_code" placeholder="e.g. 1">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Description</label>
+      <div class="col-sm-9">
+        <input nbInput fullWidth [(ngModel)]="item.call_block_description" placeholder="Optional description">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 label">Enabled</label>
+      <div class="col-sm-9">
+        <nb-checkbox [(ngModel)]="item.call_block_enabled">Active</nb-checkbox>
+      </div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">Save</button>
+    <button nbButton ghost [routerLink]="['/pages/call_block/call_block']" style="margin-left:8px">Cancel</button>
+  </nb-card-footer>
+</nb-card>

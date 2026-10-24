@@ -1,0 +1,73 @@
+<nb-card>
+  <nb-card-header>
+    <h5 class="mb-0">Tenant Subscriptions</h5>
+  </nb-card-header>
+  <nb-card-body>
+
+    <nb-alert *ngIf="success" status="success" closable (close)="success=''">{{success}}</nb-alert>
+    <nb-alert *ngIf="error" status="danger">{{error}}</nb-alert>
+
+    <div *ngIf="loading" class="text-center py-4"><nb-spinner status="primary"></nb-spinner></div>
+
+    <ng-container *ngIf="!loading">
+      <table class="table table-bordered table-sm" *ngIf="subscriptions.length > 0">
+        <thead class="thead-light">
+          <tr>
+            <th>Tenant</th>
+            <th>Package</th>
+            <th>Status</th>
+            <th>Since</th>
+            <th style="width:200px">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sub of subscriptions">
+            <td>{{sub.company}}</td>
+            <td>
+              <span *ngIf="editRow[sub.tenant_id] === undefined">{{sub.package_name}}</span>
+              <nb-select *ngIf="editRow[sub.tenant_id] !== undefined"
+                         [(selected)]="editRow[sub.tenant_id]" size="small" style="min-width:130px">
+                <nb-option *ngFor="let p of packages" [value]="p.package_id">{{p.name}}</nb-option>
+              </nb-select>
+            </td>
+            <td>
+              <span class="badge" [class.badge-success]="sub.active=='1'" [class.badge-secondary]="sub.active!='1'">
+                {{sub.active == '1' ? 'Active' : 'Inactive'}}
+              </span>
+            </td>
+            <td>{{formatDate(sub.time_start)}}</td>
+            <td>
+              <ng-container *ngIf="editRow[sub.tenant_id] === undefined">
+                <button nbButton size="tiny" status="info" class="mr-1" (click)="startEdit(sub)">Change Package</button>
+                <button nbButton size="tiny" status="warning" class="mr-1"
+                        *ngIf="sub.active == '1'"
+                        [disabled]="toggling[sub.subscription_id]"
+                        (click)="suspend(sub)">
+                  <nb-spinner *ngIf="toggling[sub.subscription_id]" size="tiny"></nb-spinner>
+                  Suspend
+                </button>
+                <button nbButton size="tiny" status="success"
+                        *ngIf="sub.active != '1'"
+                        [disabled]="toggling[sub.subscription_id]"
+                        (click)="activate(sub)">
+                  <nb-spinner *ngIf="toggling[sub.subscription_id]" size="tiny"></nb-spinner>
+                  Activate
+                </button>
+              </ng-container>
+              <ng-container *ngIf="editRow[sub.tenant_id] !== undefined">
+                <button nbButton size="tiny" status="primary" class="mr-1"
+                        [disabled]="saving[sub.tenant_id]" (click)="assign(sub)">
+                  <nb-spinner *ngIf="saving[sub.tenant_id]" size="tiny"></nb-spinner>
+                  Save
+                </button>
+                <button nbButton size="tiny" status="basic" (click)="cancelEdit(sub.tenant_id)">Cancel</button>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <nb-alert *ngIf="subscriptions.length === 0" status="info">No active subscriptions found.</nb-alert>
+    </ng-container>
+
+  </nb-card-body>
+</nb-card>

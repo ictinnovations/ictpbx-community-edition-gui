@@ -1,0 +1,27 @@
+<h4>{{ 'extension.assign_extension' | translate }}</h4>
+<br>
+<div class="col-lg-12">
+  <nb-card>
+    <nb-card-header>
+      {{ 'extension.extension_info' | translate }}
+    </nb-card-header>
+    <nb-card-body>
+      <input [(ngModel)]="extension_info" [ngModelOptions]="{standalone: true}" type="text" class="form-control" disabled id="phone" required/>
+    </nb-card-body>
+  </nb-card>
+  <nb-card>
+    <nb-card-header>
+      {{ 'user.user_info' | translate }}
+    </nb-card-header>
+    <nb-card-body>
+      <label>{{ 'extension.assign_to_user' | translate }}</label><br>
+      <select class = "form-control" name = "user" [(ngModel)]= "selectedUsr">  
+        <option *ngFor="let user of user"  
+          [ngValue] = "user" >  
+          {{user.username}} <ng-template [ngIf]="user.company">- {{user.company}}</ng-template> 
+        </option>  
+      </select><br>
+    </nb-card-body>
+  </nb-card>
+  <button type="button" class="btn btn-primary" (click)="forwardExtension()">{{ 'buttons.submit' | translate }}</button>
+</div>

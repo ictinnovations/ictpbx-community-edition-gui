@@ -1,0 +1,79 @@
+<div class="recording-picker">
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle mb-2" style="display:flex; gap:4px">
+    <button nbButton size="tiny"
+            [status]="mode === 'library' ? 'primary' : 'basic'"
+            (click)="switchMode('library')" type="button">
+      <nb-icon icon="music-outline" style="margin-right:4px"></nb-icon>From Library
+    </button>
+    <button nbButton size="tiny"
+            [status]="mode === 'custom' ? 'primary' : 'basic'"
+            (click)="switchMode('custom')" type="button">
+      <nb-icon icon="edit-2-outline" style="margin-right:4px"></nb-icon>Custom Path
+    </button>
+  </div>
+
+  <!-- Library mode -->
+  <ng-container *ngIf="mode === 'library'">
+    <div style="display:flex; gap:8px; align-items:center">
+      <select nbSelect fullWidth
+              [(ngModel)]="selectedId"
+              (ngModelChange)="onSelectRecording()"
+              [ngModelOptions]="{standalone: true}">
+        <option value="">— Select recording —</option>
+        <option *ngFor="let r of recordings" [value]="r.recording_id">
+          {{ r.name }}
+        </option>
+      </select>
+      <button nbButton size="small" ghost type="button"
+              (click)="showUpload = !showUpload"
+              nbTooltip="Upload new recording">
+        <nb-icon icon="upload-outline"></nb-icon>
+      </button>
+    </div>
+
+    <small *ngIf="currentValue" style="color:#8f9bb3; display:block; margin-top:4px">
+      File: {{ currentValue }}
+    </small>
+    <small *ngIf="recordings.length === 0" style="color:#8f9bb3; display:block; margin-top:4px">
+      No recordings found. Upload one below or switch to Custom Path.
+    </small>
+
+    <!-- Inline upload panel -->
+    <div *ngIf="showUpload" class="upload-panel mt-2 p-2"
+         style="border:1px solid #e4e9f2; border-radius:4px; background:#f7f9fc">
+      <div class="alert alert-danger mb-2" *ngIf="uploadError">{{ uploadError }}</div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <input nbInput fullWidth
+               [(ngModel)]="uploadName"
+               placeholder="Recording name"
+               [ngModelOptions]="{standalone: true}">
+        <div style="display:flex; gap:8px; align-items:center">
+          <input type="file" accept=".wav,.mp3,.ogg"
+                 (change)="onFileSelected($event)"
+                 style="flex:1; font-size:0.85rem">
+          <button nbButton size="small" status="primary" type="button"
+                  [disabled]="!uploadFile || !uploadName || uploading"
+                  (click)="uploadRecording()">
+            <nb-icon icon="upload-outline"></nb-icon>
+            {{ uploading ? 'Uploading...' : 'Upload' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Custom path mode -->
+  <ng-container *ngIf="mode === 'custom'">
+    <input nbInput fullWidth
+           [value]="currentValue"
+           (input)="onCustomChange($any($event.target).value)"
+           [placeholder]="placeholder"
+           [ngModelOptions]="{standalone: true}">
+    <small style="color:#8f9bb3; display:block; margin-top:4px">
+      Enter a FreeSWITCH sound path (e.g. <code>ivr/ivr-welcome_to_freeswitch.wav</code>)
+    </small>
+  </ng-container>
+
+</div>

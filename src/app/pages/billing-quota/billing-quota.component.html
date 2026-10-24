@@ -1,0 +1,57 @@
+<nb-card>
+  <nb-card-header>
+    <div class="row align-items-center">
+      <div class="col">
+        <h5 class="mb-0">Resource &amp; Usage Quota</h5>
+      </div>
+      <div class="col-auto" *ngIf="isAdmin">
+        <nb-select [(selected)]="selectedTenant" (selectedChange)="loadQuota()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+  </nb-card-header>
+
+  <nb-card-body>
+    <div *ngIf="loading" class="text-center py-4">
+      <nb-spinner status="primary"></nb-spinner>
+    </div>
+
+    <nb-alert *ngIf="error && !loading" status="danger">{{error}}</nb-alert>
+
+    <ng-container *ngIf="!loading && quotas.length > 0">
+      <div class="row">
+        <div *ngFor="let q of quotas" class="col-md-6 col-lg-4 mb-4">
+          <nb-card size="small" [accent]="barStatus(q.percent)">
+            <nb-card-header class="d-flex justify-content-between align-items-center">
+              <span>{{q.name}}</span>
+              <nb-badge [text]="q.percent + '%'" [status]="barStatus(q.percent)" position="top right"></nb-badge>
+            </nb-card-header>
+            <nb-card-body>
+              <nb-progress-bar [value]="q.percent" [status]="barStatus(q.percent)" class="mb-2"></nb-progress-bar>
+              <div class="quota-stats">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Used</span>
+                  <strong>{{q.used | number}}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Limit</span>
+                  <strong>{{q.limit | number}}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Available</span>
+                  <strong [class.text-danger]="q.available === 0">{{q.available | number}}</strong>
+                </div>
+              </div>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </ng-container>
+
+    <nb-alert *ngIf="!loading && quotas.length === 0 && !error" status="info">
+      No quota configuration found for this tenant.
+    </nb-alert>
+  </nb-card-body>
+</nb-card>

@@ -1,0 +1,66 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Inbound Route' : 'Add Inbound Route' }}</nb-card-header>
+  <nb-card-body>
+    <div class="alert alert-danger" *ngIf="isError"><ul><li *ngFor="let e of errorText">{{ e }}</li></ul></div>
+    <div class="alert alert-success" *ngIf="isSuccess">Inbound route saved. FreeSWITCH dialplan updated.</div>
+
+    <nb-card>
+      <nb-card-header>Route Settings</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">DID Number *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="route.destination_number" placeholder="+12125551234 or 12125551234" required>
+            <small class="text-muted">The inbound phone number that triggers this route.</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Destination Type</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="route.destination_target_type" (ngModelChange)="onTargetTypeChange()">
+              <option *ngFor="let t of targetTypes" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Destination *</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="route.destination_target" required>
+              <option value="">— Select —</option>
+              <option *ngFor="let o of targetList" [value]="o.extension">{{ o.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Context</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="route.destination_context" placeholder="public">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Order</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="number" [(ngModel)]="route.destination_order" placeholder="100">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="route.destination_description"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9"><nb-checkbox [(ngModel)]="route.destination_enabled">Active</nb-checkbox></div>
+        </div>
+
+        <div class="alert alert-info" *ngIf="isEdit && route.destination_data">
+          <strong>Current transfer target:</strong> {{ route.destination_data }}
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/inbound_routes/inbound_routes']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

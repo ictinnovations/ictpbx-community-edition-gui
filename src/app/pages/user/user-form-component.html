@@ -1,0 +1,670 @@
+<div *ngIf="isError" class="ict_error">
+  <p *ngFor="let err of errorText">{{err}}</p>
+</div>
+<h3 *ngIf="(user_id > 0)">{{ 'User.edit' | translate}}</h3>
+<h3 *ngIf="(!user_id)">{{ 'User.add' | translate}}</h3>
+<div class="col-lg-12">
+  <form id="form" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.user_info' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="username">{{ 'User.username' | translate}} <b style="color: red;">*</b></label>
+              <input [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+                id="username" required />
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="phone">{{ 'User.caller_id' | translate}} <b style="color: red;">*</b></label>
+              <input [(ngModel)]="user.phone" [ngModelOptions]="{standalone: true}" type="text" id="phone"
+                class="form-control" pattern="^\+?[0-9]*$" (input)="onPhoneInput($event)" minlength="6" maxlength="16"
+                #phone="ngModel" required />
+              <div [hidden]="phone.valid || phone.pristine" class="alert alert-danger">
+                <div [hidden]="!phone.hasError('required')">{{ 'contact.caller_id_error' | translate}}</div>
+                <div [hidden]="!phone.hasError('pattern')">{{ 'contact.caller_id_pattern_error' | translate}}</div>
+                <div [hidden]="!phone.hasError('minlength')">{{ 'contact.caller_id_length_error' | translate}}</div>
+                <div [hidden]="!phone.hasError('maxlength')">{{ 'contact.caller_id_max_length_error' | translate}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.password' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="password">{{ 'User.password' | translate }}</label>
+              <input type="password" class="form-control" id="password" required [(ngModel)]="user.password"
+                (ngModelChange)="validatePassword($event)" name="password" #password="ngModel">
+              <br>
+              <div class="alert alert-danger" *ngIf="password.dirty && !isPasswordValid()">
+                <div style="color: black;"><b>Password Requirements</b>
+                </div>
+                <br>
+                <ul>
+                  <li *ngIf="!requirements.minLength">Minimum length is {{ policy.min_length }} characters</li>
+                  <li *ngIf="!requirements.specialCharacter">At least {{ policy.special_character }} special character
+                  </li>
+                  <li *ngIf="!requirements.number">At least {{ policy.min_numbers }} number</li>
+                  <li *ngIf="!requirements.uppercase">At least {{ policy.min_uppercase }} uppercase letter</li>
+                  <li *ngIf="!requirements.lowercase">At least {{ policy.min_lowercase }} lowercase letter</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="confirmPassword">{{ 'User.confirm_password' | translate }}</label>
+              <input type="password" class="form-control" id="confirmPassword" required
+                [(ngModel)]="user.confirmPassword" name="confirmPassword" #confirmPassword="ngModel"><br>
+              <div *ngIf="confirmPassword.dirty && user.password !== user.confirmPassword" class="alert alert-danger">
+                {{ 'User.password_mismatch' | translate }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.name' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="first_name">{{ 'User.fname' | translate}} <b style="color: red;">*</b></label>
+              <input [(ngModel)]="user.first_name" [ngModelOptions]="{standalone: true}" type="text"
+                class="form-control" id="first_name" required />
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="last_name">{{ 'User.lname' | translate}}:</label>
+              <input [(ngModel)]="user.last_name" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+                id="last_name" required />
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.user_address' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="phone">{{ 'User.phone' | translate}}:</label>
+              <input [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" type="text" id="contact"
+                class="form-control" pattern="^\+?[0-9]*$" (input)="onPhoneInput($event)" minlength="6" maxlength="16"
+                #phone="ngModel" />
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="email">{{ 'User.email' | translate}} <b style="color: red;">*</b></label>
+              <input [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" type="email" id="email"
+                class="form-control" #email="ngModel" email
+                pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}" required />
+              <div class="md-errors-spacer" [hidden]="email.valid || email.untouched" class="alert alert-danger">
+                <div *ngIf="email.errors && email.errors.pattern">
+                  {{ 'contact.invalid_email' | translate}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="form-group">
+              <label for="address">{{ 'User.address' | translate}}:</label>
+              <textarea [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" class="form-control"
+                id="address" rows="3" cols="30" required></textarea>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.choose_country_timezone' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="country_id">{{ 'User.country' | translate}}</label>
+              <select class="form-control" name="country_id" [(ngModel)]="user.country_id"
+                [ngModelOptions]="{standalone: true}">
+                <option value="4">Afghanistan</option>
+                <option value="248">Åland Islands</option>
+                <option value="8">Albania</option>
+                <option value="12">Algeria</option>
+                <option value="16">American Samoa</option>
+                <option value="20">Andorra</option>
+                <option value="24">Angola</option>
+                <option value="660">Anguilla</option>
+                <option value="10">Antarctica</option>
+                <option value="28">Antigua and Barbuda</option>
+                <option value="32">Argentina</option>
+                <option value="51">Armenia</option>
+                <option value="533">Aruba</option>
+                <option value="36">Australia</option>
+                <option value="40">Austria</option>
+                <option value="31">Azerbaijan</option>
+                <option value="44">Bahamas</option>
+                <option value="48">Bahrain</option>
+                <option value="50">Bangladesh</option>
+                <option value="52">Barbados</option>
+                <option value="112">Belarus</option>
+                <option value="56">Belgium</option>
+                <option value="84">Belize</option>
+                <option value="204">Benin</option>
+                <option value="60">Bermuda</option>
+                <option value="64">Bhutan</option>
+                <option value="68">Bolivia, Plurinational State of</option>
+                <option value="535">Bonaire, Sint Eustatius and Saba</option>
+                <option value="70">Bosnia and Herzegovina</option>
+                <option value="72">Botswana</option>
+                <option value="74">Bouvet Island</option>
+                <option value="76">Brazil</option>
+                <option value="86">British Indian Ocean Territory</option>
+                <option value="96">Brunei Darussalam</option>
+                <option value="100">Bulgaria</option>
+                <option value="854">Burkina Faso</option>
+                <option value="108">Burundi</option>
+                <option value="116">Cambodia</option>
+                <option value="120">Cameroon</option>
+                <option value="124">Canada</option>
+                <option value="132">Cape Verde</option>
+                <option value="136">Cayman Islands</option>
+                <option value="140">Central African Republic</option>
+                <option value="148">Chad</option>
+                <option value="152">Chile</option>
+                <option value="156">China</option>
+                <option value="162">Christmas Island</option>
+                <option value="166">Cocos (Keeling) Islands</option>
+                <option value="170">Colombia</option>
+                <option value="174">Comoros</option>
+                <option value="178">Congo</option>
+                <option value="180">Congo, the Democratic Republic of the</option>
+                <option value="184">Cook Islands</option>
+                <option value="188">Costa Rica</option>
+                <option value="384">Côte d'Ivoire</option>
+                <option value="191">Croatia</option>
+                <option value="192">Cuba</option>
+                <option value="531">Curaçao</option>
+                <option value="196">Cyprus</option>
+                <option value="203">Czech Republic</option>
+                <option value="208">Denmark</option>
+                <option value="262">Djibouti</option>
+                <option value="212">Dominica</option>
+                <option value="214">Dominican Republic</option>
+                <option value="218">Ecuador</option>
+                <option value="818">Egypt</option>
+                <option value="222">El Salvador</option>
+                <option value="226">Equatorial Guinea</option>
+                <option value="232">Eritrea</option>
+                <option value="233">Estonia</option>
+                <option value="231">Ethiopia</option>
+                <option value="238">Falkland Islands (Malvinas)</option>
+                <option value="234">Faroe Islands</option>
+                <option value="242">Fiji</option>
+                <option value="246">Finland</option>
+                <option value="250">France</option>
+                <option value="254">French Guiana</option>
+                <option value="258">French Polynesia</option>
+                <option value="260">French Southern Territories</option>
+                <option value="266">Gabon</option>
+                <option value="270">Gambia</option>
+                <option value="268">Georgia</option>
+                <option value="276">Germany</option>
+                <option value="288">Ghana</option>
+                <option value="292">Gibraltar</option>
+                <option value="300">Greece</option>
+                <option value="304">Greenland</option>
+                <option value="308">Grenada</option>
+                <option value="312">Guadeloupe</option>
+                <option value="316">Guam</option>
+                <option value="320">Guatemala</option>
+                <option value="831">Guernsey</option>
+                <option value="324">Guinea</option>
+                <option value="624">Guinea-Bissau</option>
+                <option value="328">Guyana</option>
+                <option value="332">Haiti</option>
+                <option value="334">Heard Island and McDonald Islands</option>
+                <option value="336">Holy See (Vatican City State)</option>
+                <option value="340">Honduras</option>
+                <option value="344">Hong Kong</option>
+                <option value="348">Hungary</option>
+                <option value="352">Iceland</option>
+                <option value="356">India</option>
+                <option value="360">Indonesia</option>
+                <option value="364">Iran, Islamic Republic of</option>
+                <option value="368">Iraq</option>
+                <option value="372">Ireland</option>
+                <option value="833">Isle of Man</option>
+                <option value="376">Israel</option>
+                <option value="380">Italy</option>
+                <option value="388">Jamaica</option>
+                <option value="392">Japan</option>
+                <option value="832">Jersey</option>
+                <option value="400">Jordan</option>
+                <option value="398">Kazakhstan</option>
+                <option value="404">Kenya</option>
+                <option value="296">Kiribati</option>
+                <option value="408">Korea, Democratic People's Republic of</option>
+                <option value="410">Korea, Republic of</option>
+                <option value="414">Kuwait</option>
+                <option value="417">Kyrgyzstan</option>
+                <option value="418">Lao People's Democratic Republic</option>
+                <option value="428">Latvia</option>
+                <option value="422">Lebanon</option>
+                <option value="426">Lesotho</option>
+                <option value="430">Liberia</option>
+                <option value="434">Libya</option>
+                <option value="438">Liechtenstein</option>
+                <option value="440">Lithuania</option>
+                <option value="442">Luxembourg</option>
+                <option value="446">Macao</option>
+                <option value="807">Macedonia, the former Yugoslav Republic of</option>
+                <option value="450">Madagascar</option>
+                <option value="454">Malawi</option>
+                <option value="458">Malaysia</option>
+                <option value="462">Maldives</option>
+                <option value="466">Mali</option>
+                <option value="470">Malta</option>
+                <option value="584">Marshall Islands</option>
+                <option value="474">Martinique</option>
+                <option value="478">Mauritania</option>
+                <option value="480">Mauritius</option>
+                <option value="175">Mayotte</option>
+                <option value="484">Mexico</option>
+                <option value="583">Micronesia, Federated States of</option>
+                <option value="498">Moldova, Republic of</option>
+                <option value="492">Monaco</option>
+                <option value="496">Mongolia</option>
+                <option value="499">Montenegro</option>
+                <option value="500">Montserrat</option>
+                <option value="504">Morocco</option>
+                <option value="508">Mozambique</option>
+                <option value="104">Myanmar</option>
+                <option value="516">Namibia</option>
+                <option value="520">Nauru</option>
+                <option value="524">Nepal</option>
+                <option value="528">Netherlands</option>
+                <option value="540">New Caledonia</option>
+                <option value="554">New Zealand</option>
+                <option value="558">Nicaragua</option>
+                <option value="562">Niger</option>
+                <option value="566">Nigeria</option>
+                <option value="570">Niue</option>
+                <option value="574">Norfolk Island</option>
+                <option value="580">Northern Mariana Islands</option>
+                <option value="578">Norway</option>
+                <option value="512">Oman</option>
+                <option value="586">Pakistan</option>
+                <option value="585">Palau</option>
+                <option value="275">Palestinian Territory, Occupied</option>
+                <option value="591">Panama</option>
+                <option value="598">Papua New Guinea</option>
+                <option value="600">Paraguay</option>
+                <option value="604">Peru</option>
+                <option value="608">Philippines</option>
+                <option value="612">Pitcairn</option>
+                <option value="616">Poland</option>
+                <option value="620">Portugal</option>
+                <option value="630">Puerto Rico</option>
+                <option value="634">Qatar</option>
+                <option value="638">Réunion</option>
+                <option value="642">Romania</option>
+                <option value="643">Russian Federation</option>
+                <option value="646">Rwanda</option>
+                <option value="652">Saint Barthélemy</option>
+                <option value="654">Saint Helena, Ascension and Tristan da Cunha</option>
+                <option value="659">Saint Kitts and Nevis</option>
+                <option value="662">Saint Lucia</option>
+                <option value="663">Saint Martin (French part)</option>
+                <option value="666">Saint Pierre and Miquelon</option>
+                <option value="670">Saint Vincent and the Grenadines</option>
+                <option value="882">Samoa</option>
+                <option value="674">San Marino</option>
+                <option value="678">Sao Tome and Principe</option>
+                <option value="682">Saudi Arabia</option>
+                <option value="686">Senegal</option>
+                <option value="688">Serbia</option>
+                <option value="690">Seychelles</option>
+                <option value="694">Sierra Leone</option>
+                <option value="702">Singapore</option>
+                <option value="534">Sint Maarten (Dutch part)</option>
+                <option value="703">Slovakia</option>
+                <option value="705">Slovenia</option>
+                <option value="90">Solomon Islands</option>
+                <option value="706">Somalia</option>
+                <option value="710">South Africa</option>
+                <option value="239">South Georgia and the South Sandwich Islands</option>
+                <option value="728">South Sudan</option>
+                <option value="724">Spain</option>
+                <option value="144">Sri Lanka</option>
+                <option value="729">Sudan</option>
+                <option value="740">Suriname</option>
+                <option value="744">Svalbard and Jan Mayen</option>
+                <option value="748">Swaziland</option>
+                <option value="752">Sweden</option>
+                <option value="756">Switzerland</option>
+                <option value="760">Syrian Arab Republic</option>
+                <option value="158">Taiwan, Province of China</option>
+                <option value="762">Tajikistan</option>
+                <option value="834">Tanzania, United Republic of</option>
+                <option value="764">Thailand</option>
+                <option value="626">Timor-Leste</option>
+                <option value="768">Togo</option>
+                <option value="772">Tokelau</option>
+                <option value="776">Tonga</option>
+                <option value="780">Trinidad and Tobago</option>
+                <option value="788">Tunisia</option>
+                <option value="792">Turkey</option>
+                <option value="795">Turkmenistan</option>
+                <option value="796">Turks and Caicos Islands</option>
+                <option value="798">Tuvalu</option>
+                <option value="800">Uganda</option>
+                <option value="804">Ukraine</option>
+                <option value="784">United Arab Emirates</option>
+                <option value="826">United Kingdom</option>
+                <option value="840">United States</option>
+                <option value="581">United States Minor Outlying Islands</option>
+                <option value="858">Uruguay</option>
+                <option value="860">Uzbekistan</option>
+                <option value="548">Vanuatu</option>
+                <option value="862">Venezuela, Bolivarian Republic of</option>
+                <option value="704">Viet Nam</option>
+                <option value="92">Virgin Islands, British</option>
+                <option value="850">Virgin Islands, U.S.</option>
+                <option value="876">Wallis and Futuna</option>
+                <option value="732">Western Sahara</option>
+                <option value="887">Yemen</option>
+                <option value="894">Zambia</option>
+                <option value="716">Zimbabwe</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="timezone_id">{{ 'User.timezone' | translate}}</label>
+              <select class="form-control" name="timezone_id" [(ngModel)]="user.timezone_id"
+                [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let tzone of timezones" value="{{tzone.timezone_id}}">
+                  {{tzone.timezone}}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.company_active' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="active">{{ 'User.active' | translate}}:</label><br>
+              <input [(ngModel)]="user.active" [ngModelOptions]="{standalone: true}" type="radio" name="active"
+                value="0"> {{ 'User.no' | translate}}
+              <input [(ngModel)]="user.active" [ngModelOptions]="{standalone: true}" type="radio" name="active"
+                value="1"> {{ 'User.yes' | translate}}
+            </div>
+          </div>
+          <div class="col-sm-6" *ngIf="(is_admin === 1)">
+            <div class="form-group">
+              <label for="company">{{ 'User.company' | translate}}</label>
+              <input [(ngModel)]="user.company" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+                id="company" required />
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div *ngIf="(is_admin === 1); else role_tenant_ids">
+      <nb-card>
+        <nb-card-header>
+          {{'User.select_role' | translate }}
+        </nb-card-header>
+        <nb-card-body>
+          <div class="row">
+            <div class="col-md-6">
+              <div *ngFor="let rol of role">
+                <input type="checkbox"
+                  (change)="onChange(rol.role_id, $event.target.checked)"
+                  [checked]="rol.state"
+                  [disabled]="isRoleDisabled(rol.role_id)">
+                <span [style.color]="isRoleDisabled(rol.role_id) ? '#aaa' : ''">{{rol.name | translate }}</span><br>
+              </div>
+            </div>
+            <div class="col-md-6" *ngIf="!isCommunity">
+              <div class="form-group">
+                <label for="tenant_id">{{ 'Tenant.title' | translate}}</label>
+                <select class="form-control" name="tenant_id" (change)="onTenantChange($event.target.value)"
+                  [(ngModel)]="user.tenant_id" [ngModelOptions]="{standalone: true}">
+                  <option value="">— Select Tenant —</option>
+                  <option *ngFor="let tenant of filteredTenants" value="{{tenant.tenant_id}}">
+                    {{tenant.company}} <ng-template [ngIf]="tenant.first_name">- {{tenant.first_name}}
+                      {{tenant.last_name}}</ng-template>
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+
+    <!-- Else Add Role and Tenant ID's for tenant user -->
+    <ng-template #role_tenant_ids>
+      <input [(ngModel)]="user.tenant_id" [ngModelOptions]="{standalone: true}" type="hidden" readonly
+        class="form-control" id="tenant_id" required />
+      <!-- <input [(ngModel)]="user.role_id" [ngModelOptions]="{standalone: true}" type="hidden" readonly class="form-control" id="role_id" required/> -->
+    </ng-template>
+
+    <nb-card *ngIf="!isCommunity && (hasPermission('send_fax') || hasPermission('receive_fax'))">
+      <nb-card-header>
+        {{'User.fax_limit' | translate}}:
+      </nb-card-header>
+      <nb-card-body>
+        <div *ngIf="quotaExhausted" class="alert alert-warning mb-3">
+          This tenant's fax quota is fully allocated. Contact your administrator to increase limits before adding new users.
+        </div>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="daily_limit">{{'Tenant.daily' | translate}}:</label>
+              <input [(ngModel)]="user.daily_limit" [ngModelOptions]="{standalone: true}" type="number"
+                [attr.min]="is_admin == 1 || remain_daily === 'Unlimited' ? null : (user.daily_sent || 0)"
+                [attr.max]="is_admin == 1 || remain_daily === 'Unlimited' ? null : remain_daily"
+                step="5" class="form-control" id="daily_limit"
+                onkeydown="return true" required />
+              <p>{{'User.max_limit' | translate}}: <b>{{remain_daily}}</b></p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="monthly_limit">{{'Tenant.monthly' | translate}}:</label>
+              <input [(ngModel)]="user.monthly_limit" [ngModelOptions]="{standalone: true}" type="number"
+                [attr.min]="is_admin == 1 || remain_monthly === 'Unlimited' ? null : (user.monthly_sent || 0)"
+                [attr.max]="is_admin == 1 || remain_monthly === 'Unlimited' ? null : remain_monthly"
+                step="5" class="form-control" id="monthly_limit"
+                onkeydown="return true" required />
+              <p>{{'User.max_limit' | translate}}: <b>{{remain_monthly}}</b></p>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- Fax Permissions -->
+    <nb-card *ngIf="!isCommunity && getPerms(['send_fax','receive_fax','email_to_fax','personalize_fax','campaigns','cover_page','resources.fax_documents','fax_to_email','fax_setting','contacts','groups','contact_dnc']).length > 0">
+      <nb-card-header>Fax Permissions</nb-card-header>
+      <nb-card-body>
+
+        <ng-container *ngIf="getPerms(['send_fax','receive_fax']).length > 0">
+          <small class="text-muted d-block mb-1">Core</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['send_fax','receive_fax'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['email_to_fax','personalize_fax','campaigns','cover_page','resources.fax_documents']).length > 0">
+          <small class="text-muted d-block mb-1">Outbound (requires Send Fax)</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['email_to_fax','personalize_fax','campaigns','cover_page','resources.fax_documents'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['fax_to_email']).length > 0">
+          <small class="text-muted d-block mb-1">Inbound (requires Receive Fax)</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['fax_to_email'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['fax_setting']).length > 0">
+          <small class="text-muted d-block mb-1">Management</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['fax_setting'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['contacts','groups','contact_dnc']).length > 0">
+          <small class="text-muted d-block mb-1">Contacts</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['contacts','groups','contact_dnc'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+      </nb-card-body>
+    </nb-card>
+
+    <!-- PBX Permissions -->
+    <nb-card *ngIf="!isEndUserRoleSelected && getPerms(['fpbx_extension','music_on_hold','conferences','call_block','realtime','devices','voicemails','follow_me','ring_groups','call_queues','ivr_menus','time_conditions','call_flows','inbound_routes']).length > 0">
+      <nb-card-header>PBX Permissions</nb-card-header>
+      <nb-card-body>
+
+        <ng-container *ngIf="getPerms(['fpbx_extension','music_on_hold','conferences','call_block','realtime']).length > 0">
+          <small class="text-muted d-block mb-1">Foundation</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['fpbx_extension','music_on_hold','conferences','call_block','realtime'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['devices','voicemails','follow_me','ring_groups']).length > 0">
+          <small class="text-muted d-block mb-1">Requires Extensions</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['devices','voicemails','follow_me','ring_groups'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['call_queues']).length > 0">
+          <small class="text-muted d-block mb-1">Requires Extensions + Music on Hold</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['call_queues'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['ivr_menus','time_conditions','call_flows']).length > 0">
+          <small class="text-muted d-block mb-1">Routing Logic</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['ivr_menus','time_conditions','call_flows'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="getPerms(['inbound_routes']).length > 0">
+          <small class="text-muted d-block mb-1">Entry Point</small>
+          <hr class="mt-0 mb-2">
+          <div class="row mb-3">
+            <div *ngFor="let p of getPerms(['inbound_routes'])" class="col-md-3">
+              <label [style.opacity]="tenantHasPerm(p.id) ? '1' : '0.5'"><input type="checkbox" (change)="onPermissionChange(p.id, $event.target.checked)" [checked]="p.state" [disabled]="!tenantHasPerm(p.id)"> {{p.name}}</label>
+            </div>
+          </div>
+        </ng-container>
+
+      </nb-card-body>
+    </nb-card>
+
+    <!-- PBX Resource Allocation — appears after PBX Permissions; rows tied to checked permissions -->
+    <nb-card *ngIf="!isEndUserRoleSelected && !isCommunity && checkedPbxQuotas().length > 0">
+      <nb-card-header>PBX Resource Allocation</nb-card-header>
+      <nb-card-body>
+        <p style="font-size:0.85rem; color:#8f9bb3; margin:0 0 1rem;">
+          Allocate resources for each enabled PBX permission.
+        </p>
+        <div class="row">
+          <div *ngFor="let q of checkedPbxQuotas()" class="col-md-4 col-sm-6" style="margin-bottom:1rem;"
+               [style.opacity]="tenantHasPerm(q.permKey) ? '1' : '0.5'">
+            <label>{{ q.name }}</label>
+            <input type="number" class="form-control" min="0"
+                   [attr.max]="is_admin === 1 ? null : q.remaining"
+                   [(ngModel)]="user[q.fieldName]" [ngModelOptions]="{standalone: true}"
+                   [disabled]="!tenantHasPerm(q.permKey)" />
+            <p *ngIf="is_admin !== 1" style="font-size:0.8rem; color:#8f9bb3; margin:0.25rem 0 0;">
+              Available: <b>{{ q.remaining }}</b>
+            </p>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div *ngIf="(user_id > 0)">
+      <button type="button" class="btn btn-primary" (click)="updateUser()">{{ 'buttons.update' | translate}}</button>
+    </div>
+    <div *ngIf="(!user_id)">
+      <button type="button" class="btn btn-success" (click)="addUser()">{{ 'buttons.submit' | translate}}</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,40 @@
+<div class="logo-container">
+  <div style="display: flex; justify-content: center;">
+    <img src="{{ img }} " alt="" height="70px" width="230px">
+  </div>
+</div>
+<br>
+<div style="display: flex; justify-content: center; font-size: small;">
+  {{ 'mfa.mfasetup' | translate }}
+</div>
+<br>
+<div>
+  <p>{{ 'mfa.securitylayer' | translate }}</p>
+  <p>{{ 'mfa.selectone' | translate }}:</p>
+</div>
+<nb-tabset #tabset (changeTab)="onTabChange($event)">
+  <nb-tab tabTitle="Email" [disabled]="isReadOnly && selectedTab !== 0" [ngClass]="{'content-active': selectedTab === 0}">
+    <form #form="ngForm" aria-labelledby="title">
+      <ng-container *ngTemplateOutlet="emailContent">
+      </ng-container>
+    </form>
+  </nb-tab>
+  <nb-tab tabTitle="TOTP" [disabled]="isReadOnly && selectedTab !== 2" [ngClass]="{'content-active': selectedTab === 2}">
+    <form #form="ngForm" aria-labelledby="title">
+      <ng-container *ngTemplateOutlet="appContent"></ng-container>
+    </form>
+  </nb-tab>
+</nb-tabset>
+
+<button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="navigateToLogin()">
+  <i class="fa fa-arrow-left"></i>
+  {{ 'mfa.backtologin' | translate }}
+</button>
+
+<ng-template #emailContent>
+  <ngx-mfa-authemail></ngx-mfa-authemail>
+</ng-template>
+
+<ng-template #appContent>
+  <ngx-mfa-authapp></ngx-mfa-authapp>
+</ng-template>

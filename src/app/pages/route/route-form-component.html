@@ -1,0 +1,123 @@
+<div *ngIf="isError" class="ict_error">
+  <p *ngFor="let err of errorText">{{err}}</p>
+</div>
+<div *ngIf="isworking" class="ict_error">
+  <p>Adding routes, please wait...</p>
+</div>
+<div *ngIf="isSuccess" class="ict_success">
+  <p>{{successText}}</p>
+</div>
+
+<h3>{{ isEdit ? 'Edit::Route' : 'Add::Route' }}</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <!-- <nb-card-header>
+        Route Information
+      </nb-card-header> -->
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+              <label for="service_flag">Service:</label>
+              <br>
+              <select class = "form-control" name = "service_flag" (ngModelChange)="setService($event)" [(ngModel)]= "route.service_flag" [ngModelOptions]="{standalone: true}">
+                <option *ngFor="let service of services" [value]="service.service_flag  ">
+                  {{service.name}}
+                </option>
+              </select>
+          </div>
+          <div class="col-sm-6">
+            <label for="provider_id">Provider:</label>
+            <br>
+            <select class = "form-control" name = "provider_id" (ngModelChange)="setProvider($event)" [(ngModel)]= "route.provider_id" [ngModelOptions]="{standalone: true}">
+              <option *ngFor="let provider of providers" [value]="provider.provider_id">
+                {{provider.name}}
+              </option>
+            </select>
+        </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="isEdit">
+      <nb-card-body>
+        <label>Destination:</label>
+        <p style="font-weight:bold;">{{ route.destination }} ( +{{ route.prefix }} )</p>
+        <small>To route this destination through a different prefix, delete and re-create the route.</small>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="!isEdit">
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6">
+            <label for="provider_id">Region:</label>
+            <br>
+            <select class = "form-control" name = "region_id" (ngModelChange)="getCountry($event, true)" [(ngModel)]= "region_id" [ngModelOptions]="{standalone: true}">
+              <option *ngFor="let region of regions" [value]="region.region_id">
+                {{region.name}}
+              </option>
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label for="provider_id">Country:</label>
+            <br>
+            <select class = "form-control" name = "country_id" (ngModelChange)="getDestination($event)" [(ngModel)]= "country_id" [ngModelOptions]="{standalone: true}">
+              <option selected value=null>Select Country</option>
+              <option *ngFor="let country of countries" [value]="country.country_id">
+                {{country.name}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <nb-card-header style="padding-left: 0; padding-bottom: 0px; margin: 10px 0; display: block;">
+          Destinations
+        </nb-card-header>
+        <div class="row">
+          <div class="col-sm-6">
+            <p>Available</p>
+            <select class = "form-control" name = "destinations"multiple style="height: 200px;">
+              <option *ngFor="let destination of available_destinations" [value]="destination.destination_id" (click)="selectDestination($event.target)">
+                {{destination.name}} (+{{destination.destination_id}})
+              </option>
+            </select>
+            <p class="link" (click)="addAllDestination()">Select All &#8649;</p>
+          </div>
+          <div class="col-sm-6">
+            <p>Selected</p>
+            <select class = "form-control" name = "selected"multiple style="height: 200px;">
+              <option *ngFor="let destination of selected_destinations" [value]="destination.destination_id" (click)="dSelectDestination($event.target)">
+                {{destination.name}} (+{{destination.destination_id}})
+              </option>
+            </select>
+            <p class="link" (click)="removeAllDestination()">&#8647; Remove All</p>
+          </div>
+        </div>
+        <br>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- <nb-card>
+      <nb-card-header>
+        Destination (Add comma separated Prefix with country code)
+        <p>example: 1415, 1315, 92300</p>
+        <p>999 for all</p>
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="destination_id">Destination:</label>
+              <input [(ngModel)]="route.destination_id" [ngModelOptions]="{standalone: true}" type="text" class="form-control" id="destination_id" required/>
+            </div>
+          </div>
+      </nb-card-body>
+    </nb-card> -->
+
+    <div *ngIf="(!route_id)">
+      <button type="button" class="btn btn-success" (click)="addRoute()">Submit</button>
+    </div>
+    <div *ngIf="isEdit">
+      <button type="button" class="btn btn-success" (click)="updateRoute()">Update</button>
+    </div>
+  </form>
+</div>

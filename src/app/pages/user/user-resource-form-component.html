@@ -1,0 +1,84 @@
+<div *ngIf="isError" class="ict_error">
+    <p *ngFor="let err of errorText">{{err}}</p>
+</div>
+<h3>{{ 'User.resource' | translate}}</h3>
+<div class="col-lg-12">
+  <form id="form" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.allowed_timeslot' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-5">
+            <label>{{ 'User.allowed_timeslot' | translate}} : </label>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <select class = "form-control" name = "from_hours" [(ngModel)]="from_hours" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let hour of hours" value="{{hour}}">
+                      {{hour}} 
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <select class = "form-control" name = "from_minutes" [(ngModel)]="from_minutes" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let minute of minutes" value="{{minute}}">
+                      {{minute}} 
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-5 offset-md-2">
+            <label>{{ 'User.range_to' | translate}} : </label>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <select class = "form-control" name = "to_hours" [(ngModel)]="to_hours" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let hour of hours" value="{{hour}}">
+                      {{hour}} 
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <select class = "form-control" name = "to_minutes" [(ngModel)]="to_minutes" [ngModelOptions]="{standalone: true}">
+                    <option *ngFor="let minute of minutes" value="{{minute}}">
+                      {{minute}} 
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card>
+      <nb-card-header>
+        {{ 'User.allowed_weekdays' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-sm-6 offset-md-1">
+            <div class="form-group">
+              <div *ngFor="let day of allowed_days">
+                <input type="checkbox" (change)="onChange(day.id, $event.target.checked)" [checked]="day.state"> {{day.name | translate}}<br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div>
+      <button type="button" class="btn btn-primary" (click)="updateResource()">{{ 'buttons.submit' | translate}}</button>
+    </div>
+  </form>
+</div>

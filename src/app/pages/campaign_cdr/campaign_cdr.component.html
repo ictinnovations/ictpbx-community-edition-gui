@@ -1,0 +1,71 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'cdr.campaign_cdr' | translate}}
+  </nb-card-header>
+
+  <nb-card-body>
+    
+    <button type="button" mat-raised-button color="primary" style="font-size:15px" (click)="sampleCSV()"><i class="fa fa-file" title="CSV File download"></i> {{ 'cdr.export_to_csv' | translate}}</button>
+    <br><br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aCdr" matSort>
+        <ng-container matColumnDef="time_start">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.time_start' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr">
+            {{cdr.time_start * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="time_connect">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.time_connect' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr">
+            {{cdr.time_connect * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="time_end">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.time_end' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr">
+            {{cdr.time_end * 1000 | date:'yyyy-MM-dd HH:mm:ss a'}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="contact_phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.contact_phone' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.contact_phone}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="account_phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.account_phone' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.account_phone}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.status' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.status}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="amount">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.amount' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.amount}}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="pages">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'cdr.pages' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let cdr" style="text-align:left">
+            {{cdr.pages}}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length] = "length"
+        [pageIndex]="0"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>

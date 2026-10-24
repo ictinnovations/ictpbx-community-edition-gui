@@ -1,0 +1,161 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Voicemail Box' : 'Add Voicemail Box' }}</nb-card-header>
+  <nb-card-body>
+
+    <div class="alert alert-danger" *ngIf="isError">
+      <ul><li *ngFor="let e of errorText">{{ e }}</li></ul>
+    </div>
+    <div class="alert alert-success" *ngIf="isSuccess">Voicemail box saved successfully.</div>
+
+    <!-- Basic Settings -->
+    <nb-card>
+      <nb-card-header>Basic Settings</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Box Number *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="voicemail.voicemail_id" placeholder="1001" [disabled]="isEdit" required
+                   (blur)="checkExtension(voicemail.voicemail_id)">
+            <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Password *</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth type="password" [(ngModel)]="voicemail.voicemail_password" placeholder="PIN (digits only)" required>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Email (notifications)</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="voicemail.voicemail_mail_to" placeholder="user@example.com">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">SMS To</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="voicemail.voicemail_sms_to" placeholder="+12125551234 (optional)">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Voicemail File</label>
+          <div class="col-sm-9">
+            <select nbSelect fullWidth [(ngModel)]="voicemail.voicemail_file">
+              <option *ngFor="let o of fileOptions" [value]="o.value">{{ o.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Description</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="voicemail.voicemail_description">
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- Options -->
+    <nb-card>
+      <nb-card-header>Options</nb-card-header>
+      <nb-card-body>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Keep local after email</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="voicemail.voicemail_local_after_email"></nb-checkbox>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Transcription enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="voicemail.voicemail_transcription_enabled"></nb-checkbox>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Recording instructions</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="voicemail.voicemail_recording_instructions"></nb-checkbox>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Enabled</label>
+          <div class="col-sm-9">
+            <nb-checkbox [(ngModel)]="voicemail.voicemail_enabled">Active</nb-checkbox>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <!-- Greetings -->
+    <nb-card *ngIf="isEdit">
+      <nb-card-header>Greetings</nb-card-header>
+      <nb-card-body>
+
+        <div class="alert alert-danger" *ngIf="greetingError">{{ greetingError }}</div>
+        <div class="alert alert-success" *ngIf="greetingSuccess">{{ greetingSuccess }}</div>
+
+        <!-- Existing greetings table -->
+        <table class="table table-bordered table-sm" *ngIf="voicemail.greetings && voicemail.greetings.length > 0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Filename</th>
+              <th>Description</th>
+              <th style="width:80px">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let g of voicemail.greetings">
+              <td>{{ g.greeting_id }}</td>
+              <td>{{ g.greeting_name }}</td>
+              <td>{{ g.greeting_filename }}</td>
+              <td>{{ g.greeting_description }}</td>
+              <td>
+                <button nbButton size="tiny" status="danger"
+                        [disabled]="deletingUuid === g.voicemail_greeting_uuid"
+                        (click)="deleteGreeting(g.voicemail_greeting_uuid)">
+                  <nb-icon icon="trash-2-outline"></nb-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!voicemail.greetings || voicemail.greetings.length === 0" class="text-muted">
+          No greetings yet. Record one via phone (*97) or upload below.
+        </p>
+
+        <!-- Upload section -->
+        <hr>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Greeting Name</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="greetingName" placeholder="e.g. Main Greeting">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label">Audio File</label>
+          <div class="col-sm-9">
+            <input type="file" accept=".wav,.mp3,.ogg" (change)="onFileSelected($event)" style="margin-top:6px">
+            <small class="text-muted d-block">WAV, MP3 or OGG — max 10 MB</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-9 offset-sm-3">
+            <button nbButton status="primary" size="small"
+                    [disabled]="!greetingFile || greetingUploading"
+                    (click)="uploadGreeting()">
+              <nb-icon icon="upload-outline"></nb-icon>
+              {{ greetingUploading ? 'Uploading...' : 'Upload Greeting' }}
+            </button>
+          </div>
+        </div>
+
+      </nb-card-body>
+    </nb-card>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/voicemails/voicemails']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

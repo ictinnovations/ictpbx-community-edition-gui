@@ -1,0 +1,185 @@
+<div class="row">
+  <div class="col-sm-9">
+    <nb-card *ngIf="selectedMenu === 'contacts'">
+      <nb-card-header>
+        <nb-select style="float:right" placeholder="Agent status" shape="rectangle"
+          (selectedChange)="agent_availabitly($event)">
+          <nb-option value="1"> Ready </nb-option>
+          <nb-option value="0">Not Ready</nb-option>
+        </nb-select>
+      </nb-card-header>
+      <nb-card-header>
+        {{'contact.list' | translate}}
+        <nb-select style="float:right" placeholder="Select Campaign" shape="rectangle"
+          (selectedChange)="campaign_contacts($event)">
+          <nb-option [value]="campaigns.campaign_id" *ngFor="let campaigns of campaigns">
+            {{campaigns.title}}
+          </nb-option>
+        </nb-select>
+      </nb-card-header>
+      <nb-card-body>
+        <br>
+        <br>
+        <div class="example-container mat-elevation-z8">
+          <mat-table #table [dataSource]="aContact" matSort>
+            <ng-container matColumnDef="ID">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{'general.ID' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let contact">{{contact.contact_id}}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="firstName">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{'contact.fname' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let contact" style="text-align:left">{{contact.first_name}}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="lastName">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>{{'contact.lname' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let contact" style="text-align:left">{{contact.last_name}}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="Phone" style="text-align:left">
+              <mat-header-cell *matHeaderCellDef mat-sort-header style="text-align:left">{{'contact.phone' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let contact" style="text-align:left">{{contact.phone}}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="Operations">
+              <mat-header-cell *matHeaderCellDef>{{'general.operations' | translate}}</mat-header-cell>
+              <mat-cell *matCellDef="let contact">
+                <button mat-icon-button style="font-size:30px">
+                  <mat-icon (click)="contactCall(contact.phone, contact.contact_id)"><nb-icon status="success" icon="phone-call"></nb-icon></mat-icon>
+                </button>
+              </mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+          </mat-table>
+          <mat-paginator #paginator [length]="length" [pageIndex]="0" [pageSize]="10"
+            [pageSizeOptions]="[5, 10, 25, 100]">
+          </mat-paginator>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="selectedMenu === 'desposition_contacts'">
+      <nb-card-header>Contact Disposition</nb-card-header>
+      <nb-card-body>
+        <br>
+        <div class="row">
+          <div class="col-md-6">
+            <label for="phone">Contact:</label>
+            <input type="text" class="form-control" name="phone" [(ngModel)]="desp_contact.phone"
+              [ngModelOptions]="{standalone: true}" disabled />
+            <label for="first_name" class="mt-3">First Name:</label>
+            <input type="text" class="form-control" name="first_name" [(ngModel)]="desp_contact.first_name"
+              [ngModelOptions]="{standalone: true}" />
+          </div>
+          <div class="col-md-6">
+            <label for="status">Status:</label>
+            <select placeholder="Select Status" class="form-control" [(ngModel)]="desp_contact.status"
+              [ngModelOptions]="{standalone: true}" fullWidth>
+              <option value="answer">Answer</option>
+              <option value="no_answer">No Answer</option>
+              <option value="rejected">Rejected</option>
+              <option value="no_interest">No Interested</option>
+            </select>
+            <label for="last_name" class="mt-3">Last Name:</label>
+            <input type="text" class="form-control" name="last_name" [(ngModel)]="desp_contact.last_name"
+              [ngModelOptions]="{standalone: true}" />
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="mt-3">Email:</label>
+            <input type="text" class="form-control" name="email" [(ngModel)]="desp_contact.email"
+              [ngModelOptions]="{standalone: true}" />
+          </div>
+          <div class="col-md-6">
+            <label for="comments" class="mt-3">Address:</label>
+            <input class="form-control" name="address" type="text" [(ngModel)]="desp_contact.address"
+              [ngModelOptions]="{standalone: true}">
+          </div>
+          <div class="col-md-6">
+            <label for="comments" class="mt-3">Note:</label>
+            <textarea class="form-control" name="comments" rows="4" [(ngModel)]="desp_contact.description"
+              [ngModelOptions]="{standalone: true}"></textarea>
+          </div>
+        </div>
+        <div style="margin-top: 20px;">
+          <button nbButton status="success" (click)="saveDisposition()">Save Disposition</button>
+        </div>
+        <br>
+      </nb-card-body>
+    </nb-card>
+  </div>
+
+  <div class="col-sm-3">
+    <nb-card *ngIf="!incomingCall && !ongoingCall && !dialingCall" accent="info">
+      <nb-card-header class="dialpad-header">Agent phone</nb-card-header>
+      <nb-card-body>
+        <div>
+          <input style="text-align: center;" fullWidth nbInput readonly fieldSize="medium" [value]="inputValue" placeholder="Dial number">
+          &nbsp;
+          <div class="dialpad">
+            <button class="dialbutton" nbButton ghost status="primary" *ngFor="let number of numbers"
+              (click)="appendNumber(number)">{{ number }}</button>
+            <button class="dialbutton" nbButton status="danger" (click)="clearInput()"><nb-icon icon="trash"></nb-icon></button>
+            <button class="dialbutton" nbButton status="success" (click)="makeCall()"><nb-icon icon="phone-call"></nb-icon></button>
+            <button class="dialbutton" nbButton status="danger" (click)="deleteLast()"><nb-icon icon="backspace"></nb-icon></button>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="incomingCall" accent="info">
+      <nb-card-header class="dialpad-header">Incomming Call</nb-card-header>
+      <nb-card-body>
+        <div style="display: flex; justify-content: center;">
+          <img src="../../../../assets/images/blank_person.png" width="170" height="180" />
+        </div>
+        <br><br><br>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+          <button nbButton status="success" (click)="answerCall()">answer</button>
+          <button nbButton status="danger" (click)="rejectCall()">reject</button>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="dialingCall" accent="info">
+      <nb-card-header class="dialpad-header">Dialing number</nb-card-header>
+      <nb-card-body>
+        <div style="display: flex; justify-content: center;">
+          <img src="../../../../assets/images/blank_person.png" width="170" height="180" />
+        </div>
+        <br><br><br>
+        <div class="dialpad-header"><b>Dialing {{inputValue}}</b></div>
+        <br>
+        <div class="dialpad-header">
+          <button nbButton status="danger" (click)="hangupCall()">hangup</button>
+        </div>
+      </nb-card-body>
+    </nb-card>
+
+    <nb-card *ngIf="ongoingCall" accent="info">
+      <nb-card-header class="dialpad-header">Ongoing Call</nb-card-header>
+      <nb-card-body>
+        <div style="display: flex; justify-content: center;">
+          <img src="../../../../assets/images/blank_person.png" width="170" height="180" />
+        </div>
+        <br><br><br>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+          <button fullWidth nbButton status="danger" (click)="hangupCall()">hangup</button>
+        </div>
+        <br>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+          <button nbButton (click)="isCallmute(true)" *ngIf="!isMuted">Mute</button>
+          <button nbButton (click)="isCallmute(false)" *ngIf="isMuted">Unmute</button>
+          <button nbButton status="warning" (click)="holdcall()" *ngIf="!onhold">hold</button>
+          <button nbButton status="primary" (click)="unholdcall()" *ngIf="onhold">unhold</button>
+        </div>
+        <br>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+          <button nbButton status="info" fullWidth (click)="transfering(true)" *ngIf="!istransfer">transfer</button>
+          <button nbButton status="success" (click)="blindtransfer()" *ngIf="istarget">blind</button>
+          <button nbButton status="success" (click)="attendedtransfer()" *ngIf="istarget">attended</button>
+          <nb-select fullWidth placeholder="Select to transfer" *ngIf="istransfer && !istarget" (selectedChange)="targetext($event)" status="basic">
+            <nb-option *ngFor="let ext of extensions" [value]="ext.phone">{{ext.phone}}</nb-option>
+          </nb-select>
+        </div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

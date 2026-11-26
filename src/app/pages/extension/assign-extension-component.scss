@@ -1,0 +1,12 @@
+::ng-deep .mat-column-ID,
+::ng-deep .mat-column-username,
+::ng-deep .mat-phone,
+::ng-deep .mat-column-Timestamp,
+::ng-deep .mat-column-status,
+::ng-deep .mat-title{
+  max-width: 20%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0.8;
+  margin-right: 20px;
+}

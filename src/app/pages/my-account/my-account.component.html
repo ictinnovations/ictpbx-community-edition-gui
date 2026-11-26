@@ -1,0 +1,160 @@
+<nb-card>
+  <nb-card-header>My Account</nb-card-header>
+  <nb-card-body>
+
+    <div *ngIf="loading" style="text-align:center;padding:24px">
+      <nb-spinner status="primary"></nb-spinner>
+    </div>
+
+    <nb-alert *ngIf="!loading && notFound" status="info">
+      No account has been assigned to your profile yet. Please contact your administrator.
+    </nb-alert>
+
+    <div *ngIf="!loading && !notFound">
+
+      <!-- One card per PBX extension -->
+      <ng-container *ngFor="let acc of accounts">
+        <ng-container *ngIf="acc.pbx_extension">
+
+          <!-- Fax Extension info (shown instead of SIP when type=fax) -->
+          <nb-card accent="warning" style="margin-bottom:16px" *ngIf="acc.pbx_extension_type === 'fax'">
+            <nb-card-header>Fax Extension — {{ acc.pbx_extension }}</nb-card-header>
+            <nb-card-body>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Extension Number</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_extension" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Fax Delivery Email</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_fax_email || acc.email || '—'" readonly>
+                  <small class="text-muted">Received faxes are delivered to this address.</small>
+                </div>
+              </div>
+            </nb-card-body>
+          </nb-card>
+
+          <!-- SIP Credentials (read-only) — voice extensions only -->
+          <nb-card accent="primary" style="margin-bottom:16px" *ngIf="acc.pbx_extension_type !== 'fax'">
+            <nb-card-header>PBX Extension — {{ acc.pbx_extension }}</nb-card-header>
+            <nb-card-body>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Extension Number</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_extension" readonly>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">SIP Password</label>
+                <div class="col-sm-6" style="display:flex;gap:8px">
+                  <input nbInput fullWidth [type]="showPbxPassword[acc.account_id] ? 'text' : 'password'" [value]="acc.pbx_password" readonly style="flex:1">
+                  <button nbButton ghost size="small" (click)="showPbxPassword[acc.account_id] = !showPbxPassword[acc.account_id]" type="button">
+                    <nb-icon [icon]="showPbxPassword[acc.account_id] ? 'eye-off-outline' : 'eye-outline'"></nb-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group row" *ngIf="acc.pbx_domain">
+                <label class="col-sm-3 col-form-label">SIP Domain</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [value]="acc.pbx_domain" readonly>
+                </div>
+              </div>
+            </nb-card-body>
+          </nb-card>
+
+          <!-- Editable Extension Settings — voice extensions only -->
+          <nb-card accent="info" style="margin-bottom:24px" *ngIf="acc.pbx_extension_type !== 'fax'">
+            <nb-card-header>Extension Settings — {{ acc.pbx_extension }}</nb-card-header>
+            <nb-card-body>
+              <nb-alert *ngIf="saveSuccess[acc.account_id]" status="success" closable (close)="saveSuccess[acc.account_id]=false">Settings saved successfully.</nb-alert>
+              <nb-alert *ngIf="saveError[acc.account_id]" status="danger" closable (close)="saveError[acc.account_id]=''">{{ saveError[acc.account_id] }}</nb-alert>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Caller ID Name</label>
+                <div class="col-sm-6">
+                  <input nbInput fullWidth [(ngModel)]="acc.pbx_caller_id_name" placeholder="Display name for outbound calls">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Do Not Disturb</label>
+                <div class="col-sm-6">
+                  <nb-checkbox [(ngModel)]="acc.pbx_do_not_disturb">Reject incoming calls</nb-checkbox>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Forward All Calls</label>
+                <div class="col-sm-9" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                  <nb-checkbox [(ngModel)]="acc.pbx_forward_all_enabled" style="margin-top:6px">Enabled</nb-checkbox>
+                  <select nbSelect [(ngModel)]="acc.pbx_forward_all_destination" style="flex:1;min-width:180px" [disabled]="!acc.pbx_forward_all_enabled">
+                    <option value="">— Select extension —</option>
+                    <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Forward When Busy</label>
+                <div class="col-sm-9" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                  <nb-checkbox [(ngModel)]="acc.pbx_forward_busy_enabled" style="margin-top:6px">Enabled</nb-checkbox>
+                  <select nbSelect [(ngModel)]="acc.pbx_forward_busy_destination" style="flex:1;min-width:180px" [disabled]="!acc.pbx_forward_busy_enabled">
+                    <option value="">— Select extension —</option>
+                    <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Forward No Answer</label>
+                <div class="col-sm-9" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                  <nb-checkbox [(ngModel)]="acc.pbx_forward_no_answer_enabled" style="margin-top:6px">Enabled</nb-checkbox>
+                  <select nbSelect [(ngModel)]="acc.pbx_forward_no_answer_destination" style="flex:1;min-width:180px" [disabled]="!acc.pbx_forward_no_answer_enabled">
+                    <option value="">— Select extension —</option>
+                    <option *ngFor="let o of extensions" [value]="o.extension">{{ o.label }}</option>
+                  </select>
+                </div>
+              </div>
+            </nb-card-body>
+            <nb-card-footer>
+              <button nbButton status="primary" (click)="saveExtensionSettings(acc)" [disabled]="saving[acc.account_id]">
+                {{ saving[acc.account_id] ? 'Saving…' : 'Save Settings' }}
+              </button>
+            </nb-card-footer>
+          </nb-card>
+
+        </ng-container>
+      </ng-container>
+
+      <!-- Fax Account (primary) -->
+      <nb-card accent="success">
+        <nb-card-header>My Fax Account</nb-card-header>
+        <nb-card-body>
+          <nb-alert *ngIf="emailSaveSuccess" status="success" closable (close)="emailSaveSuccess=false">Email saved.</nb-alert>
+          <nb-alert *ngIf="emailSaveError" status="danger" closable (close)="emailSaveError=''">{{ emailSaveError }}</nb-alert>
+
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Delivery Email</label>
+            <div class="col-sm-6" style="display:flex;gap:8px">
+              <input nbInput fullWidth type="email" [(ngModel)]="primaryAccount.email" placeholder="your@email.com" style="flex:1">
+              <button nbButton status="primary" size="small" (click)="saveFaxEmail()" [disabled]="emailSaving">
+                {{ emailSaving ? 'Saving…' : 'Save' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">DID Number</label>
+            <div class="col-sm-6">
+              <input nbInput fullWidth [value]="primaryAccount.did_phone || 'Not assigned'" readonly>
+            </div>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+    </div>
+
+  </nb-card-body>
+</nb-card>

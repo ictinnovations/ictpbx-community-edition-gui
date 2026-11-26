@@ -1,0 +1,153 @@
+<nb-card>
+  <nb-card-header>
+    <div class="row align-items-center">
+      <div class="col">
+        <h5 class="mb-0">Usage Report</h5>
+      </div>
+      <div class="col-auto d-flex gap-2">
+        <input nbInput type="month" [(ngModel)]="period" (change)="loadUsage()"
+               placeholder="Filter by month" style="max-width:160px">
+        <ng-container *ngIf="isAdmin">
+          <nb-select [(selected)]="selectedTenant" (selectedChange)="loadUsage()" style="min-width:180px">
+            <nb-option [value]="0">All Tenants</nb-option>
+            <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+          </nb-select>
+        </ng-container>
+      </div>
+    </div>
+  </nb-card-header>
+
+  <nb-card-body>
+    <div *ngIf="loading" class="text-center py-4">
+      <nb-spinner status="primary"></nb-spinner>
+    </div>
+
+    <nb-alert *ngIf="error && !loading" status="danger">{{error}}</nb-alert>
+
+    <!-- Single tenant view -->
+    <ng-container *ngIf="!loading && usage">
+      <p class="text-muted mb-3">Billing Period: <strong>{{usage.period}}</strong></p>
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <nb-card accent="success" size="small">
+            <nb-card-header>Voice Minutes</nb-card-header>
+            <nb-card-body>
+              <div class="d-flex justify-content-between mb-1">
+                <span>{{usage.voice_minutes_used | number}} min used</span>
+                <span class="text-muted" *ngIf="usage.voice_limit">of {{usage.voice_limit | number}}</span>
+                <span class="text-muted" *ngIf="!usage.voice_limit">Unlimited</span>
+              </div>
+              <nb-progress-bar [value]="voicePercent(usage)" [status]="barColor(voicePercent(usage))"></nb-progress-bar>
+              <div class="mt-2">
+                Rate: <strong>{{usage.voice_rate_per_min | number:'1.4-4'}}</strong> / min &nbsp;|&nbsp;
+                Cost: <strong>${{usage.voice_cost | number:'1.2-2'}}</strong>
+              </div>
+            </nb-card-body>
+          </nb-card>
+        </div>
+        <div class="col-md-6 mb-4">
+          <nb-card accent="info" size="small">
+            <nb-card-header>Fax Pages</nb-card-header>
+            <nb-card-body>
+              <div class="d-flex justify-content-between mb-1">
+                <span>{{usage.fax_pages_used | number}} pages used</span>
+                <span class="text-muted" *ngIf="usage.fax_limit">of {{usage.fax_limit | number}}</span>
+                <span class="text-muted" *ngIf="!usage.fax_limit">Unlimited</span>
+              </div>
+              <nb-progress-bar [value]="faxPercent(usage)" [status]="barColor(faxPercent(usage))"></nb-progress-bar>
+              <div class="mt-2">
+                Rate: <strong>{{usage.fax_rate_per_page | number:'1.4-4'}}</strong> / page &nbsp;|&nbsp;
+                Cost: <strong>${{usage.fax_cost | number:'1.2-2'}}</strong>
+              </div>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <nb-card accent="primary" size="tiny">
+            <nb-card-body class="d-flex justify-content-between align-items-center">
+              <span class="h6 mb-0">Estimated Total Cost</span>
+              <span class="h4 mb-0 text-primary">${{usage.total_cost | number:'1.2-2'}}</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- User personal fax sending limits -->
+    <ng-container *ngIf="!isAdmin && userDailyLimit !== null && (hasPermission('send_fax') || hasPermission('receive_fax'))">
+      <div class="row mt-2">
+        <div class="col-md-6 mb-4">
+          <nb-card accent="warning" size="small">
+            <nb-card-header>My Daily Sending Limit</nb-card-header>
+            <nb-card-body>
+              <span class="h4">{{ userDailyLimit == -1 ? 'Unlimited' : userDailyLimit }}</span>
+              <span class="text-muted ms-2">faxes per day</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+        <div class="col-md-6 mb-4">
+          <nb-card accent="warning" size="small">
+            <nb-card-header>My Monthly Sending Limit</nb-card-header>
+            <nb-card-body>
+              <span class="h4">{{ userMonthlyLimit == -1 ? 'Unlimited' : userMonthlyLimit }}</span>
+              <span class="text-muted ms-2">faxes per month</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- User PBX allocations -->
+    <ng-container *ngIf="!isAdmin && userPbxQuotas.length > 0">
+      <nb-card>
+        <nb-card-header>My PBX Allocations</nb-card-header>
+        <nb-card-body>
+          <div class="row">
+            <div class="col-md-3 col-sm-4 mb-3" *ngFor="let q of userPbxQuotas">
+              <nb-card accent="primary" size="tiny">
+                <nb-card-header style="font-size:0.85rem;">{{ q.name }}</nb-card-header>
+                <nb-card-body>
+                  <span class="h5">{{ q.value == -1 ? 'Unlimited' : q.value }}</span>
+                </nb-card-body>
+              </nb-card>
+            </div>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </ng-container>
+
+    <!-- Admin all-tenants table -->
+    <ng-container *ngIf="!loading && allUsage.length > 0">
+      <table [nbTreeGrid]="[]" class="w-100">
+        <thead>
+          <tr>
+            <th>Tenant</th>
+            <th>Period</th>
+            <th>Voice Min</th>
+            <th>Voice Cost</th>
+            <th>Fax Pages</th>
+            <th>Fax Cost</th>
+            <th>Total Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of allUsage">
+            <td>{{row.company}}</td>
+            <td>{{row.period}}</td>
+            <td>{{row.voice_minutes_used | number}}</td>
+            <td>${{row.voice_cost | number:'1.2-2'}}</td>
+            <td>{{row.fax_pages_used | number}}</td>
+            <td>${{row.fax_cost | number:'1.2-2'}}</td>
+            <td><strong>${{row.total_cost | number:'1.2-2'}}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <nb-alert *ngIf="!loading && !usage && allUsage.length === 0 && !error" status="info">
+      No usage data for the selected period.
+    </nb-alert>
+  </nb-card-body>
+</nb-card>

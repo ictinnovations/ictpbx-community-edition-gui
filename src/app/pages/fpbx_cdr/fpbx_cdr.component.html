@@ -1,0 +1,134 @@
+<!-- ETL Status Card -->
+<nb-card [status]="etlStatus?.running ? 'warning' : etlStatus?.status === 'error' ? 'danger' : 'basic'" style="margin-bottom:16px">
+  <nb-card-body>
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <strong>CDR Sync (ETL)</strong>&nbsp;
+        <span *ngIf="etlStatus?.running" class="badge badge-warning">Running...</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'ok'" class="badge badge-success">OK</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'error'" class="badge badge-danger">Error</span>
+        <span *ngIf="!etlStatus?.running && etlStatus?.status === 'never_run'" class="badge badge-secondary">Never run</span>
+        <div class="text-muted" style="font-size:12px;margin-top:4px" *ngIf="etlStatus?.last_run">
+          Last run: {{ etlStatus.last_run }} &mdash; {{ etlStatus.inserted }} record(s) inserted
+        </div>
+        <div class="text-danger" style="font-size:12px;margin-top:4px" *ngIf="etlStatus?.error">
+          {{ etlStatus.error }}
+        </div>
+        <div class="text-muted" style="font-size:11px;margin-top:2px">
+          Syncs FreeSWITCH Master.csv &rarr; ICTCore CDR. Runs automatically every hour.
+        </div>
+      </div>
+      <button type="button" mat-raised-button color="primary"
+              [disabled]="etlTriggering || etlStatus?.running"
+              (click)="runEtl()">
+        <i class="fa fa-sync"></i>
+        {{ etlStatus?.running ? 'Running...' : 'Run ETL Now' }}
+      </button>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<!-- PBX CDR Table -->
+<nb-card>
+  <nb-card-header>PBX CDR</nb-card-header>
+  <nb-card-body>
+
+    <!-- Filters -->
+    <div class="example-container cdr_filter" [formGroup]="range">
+      <mat-form-field class="field">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date" />
+          <input matEndDate formControlName="end" placeholder="End date" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <div class="field">
+        <select class="form-control" (change)="onDirectionSelect($event.target.value)">
+          <option value="">All directions</option>
+          <option value="inbound">Inbound</option>
+          <option value="outbound">Outbound</option>
+          <option value="local">Local</option>
+        </select>
+      </div>
+    </div>
+    <br>
+    <div class="example-container cdr_filter">
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="applyFilter()">
+        <i class="fa fa-filter"></i>
+        Filter Report
+      </button>
+      <button type="button" class="btn" mat-raised-button color="basic" (click)="clearFilter()">
+        <i class="fa fa-times"></i>
+        Clear
+      </button>
+    </div>
+
+    <br><br>
+    <div *ngIf="loading" class="text-center py-3">Loading...</div>
+
+    <div class="example-container mat-elevation-z8" *ngIf="!loading">
+      <mat-table #table [dataSource]="rows" matSort>
+        <ng-container matColumnDef="Time">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Date / Time</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">
+            {{ r.start_stamp | date:'yyyy-MM-dd HH:mm:ss' }}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Domain">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Domain</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">{{ r.domain_name }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Direction">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Direction</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">
+            <span [class]="'badge badge-' + (r.direction==='inbound'?'success':r.direction==='outbound'?'primary':'secondary')">
+              {{ r.direction }}
+            </span>
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Caller">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Caller</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">
+            {{ r.caller_id_name }} <small class="text-muted">{{ r.caller_id_number }}</small>
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Destination">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Destination</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">{{ r.destination_number }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Duration">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Duration</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">{{ r.duration }}s</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Billed">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Billed</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">{{ r.billsec }}s</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="HangupCause">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Hangup Cause</mat-header-cell>
+          <mat-cell *matCellDef="let r" style="text-align:left">
+            <span [class]="r.hangup_cause==='NORMAL_CLEARING'?'text-success':'text-danger'" style="font-size:11px">
+              {{ r.hangup_cause }}
+            </span>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+
+      <div *ngIf="rows.length === 0" class="text-center text-muted py-3">No CDR records found.</div>
+
+      <mat-paginator
+        [length]="total"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPage($event)">
+      </mat-paginator>
+    </div>
+
+  </nb-card-body>
+</nb-card>

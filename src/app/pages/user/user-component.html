@@ -1,0 +1,219 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'User.list' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <ng-template #searchTemplate let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'User.search' | translate }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="search" class="form-control" placeholder="{{ 'User.filter' | translate }}" />
+        <select [(ngModel)]="key" class="form-control mt-2">
+          <option value="" disabled hidden>Select Type Search</option>
+          <option value="first_name">First Name</option>
+          <option value="last_name">Last Name</option>
+          <option value="username">Username</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-2" mat-raised-button color="primary" style="font-size:15px;"
+          (click)="resetsearch(modal)"> Reset</button>
+        <button type="button" mat-raised-button color="primary" style="font-size:15px"
+          (click)="searchUsers(modal)">Search</button>
+      </div>
+    </ng-template>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      [routerLink]="['/pages/user/user/new']"><i class="fa fa-plus"></i> {{ 'User.add' | translate}}</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      (click)="openSearchModal(searchTemplate)"><i class="fa fa-search"></i> Search</button>
+    <button type="button" mat-raised-button color="primary" style="font-size:15px; margin-left: 10px;"
+      [routerLink]="['/pages/user/user/csv/import/data']"><i class="fa fa-arrow-down"></i> Import CSV Data</button>
+
+    <br>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aUser" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'general.ID' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{user.user_id}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="company">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Tenant</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left">
+            {{ user.company || ('—') }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="first_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.fname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left">
+            {{user.first_name}} {{user.last_name}}</mat-cell>
+        </ng-container>
+        <!-- <ng-container matColumnDef="last_name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.lname' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left">
+            {{user.last_name}}</mat-cell>
+        </ng-container> -->
+        <ng-container matColumnDef="email">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.email' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left">
+            {{user.email}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="user_role">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'User.user_role'| translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:center">
+            {{user.roles}}
+          </mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.status' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:center" [ngClass]="{
+              'login': user.status === 'login',
+              'logout': user.status === 'logout'
+            }">
+            {{ user.status }}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Account_status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.account' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left"
+            [ngClass]="{'active': user.active === '1', 'inactive': user.active == '0'}">
+            <mat-slide-toggle color="primary" [checked]="user.active === '1'" [ngModelOptions]="{standalone: true}"
+              (change)="Toggler(user.username, user.user_id, $event.checked, user)">
+              {{ user.active === '1' ? 'Active' : (user.active_desc ? user.active_desc : 'Deactive') }}
+            </mat-slide-toggle>
+          </mat-cell>
+        </ng-container>
+        <!-- <ng-container matColumnDef="Active_desc">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'User.account' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user" style="text-align:left">
+            {{user.active_desc}}
+          </mat-cell>
+        </ng-container> -->
+
+        <ng-container matColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon style="color: green" (click)="open(content,user.user_id)"><nb-icon icon="eye-outline"
+                  title="activity"></nb-icon>
+              </mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/user/user/{{user.user_id}}" title="Edit"><nb-icon
+                    icon="edit-2-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon><a routerLink="/pages/user/user/{{user.user_id}}/resource" title="Resources"><nb-icon
+                    icon="swap-outline"></nb-icon></a></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon style="color: primary" (click)="logout(user.user_id,user.first_name)"><nb-icon
+                  icon="clock-outline" title="Session Destroy"></nb-icon>
+              </mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px"
+              *ngIf="+user.user_id !== +auser?.user_id && +user.user_id !== 1">
+              <mat-icon style="color: red"
+                (click)="showStaticModal(deleteTemplate,user.first_name, user.user_id)"><nb-icon icon="trash-2-outline"
+                  title="Delete"></nb-icon></mat-icon>
+            </button>
+
+            <button mat-icon-button color="primary" style="font-size:20px" *ngIf="(is_admin === 1)">
+
+              <mat-icon (click)="sign(user)"><nb-icon icon="log-in-outline"
+                  title="Login as {{user.username}}"></nb-icon></mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #deleteTemplate let-data>
+  <div class="delete-dialog">
+
+    <div class="delete-header">
+      <nb-icon icon="alert-triangle-outline"></nb-icon>
+      <h4>Delete User: {{ data.name }}</h4>
+    </div>
+
+    <p class="delete-message">
+      <strong>Warning:</strong> Deleting this account is permanent and cannot be undone.<br>
+      All associated fax accounts, usage history, and permissions will be lost.
+    </p>
+
+    <div class="delete-actions gap-2">
+      <button nbButton status="danger" size="medium" class="mr-4" (click)="deleteUser(data.user_id)">
+        Yes, Delete
+      </button>
+
+      <button nbButton status="basic" size="medium" (click)="onclose()">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+</ng-template>
+
+<ng-template id="ngtemplate" #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Activities</h4>
+    <button type="button" class="close" aria-label="Close" (click)="onSave()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body custom-modal">
+    <table>
+      <tr>
+        <th>User ID</th>
+        <th>User Name</th>
+        <th>Activity</th>
+        <th>IP</th>
+        <th>Date</th>
+      </tr>
+      <tr *ngFor="let activity of activityarray.slice(startIndex, startIndex + pageSize); let i = index">
+        <td>{{ activity.user_id }}</td>
+        <td>{{ activity.username }}</td>
+        <td class="activity-column">{{ activity.activities }}</td>
+        <td>{{ activity.ip_address }}</td>
+        <td>{{ activity.date * 1000 | date : "yyyy-MM-dd HH:mm:ss a" }}</td>
+      </tr>
+    </table>
+    <ng-container *ngIf="loading">
+      <p>Loading...</p>
+    </ng-container>
+    <p *ngIf="activityarray.length === 0">
+      Empty
+    </p>
+    <div style="padding: 30px; display: flex; justify-content: flex-end;">
+      <!-- <span style="text-align: center; padding-top: 10px;">Items per page: &nbsp;&nbsp;</span> -->
+      <!-- <select [(ngModel)]="pageSize" (ngModelChange)="paginate($event)">
+        <option *ngFor="let option of items_page" [value]="option">{{ option }}</option>
+      </select> -->
+      <div style="padding-top: 10px;">
+        <nb-icon style="margin: 0 25px;" icon="arrowhead-left-outline"
+          (click)="startIndex > 0 ? paginate('previous') : null"
+          [ngClass]="{'disabled-icon': startIndex === 0}"></nb-icon>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <nb-icon style="margin: 0 25px;" icon="arrowhead-right-outline"
+          (click)="startIndex + pageSize < length ? paginate('next') : null"
+          [ngClass]="{'disabled-icon': startIndex + pageSize >= length}"></nb-icon>
+        <span *ngIf="length > 0">
+          | Showing {{ startIndex + 1 }} - {{ minimumItems }} of {{ length }} items
+        </span>
+      </div>
+    </div>
+
+  </div>
+</ng-template>

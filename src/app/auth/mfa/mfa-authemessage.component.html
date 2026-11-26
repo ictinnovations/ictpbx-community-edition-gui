@@ -1,0 +1,66 @@
+<div class="form-control-group accept-group">
+  <p>{{ 'mfa.tmessage' | translate }}</p>
+</div>
+
+<form id="form1" #f1="ngForm" aria-labelledby="title">
+
+  <nb-card *ngIf="!mfa.vcode">
+    <nb-card-body>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="phone">{{ 'mfa.phone' | translate}}:</label>
+            <input [(ngModel)]="user.phone" [ngModelOptions]="{standalone: true}" type="phone" id="phone" class="form-control" pattern="[0-9]*" minlength="11" maxlength="16" #phone="ngModel" required [readonly]="user.phone !== '' && user.auth_type === 'message'"/>
+            <div [hidden]="phone.valid || phone.pristine"
+                class="alert alert-danger">
+        
+              <div [hidden]="!phone.hasError('required')">{{ 'contact.required_error' | translate}}</div>
+              <div [hidden]="!phone.hasError('pattern')">{{ 'contact.pattern_error' | translate}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="sendCode()">
+              {{ 'mfa.scode' | translate }}
+            </button>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="onResendClick()">
+              {{ 'mfa.rscode' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    </nb-card-body>
+  </nb-card>
+
+  <nb-card *ngIf="mfa.vcode && !errorMessage">
+    <nb-card-body>
+      <div class="col-sm-12">
+        <div class="form-group">
+          <label for="description">{{ 'mfa.vcode' | translate}}:</label>
+          <input [(ngModel)]="mfa.verificationCode" name="verificationCode" type="text" class="form-control" id="verificationCode" required/>
+        </div>
+        <div *ngIf="mfa.verificationError" class="alert alert-danger">
+          {{ mfa.verificationError }}
+        </div>
+      </div>
+    </nb-card-body>
+
+    <button id="MFAverify" type="button" class="btn btn-primary" (click)="onVerifyClick()">{{ 'buttons.verify' | translate}}</button>
+  </nb-card>
+
+  <!-- <button type="button" class="btn btn-primary back-button" nbButton status="primary" (click)="navigateToMFA()">
+      <i class="fa fa-arrow-left"></i> 
+      {{ 'mfa.back' | translate }}
+  </button> -->
+
+</form>
+
+

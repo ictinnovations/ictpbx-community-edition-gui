@@ -1,0 +1,44 @@
+<h3>Add::Rate Plan</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        Rate Plan Information
+      </nb-card-header>
+      <nb-card-body>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="name">Rate Plan Name: <span class="text-danger">*</span></label>
+              <input [(ngModel)]="plan.name" [ngModelOptions]="{standalone: true}" #planName="ngModel"
+                     type="text" class="form-control" id="name" required minlength="2"/>
+              <div [hidden]="planName.valid || planName.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!planName.hasError('required')">Rate plan name is required.</div>
+                <div [hidden]="!planName.hasError('minlength')">Rate plan name must be at least 2 characters.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="description">Description: <span class="text-danger">*</span></label>
+              <textarea [(ngModel)]="this.plan.description" [ngModelOptions]="{standalone: true}" #planDesc="ngModel"
+                        class="form-control" id="description" rows="5" cols="20" required></textarea>
+              <div [hidden]="planDesc.valid || planDesc.pristine" class="alert alert-danger mt-1 p-1">
+                <div [hidden]="!planDesc.hasError('required')">Description is required.</div>
+              </div>
+            </div>
+          </div>
+      </nb-card-body>
+    </nb-card>
+
+    <div *ngIf="(plan_id>0)">
+      <button type="button" class="btn btn-primary"
+              [disabled]="planName.invalid || planDesc.invalid"
+              (click)="updatePlan()">Update</button>
+    </div>
+    <div *ngIf="(!plan_id)">
+      <button type="button" class="btn btn-success"
+              [disabled]="planName.invalid || planDesc.invalid"
+              (click)="addPlan()">Submit</button>
+    </div>
+  </form>
+</div>

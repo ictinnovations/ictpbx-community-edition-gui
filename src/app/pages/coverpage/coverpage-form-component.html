@@ -1,0 +1,78 @@
+<h3>{{ 'cover_page.add' | translate}}</h3>
+<div class="col-lg-12">
+  <form id="form1" #f1="ngForm">
+    <nb-card>
+      <nb-card-header>
+        {{ 'cover_page.coverpage_info' | translate}}
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="title">{{ 'cover_page.title' | translate}}:<span class="text-danger"> &nbsp; * </span></label>
+              <input type="text" class="form-control" id="title" [(ngModel)]="cover.title"
+                [ngModelOptions]="{standalone: true}" required />
+
+
+            </div>
+            <div class="form-group">
+              <label for="desc">{{ 'cover_page.formdesc' | translate}}:</label>
+              <!-- <textarea class="form-control" id="desc" [ngModelOptions]="{standalone: true}" placeholder='&#10;<div style=border-style:solid;> Hello [transmission:destination:first_name] </div>' [(ngModel)]="cover.description" rows="5"></textarea> -->
+
+              <nb-card class="editor-card">
+                <nb-card-body>
+
+                  <quill-editor #quillEditor [(ngModel)]="cover.description" [ngModelOptions]="{ standalone: true }"
+                    [modules]="editorModules" class="editor-box">
+                  </quill-editor>
+
+
+                </nb-card-body>
+              </nb-card>
+
+
+
+            </div>
+            <!-- <div class="form-group">
+              <input type="checkbox" [(ngModel)]="cover.defaultcover"  [checked]="cover.defaultcover" [ngModelOptions]="{standalone: true}" id="defcov">&nbsp; <label for="defcov">   {{ 'cover_page.default' | translate}}</label> 
+            </div> -->
+          </div>
+
+
+
+          <div class="col">
+            <div class="form-group">
+              <label><b>{{'cover_page.tokens' | translate }}</b></label>
+              <ul class="list-group">
+                <li>[transmission:source:first_name]</li>
+                <li>[transmission:source:last_name]</li>
+                <li>[transmission:source:email]</li>
+                <li>[transmission:source:phone]</li>
+                <li>[transmission:destination:first_name]</li>
+                <li>[transmission:destination:last_name]</li>
+                <li>[transmission:destination:email]</li>
+                <li>[transmission:destination:phone]</li>
+
+                <li>[program:date]</li>
+                <li>[template:subject]</li>
+                <li>[template:body]</li>
+              </ul>
+            </div>
+
+
+          </div>
+        </div>
+
+      </nb-card-body>
+
+    </nb-card>
+    <div *ngIf="(coverpage_id>0)">
+      <button class="btn btn-success" (click)="updateCoverpage()" [disabled]="!cover.title">{{ 'cover_page.update' |
+        translate }}</button>
+    </div>
+    <div *ngIf="(!coverpage_id)">
+      <button class="btn btn-success" (click)="addcoverpage()" [disabled]="!cover.title">{{ 'cover_page.submit' |
+        translate }}</button>
+    </div>
+  </form>
+</div>

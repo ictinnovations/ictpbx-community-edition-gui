@@ -1,0 +1,163 @@
+<nb-card *ngIf="is_admin === 1" style="margin-bottom:16px">
+  <nb-card-header>Manage Tenant Branding</nb-card-header>
+  <nb-card-body>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Select Tenant</label>
+      <div class="col-sm-6">
+        <select nbSelect fullWidth [(ngModel)]="selectedTenantId" (ngModelChange)="onTenantChange()">
+          <option *ngFor="let t of tenants" [value]="t.tenant_id">{{ t.company }}</option>
+        </select>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-alert outline="info" role="note" class="branding-note">
+  <b>Note:</b> Update only the fields you need to change &mdash; leave the rest as they are &mdash; then click <b>Submit</b>.
+  Domain, Title and Footer are required; everything else is optional.
+</nb-alert>
+
+<nb-card>
+  <nb-card-header>
+    {{ 'branding.title_footer_info' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="domain">{{ 'branding.domain' | translate}}: <span class="req">*</span></label>
+        <input [(ngModel)]="branding.domain" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+          id="domain" required />
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="title">{{ 'branding.title' | translate}}: <span class="req">*</span></label>
+        <input [(ngModel)]="branding.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+          id="title" required />
+      </div>
+    </div>
+    <div class="col-sm-12">
+      <div class="form-group">
+        <label for="footer">{{ 'branding.footer' | translate}}: <span class="req">*</span></label>
+        <textarea [(ngModel)]="branding.footer" [ngModelOptions]="{standalone: true}" rows="2"
+          class="form-control" id="footer" required
+          placeholder='Copyright Acme Corp 2026 — &lt;a href="https://example.com" target="_blank"&gt;example.com&lt;/a&gt;'>
+        </textarea>
+        <small style="color:#8f9bb3;">
+          HTML is allowed. To add a centered link, include an anchor tag, e.g.
+          <code>&lt;a href="https://www.ictinnovations.com" target="_blank"&gt;ICT Innovations&lt;/a&gt;</code>.
+        </small>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <div class="field">
+    <nb-card-header>{{ 'branding.default_branding' | translate }} - {{'branding.branding_feature' | translate}}
+    </nb-card-header>
+    <br>
+    <br>
+    <nb-card-body>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label for="adminCheckbox">{{ 'branding.Enable' | translate }} :</label>&nbsp;
+          <input type="checkbox" id="adminCheckbox" [(ngModel)]="isAdmin_Checked" (change)="onCheckboxChange()">
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+        </div>
+      </div>
+    </nb-card-body>
+  </div>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>Login Page</nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-12">
+      <div class="form-group">
+        <label for="login_subtitle">Login Subtitle:</label>
+        <input [(ngModel)]="branding.login_subtitle" [ngModelOptions]="{standalone: true}" type="text"
+          class="form-control" id="login_subtitle" placeholder="Welcome to AcmeCo" />
+        <small style="color:#8f9bb3;">Shown beneath "Sign In" on the login page.</small>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="support_email">Support Email:</label>
+        <input [(ngModel)]="branding.support_email" [ngModelOptions]="{standalone: true}" type="email"
+          class="form-control" id="support_email" placeholder="support@example.com" />
+        <small style="color:#8f9bb3;">Shown to users in error messages on the login page.</small>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="login_bg_url">Login Background URL:</label>
+        <input [(ngModel)]="branding.login_bg_url" [ngModelOptions]="{standalone: true}" type="url"
+          class="form-control" id="login_bg_url" placeholder="https://example.com/bg.jpg" />
+        <small style="color:#8f9bb3;">Optional full-page background image for the login page.</small>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>Theme &amp; Favicon</nb-card-header>
+  <nb-card-body>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="favicon_url">Favicon URL:</label>
+        <input [(ngModel)]="branding.favicon_url" [ngModelOptions]="{standalone: true}" type="url"
+          class="form-control" id="favicon_url" placeholder="https://example.com/favicon.png" />
+        <small style="color:#8f9bb3;">Shown in browser tabs. Use a 32×32 or 64×64 PNG.</small>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="theme_lock">Locked Theme:</label>
+        <select [(ngModel)]="branding.theme_lock" [ngModelOptions]="{standalone: true}" id="theme_lock"
+          class="form-control">
+          <option value="">(let users choose)</option>
+          <option value="default">Light</option>
+          <option value="dark">Dark</option>
+          <option value="cosmic">Cosmic</option>
+          <option value="corporate">Corporate</option>
+        </select>
+        <small style="color:#8f9bb3;">Force all tenant users onto one theme and hide the theme switcher.</small>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    {{ 'branding.upload_logo' | translate}} - {{'branding.logo_height_width' | translate}}
+  </nb-card-header>
+  <nb-card-body>
+    <div *ngIf="logoUrl" class="mb-3">
+      <p><strong>Logo Preview:</strong> <small style="color:#8f9bb3;">(shown at header display size)</small></p>
+      <img [src]="logoUrl" style="max-width:240px; max-height:60px; height:auto; width:auto; border:1px solid #ccc; padding:5px;" />
+    </div>
+    <small style="color:#8f9bb3; display:block; margin-bottom:0.5rem;">
+      Recommended size: 480 × 120 px (displayed at 240 × 60 px in the header). Any other size you upload will be auto-resized to fit while preserving aspect ratio.
+    </small>
+
+    <div *ngIf="resizeInfo" class="text-success mb-2">
+      {{ resizeInfo }}
+    </div>
+
+    <div class="form-group">
+      <input type="file" ng2FileSelect [uploader]="uploader" (change)="onFileChange($event)" />
+    </div>
+
+    <div *ngIf="is_error" class="alert alert-danger">
+      {{ image_error }}
+    </div>
+
+  </nb-card-body>
+</nb-card>
+
+<button nbButton fullWidth status="success" (click)="updateSettings()" [disabled]="!isFormValid()">{{ 'buttons.submit' |
+  translate}}</button>

@@ -1,0 +1,37 @@
+.my-drop-zone { border: dotted 3px lightgray; }
+.nv-file-over { border: dotted 3px red; } /* Default class applied to drop zones on over */
+.another-file-over-class { border: dotted 3px green; }
+
+html, body { height: 100%; }
+
+.smmmm {
+  font-size: 25px;
+  display: inline;
+  color: red;
+}
+
+.gmmmm {
+  font-size: 25px;
+  display: inline;
+  color: green;
+}
+
+.cmmmm {
+  font-size: 25px;
+  display: inline;
+  color: blue;
+}
+
+.classcard {
+  min-height: 18rem;
+}
+.modal-wrapper {
+  width: 500px;
+  height: 400px; /* Lower the height to your desired value */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-clip: padding-box;
+  outline: 0.3rem;
+  box-sizing: inherit;
+}

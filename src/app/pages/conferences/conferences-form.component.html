@@ -1,0 +1,40 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Conference Center' : 'Add Conference Center' }}</nb-card-header>
+  <nb-card-body>
+    <div class="alert alert-danger" *ngIf="isError"><ul><li *ngFor="let e of errorText">{{ e }}</li></ul></div>
+    <div class="alert alert-success" *ngIf="isSuccess">Saved successfully.</div>
+
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Name *</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.conference_center_name" placeholder="Board Room"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Extension *</label>
+      <div class="col-sm-9">
+        <input nbInput fullWidth [(ngModel)]="item.conference_center_extension" placeholder="800"
+               (blur)="checkExtension(item.conference_center_extension)">
+        <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">PIN Length</label>
+      <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="item.conference_center_pin_length" placeholder="4"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Greeting</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.conference_center_greeting" placeholder="Optional greeting file path"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Description</label>
+      <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.conference_center_description"></div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-3 col-form-label">Enabled</label>
+      <div class="col-sm-9"><nb-checkbox [(ngModel)]="item.conference_center_enabled">Active</nb-checkbox></div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/conferences/conferences']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

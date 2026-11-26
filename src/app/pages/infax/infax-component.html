@@ -1,0 +1,374 @@
+<nb-card>
+  <nb-card-header>
+    {{ 'general.inbound_fax' | translate}}
+  </nb-card-header>
+
+  <nb-card-body>
+    <nb-alert status="warning" *ngIf="app_service.faxProviderChecked && !app_service.hasFaxProvider">
+      No fax-enabled trunk found. Add a Provider with "Supports Fax (T.38 / G.711 pass-through)" enabled under Routings &rarr; Trunks to receive faxes.
+    </nb-alert>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <button type="button" mat-raised-button color="primary" style="font-size:15px" (click)="Bulk(bulkView, document)">
+        <i class="fa fa-download" title="bulk download"></i> Bulk Fax Download
+      </button>
+
+      <button type="button" mat-raised-button color="primary" style="font-size:15px;"
+        (click)="openSearchModal(searchTemplate)">
+        <i class="fa fa-search"></i> Search
+      </button>
+    </div>
+    <ng-template #searchTemplate let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'inbound_fax.search' | translate }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="search" class="form-control"
+          placeholder="{{ 'inbound_fax.fax' | translate }}" />
+        <select [(ngModel)]="key" class="form-control mt-2">
+          <option value="" disabled hidden>Select Type Search</option>
+          <option value="username">Username</option>
+          <option value="phone">Phone</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" mat-raised-button color="primary" style="font-size:15px"
+          (click)="modal.dismiss('cancel click')">Cancel</button>
+        <button type="button" mat-raised-button color="primary" style="font-size:15px"
+          (click)="searchUsers(modal)">Search</button>
+      </div>
+    </ng-template>
+    <div class="row mb-3 mt-2" *ngIf="is_admin == 1">
+      <div class="col-auto">
+        <nb-select [(selected)]="pageTenantId" (selectedChange)="onPageTenantChange()" style="min-width:180px">
+          <nb-option [value]="0">All Tenants</nb-option>
+          <nb-option *ngFor="let t of tenants" [value]="t.tenant_id">{{t.company}}</nb-option>
+        </nb-select>
+      </div>
+    </div>
+    <br>
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="aInFax" matSort>
+        <ng-container matColumnDef="ID">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'general.ID' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax"> {{infax.transmission_id}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="username">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.username' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax"> {{infax.username}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.phone_num' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax" style="text-align: left">{{infax.contact_phone}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'transmission.status' | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let infax" style="text-align: left"> {{infax.status}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Timestamp">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{'outbound_fax.date_time' | translate }}</mat-header-cell>
+
+          <mat-cell *matCellDef="let infax"> {{infax.last_run * 1000 | date:dateFormat:'UTC'}}</mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="Operations">
+          <mat-header-cell *matHeaderCellDef>{{ 'general.operations' | translate}}</mat-header-cell>
+          <mat-cell *matCellDef="let infax">
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon style="color:green" (click)="con(contentt,infax.transmission_id)"><nb-icon
+                  icon="file-text-outline" title="Download"></nb-icon></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon (click)="showPDF(pdfViewer, infax.transmission_id)"><nb-icon icon="eye-outline"
+                  title="View Document"></nb-icon></mat-icon>
+
+            </button>
+            <button mat-icon-button color="primary" style="font-size:20px">
+              <mat-icon (click)="downloadDocument(infax.transmission_id)"><nb-icon icon="download-outline"
+                  title="Download"></nb-icon></mat-icon>
+            </button>
+            <button mat-icon-button color="primary" style="font-size: 20px"
+              (click)="infax_update(infax.transmission_id)">
+              <mat-icon>
+                <nb-icon icon="done-all-outline" title="Read Fax"></nb-icon>
+              </mat-icon>
+            </button>
+
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns" [ngClass]="{'bold-text': row.is_read == 0}"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<ng-template #pdfViewer let-modal>
+  <button class="btn btn-sm" (click)="zoomOut()"><nb-icon icon="minimize-outline" title="Zoom Out"
+      style="cursor: pointer;">
+    </nb-icon>
+  </button>
+  <button class="btn btn-sm" (click)="zoomIn()"><nb-icon icon="maximize-outline" title="Zoom In"
+      style="cursor: pointer;">
+    </nb-icon>
+  </button>
+  <div class="modal-wrapper">
+    <div class="modal-body">
+      <div class="pdf-loading">{{'transmission.loading_please_wait' | translate}}</div>
+      <ng-template [ngIf]="totalPages > 1">
+        <div class="pagination">
+          <button class="prv-page" (click)="previousPage()" [disabled]="page === 1">
+            < Previous</button>
+              <button class="nxt-page" (click)="nextPage()" [disabled]="totalPages === 1 || page === totalPages"> Next
+                ></button>
+              <p class="all-pages">Pages {{ page }} / {{ totalPages }}</p>
+        </div>
+      </ng-template>
+      <pdf-viewer [src]="faxDocumentURL" [render-text]="true" [original-size]="false" [show-all]="false" [page]="page"
+        (after-load-complete)="afterLoadComplete($event)"
+        style="width: 100%; height: 65vh; overflow-x: hidden !important">
+      </pdf-viewer>
+
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #bulkView let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Fax Download</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()"><span
+        aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="field" *ngIf="is_admin === 1">
+      <label for="tenant"><b>Tenants:</b></label>
+      <select class="form-control" name="tenant_id" (change)="onTenantSelect($event.target.value)">
+        <option value="0">All Tenant</option>
+        <option *ngFor="let tenant of tenants" value="{{ tenant.tenant_id }}">
+          {{ tenant.company }}
+          <ng-template [ngIf]="tenant.first_name">{{ tenant.first_name }} {{ tenant.last_name }}</ng-template>
+        </option>
+      </select>
+    </div>
+    <br>
+    <div class="field" *ngIf=" is_admin === 1|| is_tenant === 1 ">
+      <label for="user"><b>User :</b></label>
+      <select class="form-control" name="user" (change)="onUserSelect($event.target.value)">
+        <option value="0">All User</option>
+        <option *ngFor="let user of users" value="{{ user.user_id }}">
+          {{ user.first_name }} {{ user.last_name }}
+        </option>
+      </select>
+    </div>
+    <br>
+    <div class="field">
+      <label for="account"><b>DIDs:</b></label>
+      <select class="form-control" name="account" (change)="onSelectAccount($event.target.value)">
+        <option value="0">All DIDs</option>
+        <option *ngFor="let account of accountArray" value="{{account.account_id}}">
+          {{account.phone}}
+        </option>
+      </select>
+    </div>
+    <br>
+    <div class="field">
+      <label for="fax"><b>Fax Status:</b></label>
+      <select class="form-control" name="fax" [(ngModel)]="selectedFaxFilter">
+        <option value="1">Read</option>
+        <option value="0">Unread</option>
+      </select>
+    </div>
+    <br>
+    <div class="example-container cdr_filter">
+      <label><b>Date Range:</b></label>
+      <mat-form-field class="field">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date" [(ngModel)]="range.value.start" />
+          <input matEndDate formControlName="end" placeholder="End date" [(ngModel)]="range.value.end" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    </div>
+    <div>
+      <button type="button" (click)="downloadData()" class="btn btn-success">Download</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{ 'contact.contact_form.title' | translate}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="onSave()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label for="title"> {{'contact.contact_form.document_name'|translate}}:</label>
+      <input [(ngModel)]="sendfax.title" [ngModelOptions]="{standalone: true}" type="text" class="form-control"
+        id="title" required />
+    </div>
+    <br>
+    <div>
+      <div class="form-group">
+        <label for="phone">{{ 'contact.contact_form.destination_number'| translate}}: </label>
+        <ng2-completer [inputClass]="'form-control form-control-inline'" [(ngModel)]="sendfax.phone" name="phone"
+          [datasource]="dataService" (selected)="onSelected($event)" [minSearchLength]="0"></ng2-completer>
+      </div>
+    </div>
+    <br>
+    <div>
+      <label for="account">{{'contact.contact_form.caller_ID'|translate}}:</label>
+      <select class="form-control" name="account" (change)="onSelectAccount($event.target.value)">
+        <option *ngFor="let acc of accountArray; let i = index" [value]="acc.account_id"
+          [selected]="i==accountArray.length-1">
+          {{acc.phone}}
+        </option>
+      </select>
+    </div>
+    <br>
+    <div>
+      <button type="button" class="btn btn-success" (click)="addSendDocument()"
+        [disabled]="( this.sendfax.phone == '')">{{ 'transmission.fax.title' | translate}}!</button>
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+<ng-template #contentt let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Fax Logs</h4>
+    <button type="button" class="close" aria-label="Close" (click)="onSave()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <li *ngFor="let faxlogs of faxlogarray;let i = index" class="ml-4" style="list-style: none;">
+      <h6 class="text-uppercase text-primary">{{faxlogs.origin}}</h6>
+
+      <hr>
+      <h6> User information </h6>
+      <ul style="list-style:none">
+        <li>
+          <table>
+            <tr>
+              <td>ID:</td>
+              <td>{{faxlogs.sourceid}}</td>
+            </tr>
+            <tr>
+              <td>Name:</td>
+              <td>{{faxlogs.sourcename}}</td>
+            </tr>
+            <tr>
+              <td>Phone:</td>
+              <td>{{faxlogs.sourcephone}}</td>
+            </tr>
+            <tr>
+              <td>Tenant</td>
+              <td>{{faxlogs.tenant}}</td>
+            </tr>
+
+          </table>
+        </li>
+      </ul>
+
+
+      <h6>Fax information</h6>
+      <ul style="list-style:none">
+        <li>
+          <table class="faxinfo">
+            <tr>
+              <td>Fax Created:</td>
+              <td>
+                {{ faxlogs.pending ? (faxlogs.pending * 1000 | date:dateFormat:'UTC') : '' }}
+              </td>
+            </tr>
+            <tr>
+              <td>Fax Processing:</td>
+              <td>
+                {{ faxlogs.processing ? (faxlogs.processing * 1000 | date:dateFormat:'UTC') : '' }}
+              </td>
+            </tr>
+            <tr>
+              <td>Fax Complete:</td>
+              <td>
+                {{ faxlogs.result ? (faxlogs.result * 1000 | date:dateFormat:'UTC') : '' }}
+              </td>
+            </tr>
+            <tr>
+              <td>Source Caller ID:</td>
+              <td>{{faxlogs.callerid}}</td>
+            </tr>
+            <tr>
+              <td>Destination Name:</td>
+              <td>{{faxlogs.destinationname}}</td>
+            </tr>
+            <tr>
+              <td>Destination Phone:</td>
+              <td>{{faxlogs.destination}}</td>
+            </tr>
+            <tr>
+              <td>Coverpage:</td>
+              <td>{{faxlogs.coverpage}}</td>
+            </tr>
+            <tr>
+              <td>Pages:</td>
+              <td>{{faxlogs.pages}}</td>
+            </tr>
+          </table>
+        </li>
+      </ul>
+      <div class="containger">
+        <h6>Final Status</h6>
+        <ul style="list-style:none;">
+          <li>
+            <table>
+              <tr>
+                <td *ngIf="faxlogs.faxstatus === 'completed'">
+                  <b style="color:green;">Completed</b>
+                </td>
+                <td *ngIf="faxlogs.faxstatus === 'failed'">
+                  <b style="color:red;">Failed</b>
+                  <p style="color:red;">{{faxlogs.response}}</p>
+                </td>
+              </tr>
+            </table>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="ml-4" style="list-style:none">
+      <h6>Activity</h6>
+
+      <ul>
+        <li *ngFor="let faxact of faxactivityarray;let f = index" style="list-style: none;">
+          <table>
+            <tr>
+              <td>
+                {{faxact.faxactivity}}
+              </td>
+              <td>
+                {{faxact.date * 1000 | date:dateFormat:'UTC'}}
+              </td>
+            </tr>
+          </table>
+        </li>
+      </ul>
+
+    </li>
+
+
+  </div>
+</ng-template>

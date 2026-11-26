@@ -1,0 +1,118 @@
+<nb-card>
+  <nb-card-header>
+    System Activities
+  </nb-card-header>
+  <nb-card-body>
+
+    <div class="example-container cdr_filter container-fuild">
+
+      <button type="button" class="btn" mat-raised-button color="primary" (click)="openSearchModal(searchTemplate)">
+
+        <i class="fa fa-filter"></i> Filter Report
+      </button>
+
+      <button type="button" class="btn ml-3" mat-raised-button color="primary" (click)="exportact()">
+        <i class="fa fa-file" title="CSV File download"></i>
+        Export to CSV
+      </button>
+    </div>
+    <br /><br />
+    <div class="example-container mat-elevation-z8">
+
+      <mat-table #table [dataSource]="aactivities" matSort>
+
+        <ng-container matColumnDef="user_id">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>User_Id</mat-header-cell>
+          <mat-cell *matCellDef="let activity">
+            {{activity.user_id}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="username">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>User_Name</mat-header-cell>
+          <mat-cell *matCellDef="let activity">
+            {{activity.username}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="ip_address">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>IP_Address</mat-header-cell>
+          <mat-cell *matCellDef="let activity">
+            {{activity.ip_address}}
+          </mat-cell>
+        </ng-container>
+
+
+        <ng-container matColumnDef="activities">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Activities</mat-header-cell>
+          <mat-cell *matCellDef="let activity">
+            {{activity.activities}}
+          </mat-cell>
+        </ng-container>
+
+
+        <ng-container matColumnDef="date">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Date &amp; Time</mat-header-cell>
+          <mat-cell *matCellDef="let activity" style="color:grey;">
+            {{ activity.date * 1000 | date : 'yyyy-MM-dd HH:mm:ss' : 'UTC' }} UTC
+          </mat-cell>
+        </ng-container>
+
+
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row;columns:displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]">
+      </mat-paginator>
+
+    </div>
+
+  </nb-card-body>
+
+
+</nb-card>
+<ng-template #searchTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Activity Search</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="example-container Activites_filter">
+    <div class="modal-body">
+      <form [formGroup]="range">
+        <div class="form-group">
+          <label for="start">Start Date:</label>
+          <input type="date" formControlName="start" class="form-control" id="start">
+        </div>
+        <div class="form-group">
+          <label for="end">End Date:</label>
+          <input type="date" formControlName="end" class="form-control" id="end">
+        </div>
+        <div *ngIf="admin == 1">
+          <select class="form-control" name="tenant_id" (change)="onTenantSelect($event.target.value)">
+            <option value="0">All Tenant</option>
+            <option *ngFor="let tenant of tenants" value="{{ tenant.tenant_id }}">
+              {{ tenant.company }}
+              <ng-template [ngIf]="tenant.first_name">- {{ tenant.first_name }} {{ tenant.last_name }}</ng-template>
+            </option>
+          </select>
+        </div>
+        <br>
+        <div *ngIf="is_admin == 1 || is_tenant === 1">
+          <select class="form-control" name="user" (change)="onUserSelect($event.target.value)">
+            <option value="0">{{ "All_user" | translate }}</option>
+            <option *ngFor="let user of users" value="{{ user.user_id }}">
+              {{ user.first_name }} {{ user.last_name }}
+            </option>
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" mat-raised-button color="primary" style="font-size:15px"
+      (click)="search(modal)">Search</button>
+  </div>
+</ng-template>

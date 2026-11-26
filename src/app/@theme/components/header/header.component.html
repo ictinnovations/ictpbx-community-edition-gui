@@ -1,0 +1,33 @@
+<div class="header-container">
+  <div class="logo-container">
+    <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
+      <nb-icon icon="menu-2-outline"></nb-icon>
+    </a>
+    <img [src]="image_url" style="max-height:60px; max-width:240px; height:auto; width:auto;">
+  </div>
+</div>
+<div class="header-container">
+  <nb-select *ngIf="!themeLock" [selected]="currentTheme" (selectedChange)="changeTheme($event)" status="primary">
+    <nb-option *ngFor="let theme of themes" [value]="theme.value">{{
+      theme.name
+      }}</nb-option>
+  </nb-select>
+  <span *ngIf="!themeLock">&nbsp;&nbsp;&nbsp;</span>
+  <nb-select [selected]="translate.currentLang" (selectedChange)="translate.use($event)" status="primary">
+    <nb-option *ngFor="let lang of translate.getLangs()" [value]="lang">{{
+      lang
+      }}</nb-option>
+  </nb-select>
+  <span *ngIf="!isCommunity" class="header-balance" style="margin-right:12px; font-weight:500;">
+    Balance: ${{credit | number:'1.2-2'}}
+  </span>
+  <ngx-softphone style="margin-right:8px;"></ngx-softphone>
+  <nb-actions size="small">
+    <nb-action class="control-item"></nb-action>
+    <nb-action class="user-action" *nbIsGranted="['view', 'user']">
+      <nb-user [nbContextMenu]="userMenu" [onlyPicture]="userPictureOnly" [name]="auser?.username"
+        [picture]="auser?.picture" nbContextMenuTag="my-context-menu">
+      </nb-user>
+    </nb-action>
+  </nb-actions>
+</div>

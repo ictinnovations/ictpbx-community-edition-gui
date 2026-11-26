@@ -1,0 +1,124 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit Gateway' : 'Add Gateway' }}</nb-card-header>
+  <nb-card-body>
+    <div class="alert alert-danger" *ngIf="isError"><ul><li *ngFor="let e of errorText">{{ e }}</li></ul></div>
+    <div class="alert alert-success" *ngIf="isSuccess">Gateway saved successfully.</div>
+
+    <nb-tabset>
+      <nb-tab tabTitle="Authentication">
+        <nb-card><nb-card-body>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Gateway Name *</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.gateway" placeholder="my-sip-trunk" required></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Username</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.username" placeholder="SIP username / account ID"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Password</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="password" [(ngModel)]="gw.password"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Realm</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.realm" placeholder="sip.carrier.com"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">From User</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.from_user" placeholder="Override From user"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">From Domain</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.from_domain" placeholder="Override From domain"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Caller ID in From</label>
+            <div class="col-sm-9"><nb-checkbox [(ngModel)]="gw.caller_id_in_from">Use caller ID in From header</nb-checkbox></div>
+          </div>
+        </nb-card-body></nb-card>
+      </nb-tab>
+
+      <nb-tab tabTitle="Registration">
+        <nb-card><nb-card-body>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Register</label>
+            <div class="col-sm-9"><nb-checkbox [(ngModel)]="gw.register">Send REGISTER to provider</nb-checkbox></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Proxy / Host</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.proxy" placeholder="sip.carrier.com"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Outbound Proxy</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.outbound_proxy" placeholder="Optional outbound proxy"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Expire Seconds</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="gw.expire_seconds" placeholder="3600"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Retry Seconds</label>
+            <div class="col-sm-9"><input nbInput fullWidth type="number" [(ngModel)]="gw.retry_seconds" placeholder="30"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Transport</label>
+            <div class="col-sm-9">
+              <select nbSelect fullWidth [(ngModel)]="gw.register_transport">
+                <option *ngFor="let t of transports" [value]="t">{{ t.toUpperCase() }}</option>
+              </select>
+            </div>
+          </div>
+        </nb-card-body></nb-card>
+      </nb-tab>
+
+      <nb-tab tabTitle="Advanced">
+        <nb-card><nb-card-body>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Profile</label>
+            <div class="col-sm-9">
+              <select nbSelect fullWidth [(ngModel)]="gw.profile">
+                <option *ngFor="let p of profiles" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Context</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.context" placeholder="public"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Extension</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.extension" placeholder="Auto-populated from username if blank"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Codec Prefs</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.codec_prefs" placeholder="PCMU,PCMA,G722"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Ping</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.ping" placeholder="30 (seconds, 0=off)"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Ping Min / Max</label>
+            <div class="col-sm-9" style="display:flex;gap:8px">
+              <input nbInput [(ngModel)]="gw.ping_min" placeholder="Min ms" style="width:120px">
+              <input nbInput [(ngModel)]="gw.ping_max" placeholder="Max ms" style="width:120px">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Description</label>
+            <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="gw.description"></div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Enabled</label>
+            <div class="col-sm-9"><nb-checkbox [(ngModel)]="gw.enabled">Active</nb-checkbox></div>
+          </div>
+        </nb-card-body></nb-card>
+      </nb-tab>
+    </nb-tabset>
+
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">{{ isEdit ? 'Update' : 'Save' }}</button>
+    <button nbButton ghost [routerLink]="['/pages/gateways/gateways']">Cancel</button>
+  </nb-card-footer>
+</nb-card>

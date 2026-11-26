@@ -1,0 +1,25 @@
+.link {
+    cursor: pointer;
+    color: darkslategrey;
+    margin-top: 10px;
+    font-weight: 600;
+    display: inline-block;
+}
+.link:hover{
+    color: brown;
+}
+.ict_success {
+    position: absolute;
+    right: 50px;
+    bottom: 50px;
+    background: #28a745d9;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    z-index: 9999999;
+  }
+  .ict_success p {
+    color: white !important;
+    font-weight: bold;
+    margin-bottom: 0;
+  }

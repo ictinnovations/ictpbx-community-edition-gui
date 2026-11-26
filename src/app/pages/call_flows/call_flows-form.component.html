@@ -1,0 +1,135 @@
+<nb-card>
+  <nb-card-header>{{ isEdit ? 'Edit' : 'Add' }} Call Flow</nb-card-header>
+  <nb-card-body>
+    <nb-alert *ngIf="isError" status="danger" closable (close)="isError=false">
+      <p *ngFor="let e of errorText">{{ e }}</p>
+    </nb-alert>
+    <nb-alert *ngIf="isSuccess" status="success">Saved successfully.</nb-alert>
+
+    <nb-tabset>
+      <nb-tab tabTitle="Basic">
+        <div class="form-group row" style="margin-top:16px">
+          <label class="col-sm-3 label">Name <span style="color:red">*</span></label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_name" placeholder="e.g. Office Hours"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Extension <span style="color:red">*</span></label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="item.call_flow_extension" placeholder="e.g. 5000"
+                   (blur)="checkExtension(item.call_flow_extension)">
+            <small *ngIf="extensionConflict" style="color:#ff3d71">{{ extensionConflict }}</small>
+            <small class="text-muted">DID or extension number that routes through this call flow</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Feature Code</label>
+          <div class="col-sm-9">
+            <input nbInput fullWidth [(ngModel)]="item.call_flow_feature_code" placeholder="e.g. *5000">
+            <small class="text-muted">Dial this code to toggle open/closed status</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">PIN Number</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_pin_number" placeholder="Optional PIN to toggle status"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Context</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_context" placeholder="Leave blank for default domain context"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Current Status</label>
+          <div class="col-sm-9">
+            <nb-select [(ngModel)]="item.call_flow_status" fullWidth>
+              <nb-option value="true">Open</nb-option>
+              <nb-option value="false">Closed</nb-option>
+            </nb-select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Enabled</label>
+          <div class="col-sm-9"><nb-checkbox [(ngModel)]="item.call_flow_enabled">Active</nb-checkbox></div>
+        </div>
+      </nb-tab>
+
+      <nb-tab tabTitle="Open (Day)">
+        <div class="form-group row" style="margin-top:16px">
+          <label class="col-sm-3 label">Label</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_label" placeholder="e.g. Open, Day, Business Hours"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Sound File</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_sound" placeholder="e.g. ivr/ivr-you_are_now_in_open.wav"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Application</label>
+          <div class="col-sm-9">
+            <nb-select [(ngModel)]="item.call_flow_app" fullWidth>
+              <nb-option value="transfer">Transfer</nb-option>
+              <nb-option value="hangup">Hang Up</nb-option>
+              <nb-option value="voicemail">Voicemail</nb-option>
+            </nb-select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Destination</label>
+          <div class="col-sm-9">
+            <div class="d-flex" style="gap:8px">
+              <select nbSelect [(ngModel)]="openDestType" (ngModelChange)="onOpenTypeChange()" style="width:140px">
+                <option value="extension">Extension</option>
+                <option value="ring_group">Ring Group</option>
+                <option value="ivr">IVR Menu</option>
+                <option value="voicemail">Voicemail</option>
+              </select>
+              <select nbSelect fullWidth [(ngModel)]="item.call_flow_data">
+                <option value="">— None —</option>
+                <option *ngFor="let o of destList(openDestType)" [value]="destValue(openDestType, o)">{{ o.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nb-tab>
+
+      <nb-tab tabTitle="Closed (Night)">
+        <div class="form-group row" style="margin-top:16px">
+          <label class="col-sm-3 label">Label</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_alternate_label" placeholder="e.g. Closed, Night, After Hours"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Sound File</label>
+          <div class="col-sm-9"><input nbInput fullWidth [(ngModel)]="item.call_flow_alternate_sound" placeholder="e.g. ivr/ivr-you_are_now_in_closed.wav"></div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Application</label>
+          <div class="col-sm-9">
+            <nb-select [(ngModel)]="item.call_flow_alternate_app" fullWidth>
+              <nb-option value="transfer">Transfer</nb-option>
+              <nb-option value="hangup">Hang Up</nb-option>
+              <nb-option value="voicemail">Voicemail</nb-option>
+            </nb-select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 label">Destination</label>
+          <div class="col-sm-9">
+            <div class="d-flex" style="gap:8px">
+              <select nbSelect [(ngModel)]="nightDestType" (ngModelChange)="onNightTypeChange()" style="width:140px">
+                <option value="extension">Extension</option>
+                <option value="ring_group">Ring Group</option>
+                <option value="ivr">IVR Menu</option>
+                <option value="voicemail">Voicemail</option>
+              </select>
+              <select nbSelect fullWidth [(ngModel)]="item.call_flow_alternate_data">
+                <option value="">— None —</option>
+                <option *ngFor="let o of destList(nightDestType)" [value]="destValue(nightDestType, o)">{{ o.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nb-tab>
+    </nb-tabset>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="save()">Save</button>
+    <button nbButton ghost [routerLink]="['/pages/call_flows/call_flows']" style="margin-left:8px">Cancel</button>
+  </nb-card-footer>
+</nb-card>
